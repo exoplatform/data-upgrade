@@ -6,14 +6,11 @@
     <persistence-unit name="exo-pu" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <jta-data-source>java:/comp/env/exo-jpa_portal</jta-data-source>
-
         <properties>
             <property name="hibernate.show_sql" value="false"/>
-
             <property name="hibernate.connection.characterEncoding" value="utf8"/>
             <property name="hibernate.connection.useUnicode" value="true"/>
             <property name="hibernate.connection.charSet" value="UTF-8"/>
-
             <property name="persistenceUnitName" value="exo-pu"></property>
         </properties>
     </persistence-unit>
