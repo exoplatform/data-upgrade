@@ -26,6 +26,7 @@ import org.gatein.mop.api.workspace.ObjectType;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.mop.EventType;
 import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.pom.config.POMSession;
 import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.exoplatform.services.listener.*;
 
@@ -131,7 +132,7 @@ public class TestNavigationServiceWrapper extends AbstractTestNavigationService 
         assertSame(navigationService, event.getSource());
 
         //
-        end();
+        restartTransaction(true);
     }
 
     public void testCacheInvalidation() throws Exception {
@@ -141,12 +142,12 @@ public class TestNavigationServiceWrapper extends AbstractTestNavigationService 
         begin();
         mgr.getPOMService().getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "wrapper_cache_invalidation")
                 .getRootNavigation().addChild("default");
-        end();
+        restartTransaction(true);
 
         //
         begin();
         navigationService.saveNavigation(new NavigationContext(key, new NavigationState(0)));
-        end();
+        restartTransaction(true);
 
         //
         begin();
@@ -154,12 +155,12 @@ public class TestNavigationServiceWrapper extends AbstractTestNavigationService 
         assertNotNull(nav);
         NodeContext<Node> root = navigationService.loadNode(Node.MODEL, nav, Scope.ALL, null);
         assertNotNull(root);
-        end();
+        restartTransaction(true);
 
         //
         begin();
         mgr.getPOMService().getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "wrapper_cache_invalidation").destroy();
-        end();
+        restartTransaction(true);
 
         //
         begin();
@@ -170,7 +171,7 @@ public class TestNavigationServiceWrapper extends AbstractTestNavigationService 
         } catch (NavigationServiceException e) {
             assertEquals(NavigationError.UPDATE_CONCURRENTLY_REMOVED_NODE, e.getError());
         }
-        end();
+        restartTransaction(true);
     }
 
     public void testCachingInMultiThreading() throws InterruptedException {
@@ -179,20 +180,25 @@ public class TestNavigationServiceWrapper extends AbstractTestNavigationService 
         mgr.getPOMService().getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "test_caching_in_multi_threading");
         assertTrue(mgr.getSession().isModified());
 
-        end();
+        restartTransaction(true);
 
         navigationService.saveNavigation(new NavigationContext(foo, new NavigationState(0)));
 
         // Start a new thread to work with navigations in parallels
         Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                begin();
-                // Loading the foo navigation and update into the cache if any
-                assertFalse(mgr.getSession().isModified());
-                assertNull(navigationService.loadNavigation(foo));
-                end();
+          @Override
+          public void run() {
+            begin();
+            try {
+              // Loading the foo navigation and update into the cache if any
+              POMSession session = mgr.getSession();
+              assertNotNull(session);
+              assertFalse(session.isModified());
+              assertNull(navigationService.loadNavigation(foo));
+            } finally {
+              end();
             }
+          }
         });
         t.start();
         t.join();
@@ -201,7 +207,7 @@ public class TestNavigationServiceWrapper extends AbstractTestNavigationService 
         assertTrue(mgr.getSession().isModified());
         assertNotNull(navigationService.loadNavigation(foo));
 
-        end();
+        restartTransaction(true);
 
         // It will load from Cache first if any
         assertFalse(mgr.getSession().isModified());

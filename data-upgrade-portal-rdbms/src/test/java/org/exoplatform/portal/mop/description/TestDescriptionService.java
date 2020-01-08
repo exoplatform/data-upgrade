@@ -26,7 +26,7 @@ import org.gatein.mop.api.workspace.*;
 import org.gatein.mop.core.api.MOPService;
 
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.mop.Described;
 import org.exoplatform.portal.mop.i18n.I18Nized;
 import org.exoplatform.portal.mop.navigation.NavigationServiceImpl;
@@ -35,11 +35,7 @@ import org.exoplatform.portal.pom.config.POMSessionManager;
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  */
-//@ConfiguredBy({
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml") })
-public class TestDescriptionService extends AbstractPortalTest {
+public class TestDescriptionService extends AbstractJCRImplTest {
 
     /** . */
     protected POMSessionManager mgr;

@@ -23,58 +23,68 @@
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">  
 
   <component>
+    <type>org.exoplatform.web.filter.ExtensibleFilter</type>
+  </component>
+
+  <component>
+    <key>org.exoplatform.portal.pom.config.POMDataStorage</key>
+    <type>org.exoplatform.portal.pom.config.POMDataStorage</type>
+  </component>
+
+  <component>
+    <key>org.exoplatform.application.registry.impl.ApplicationRegistryServiceImpl</key>
+    <type>org.exoplatform.application.registry.impl.ApplicationRegistryServiceImpl</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.portal.mop.page.PageServiceImpl</key>
     <type>org.exoplatform.portal.mop.page.PageServiceImpl</type>
   </component>
 
   <component>
-    <type>org.exoplatform.application.registry.impl.ApplicationRegistryServiceImpl</type>
+    <type>org.exoplatform.portal.jdbc.migration.SiteMigrationService</type>
+    <init-params>
+      <value-param>
+        <name>workspace</name>
+        <value>portal-test</value>
+      </value-param>
+    </init-params>
   </component>
-
-<!--   <component> -->
-<!--     <type>org.exoplatform.portal.jdbc.migration.SiteMigrationService</type> -->
-<!--     <init-params> -->
-<!--       <value-param> -->
-<!--         <name>workspace</name> -->
-<!--         <value>portal-test</value> -->
-<!--       </value-param> -->
-<!--     </init-params> -->
-<!--   </component> -->
-<!--   <component> -->
-<!--     <type>org.exoplatform.portal.jdbc.migration.PageMigrationService</type> -->
-<!--     <init-params> -->
-<!--       <value-param> -->
-<!--         <name>workspace</name> -->
-<!--         <value>portal-test</value> -->
-<!--       </value-param> -->
-<!--     </init-params> -->
-<!--   </component> -->
-<!--   <component> -->
-<!--     <type>org.exoplatform.portal.jdbc.migration.NavigationMigrationService</type> -->
-<!--     <init-params> -->
-<!--       <value-param> -->
-<!--         <name>workspace</name> -->
-<!--         <value>portal-test</value> -->
-<!--       </value-param> -->
-<!--     </init-params> -->
-<!--   </component> -->
-<!--   <component> -->
-<!--     <type>org.exoplatform.portal.jdbc.migration.AppRegistryMigrationService</type> -->
-<!--     <init-params> -->
-<!--       <value-param> -->
-<!--         <name>workspace</name> -->
-<!--         <value>portal-test</value> -->
-<!--       </value-param> -->
-<!--     </init-params> -->
-<!--   </component> -->
-<!--   <component> -->
-<!--     <type>org.exoplatform.portal.jdbc.migration.RDBMSMigrationManager</type> -->
-<!--     <init-params> -->
-<!--       <value-param> -->
-<!--         <name>workspace</name> -->
-<!--         <value>portal-test</value> -->
-<!--       </value-param> -->
-<!--     </init-params> -->
-<!--   </component> -->
+  <component>
+    <type>org.exoplatform.portal.jdbc.migration.PageMigrationService</type>
+    <init-params>
+      <value-param>
+        <name>workspace</name>
+        <value>portal-test</value>
+      </value-param>
+    </init-params>
+  </component>
+  <component>
+    <type>org.exoplatform.portal.jdbc.migration.NavigationMigrationService</type>
+    <init-params>
+      <value-param>
+        <name>workspace</name>
+        <value>portal-test</value>
+      </value-param>
+    </init-params>
+  </component>
+  <component>
+    <type>org.exoplatform.portal.jdbc.migration.AppRegistryMigrationService</type>
+    <init-params>
+      <value-param>
+        <name>workspace</name>
+        <value>portal-test</value>
+      </value-param>
+    </init-params>
+  </component>
+  <component>
+    <type>org.exoplatform.portal.jdbc.migration.RDBMSMigrationManager</type>
+    <init-params>
+      <value-param>
+        <name>workspace</name>
+        <value>portal-test</value>
+      </value-param>
+    </init-params>
+  </component>
 
 </configuration>

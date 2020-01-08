@@ -5,7 +5,7 @@ import java.util.*;
 import org.gatein.mop.api.workspace.ObjectType;
 
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.EventType;
@@ -14,7 +14,7 @@ import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.exoplatform.services.listener.*;
 
 /** @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a> */
-public class TestPageServiceWrapper extends AbstractPortalTest {
+public class TestPageServiceWrapper extends AbstractJCRImplTest {
 
     /** . */
     private ListenerService listenerService;
@@ -27,15 +27,11 @@ public class TestPageServiceWrapper extends AbstractPortalTest {
 
     @Override
     protected void setUp() throws Exception {
-        PortalContainer container = getContainer();
-
-        //
-        serviceWrapper = (PageService) container.getComponentInstanceOfType(PageService.class);
-        listenerService = (ListenerService) container.getComponentInstanceOfType(ListenerService.class);
-        mgr = (POMSessionManager) container.getComponentInstanceOfType(POMSessionManager.class);
-
-        //
         super.setUp();
+        //
+        serviceWrapper = getService(PageService.class);
+        listenerService = getService(ListenerService.class);
+        mgr = getService(POMSessionManager.class);
     }
 
     public void testInitialization() {

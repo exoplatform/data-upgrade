@@ -62,6 +62,8 @@ public class PageImportTaskTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
+
         dataStorage = mock(DataStorage.class);
         pageService = mock(PageServiceImpl.class);
         rootPage = mock(org.gatein.mop.api.workspace.Page.class);

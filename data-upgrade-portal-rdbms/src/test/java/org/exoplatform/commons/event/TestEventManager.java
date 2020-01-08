@@ -21,7 +21,7 @@ import org.exoplatform.commons.api.event.EventManager;
 import org.exoplatform.commons.event.impl.EventType;
 import org.exoplatform.commons.listener.impl.AbstractEventListener;
 import org.exoplatform.commons.testing.BaseTestCase;
-import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.services.listener.Event;
 
 import junit.framework.Assert;
@@ -37,10 +37,7 @@ import junit.framework.Assert;
 /**
  * Test for <code>EventManager</code>
  */
-//@ConfiguredBy({
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/commons/event/configuration.xml")
-//})
-public class TestEventManager<S, D> extends AbstractPortalTest {
+public class TestEventManager<S, D> extends AbstractJCRImplTest {
     
     private EventManager<DMSFile, Integer> dmsEventManager_;
     

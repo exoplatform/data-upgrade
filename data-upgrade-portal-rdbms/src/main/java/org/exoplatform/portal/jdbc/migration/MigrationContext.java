@@ -114,6 +114,11 @@ public final class MigrationContext {
     return settingValue != null && Boolean.parseBoolean(settingValue.getValue().toString());
   }
 
+  protected static void resetForceStop() {
+    // Force stop
+    forceStop = false;
+  }
+
   protected static void setForceStop() {
     forceStop = true;
   }

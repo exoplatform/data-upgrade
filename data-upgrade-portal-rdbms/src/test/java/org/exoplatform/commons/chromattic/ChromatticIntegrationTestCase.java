@@ -24,17 +24,14 @@ import javax.jcr.Workspace;
 import org.chromattic.api.Chromattic;
 import org.chromattic.api.ChromatticSession;
 
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.component.test.*;
+import org.exoplatform.portal.AbstractJCRImplTest;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
-//@ConfiguredBy({
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/commons/chromattic/configuration.xml") })
-public class ChromatticIntegrationTestCase extends AbstractPortalTest {
+public class ChromatticIntegrationTestCase extends AbstractJCRImplTest {
 
     /** . */
     private ChromatticLifeCycle test1LF;
@@ -50,10 +47,16 @@ public class ChromatticIntegrationTestCase extends AbstractPortalTest {
 
     @Override
     protected void setUp() throws Exception {
-        PortalContainer container = PortalContainer.getInstance();
-        chromatticManager = (ChromatticManager) container.getComponent(ChromatticManager.class);
+        chromatticManager = getService(ChromatticManager.class);
         test1LF = chromatticManager.getLifeCycle("test1");
+        assertNotNull(test1LF);
         test2LF = chromatticManager.getLifeCycle("test2");
+        assertNotNull(test2LF);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+      // Nothing to stop
     }
 
     public void testConfiguratorInitialized() throws Exception {

@@ -39,7 +39,7 @@ public class TestNavigationFragmentImporter extends AbstractTestNavigationServic
     public void testRemoveOrphan() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "remove_orphan");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext ctx = new NavigationContext(SiteKey.portal("remove_orphan"), new NavigationState(1));
@@ -62,7 +62,7 @@ public class TestNavigationFragmentImporter extends AbstractTestNavigationServic
     public void testCreateMissingPath() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "create_missing_path");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext ctx = new NavigationContext(SiteKey.portal("create_missing_path"), new NavigationState(1));

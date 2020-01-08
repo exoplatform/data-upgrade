@@ -55,7 +55,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
         //
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, name);
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal(name)));
@@ -75,7 +75,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
         //
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, name);
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal(name)));
@@ -101,7 +101,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
     public void testInsertNavigation() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "insert_navigation");
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal("insert_navigation")));
@@ -128,7 +128,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
     public void testInsertFragment() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "insert_fragment");
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal("insert_fragment")));
@@ -170,7 +170,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
         //
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, name);
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal(name)));
@@ -258,7 +258,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
     public void testOrder() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "order");
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal("order")));
@@ -309,7 +309,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
     public void testExtendedLabel() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "extended_label");
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal("extended_label")));
@@ -446,7 +446,7 @@ public class TestNavigationImporter extends AbstractTestNavigationService {
     public void testFullNavigation() {
         MOPService mop = mgr.getPOMService();
         mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "full_navigation");
-        end();
+        restartTransaction(true);
 
         //
         assertNull(service.loadNavigation(SiteKey.portal("full_navigation")));

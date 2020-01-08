@@ -39,7 +39,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("d");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase1"));
@@ -52,7 +52,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         Node c2 = root2.addChild(1, "c");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         service.rebaseNode(root1.context, null, null);
@@ -74,7 +74,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase2"));
@@ -87,7 +87,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         root2.getChild("b").addChild(root2.getChild("a"));
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         service.rebaseNode(root1.context, null, null);
@@ -108,7 +108,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase3"));
@@ -119,7 +119,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         root2.removeChild("a");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -142,7 +142,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("a").addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase4"));
@@ -160,7 +160,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Navigation def = portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_add_duplicate"));
@@ -171,7 +171,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         root2.addChild("a");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -190,7 +190,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("a").addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_move_duplicate"));
@@ -201,7 +201,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         root2.addChild("b");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -220,7 +220,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_rename_duplicate"));
@@ -231,7 +231,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         root2.addChild("b");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -249,7 +249,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("a").addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_federation"));
@@ -261,7 +261,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).node;
         root2.addChild("d").addChild("e");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = a.rebase(service, Scope.CHILDREN);
@@ -294,7 +294,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_transient_parent"));
@@ -312,7 +312,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_removed_navigation"));
@@ -320,7 +320,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         service.destroyNavigation(navigation);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -337,7 +337,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_state"));
@@ -348,7 +348,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         assertSame(state, root.getChild("a").getState());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root.rebase(service, null);
@@ -363,7 +363,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         def.addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("rebase_name"));
@@ -374,7 +374,7 @@ public class TestNavigationServiceRebase extends AbstractTestNavigationService {
         assertSame("b", a.getName());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root.rebase(service, null);

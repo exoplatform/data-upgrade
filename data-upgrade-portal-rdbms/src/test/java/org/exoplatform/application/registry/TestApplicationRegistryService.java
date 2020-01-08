@@ -24,14 +24,14 @@ import java.util.List;
 
 import org.exoplatform.commons.chromattic.ChromatticManager;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.services.organization.*;
 
 /**
  * Created by The eXo Platform SARL Author : Tung Pham thanhtungty@gmail.com Nov 27, 2007
  */
-public class TestApplicationRegistryService extends AbstractPortalTest {
+public class TestApplicationRegistryService extends AbstractJCRImplTest {
 
     protected static String demo = "demo";
 
@@ -61,17 +61,10 @@ public class TestApplicationRegistryService extends AbstractPortalTest {
 
     @Override
     protected void setUp() throws Exception {
-        PortalContainer portalContainer = PortalContainer.getInstance();
-        chromatticManager = (ChromatticManager) portalContainer.getComponentInstanceOfType(ChromatticManager.class);
-        service_ = (ApplicationRegistryService) portalContainer.getComponentInstanceOfType(ApplicationRegistryService.class);
-        orgService = (OrganizationService) portalContainer.getComponentInstanceOfType(OrganizationService.class);
-        begin();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        chromatticManager.getSynchronization().setSaveOnClose(false);
-        end();
+        super.setUp();
+        chromatticManager = getService(ChromatticManager.class);
+        service_ = getService(ApplicationRegistryService.class);
+        orgService = getService(OrganizationService.class);
     }
 
     public void testApplicationCategory() throws Exception {

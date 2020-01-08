@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.DataStorage;
+import org.exoplatform.portal.jdbc.migration.MigrationContext;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.description.DescriptionService;
@@ -35,12 +36,7 @@ import org.exoplatform.portal.pom.data.*;
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  */
-//@ConfiguredBy({
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
-//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml") })
-public abstract class AbstractTestNavigationService extends AbstractPortalTest {
+public abstract class AbstractTestNavigationService extends AbstractJCRImplTest {
 
     /** . */
     protected POMSessionManager mgr;
@@ -58,8 +54,10 @@ public abstract class AbstractTestNavigationService extends AbstractPortalTest {
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
+
         PortalContainer container = PortalContainer.getInstance();
-        mgr = (POMSessionManager) container.getComponentInstanceOfType(POMSessionManager.class);
+        mgr = getService(POMSessionManager.class);
         service = getNavigationService();
         descriptionService = new DescriptionServiceImpl(mgr);
         dataStorage = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
@@ -69,9 +67,6 @@ public abstract class AbstractTestNavigationService extends AbstractPortalTest {
         if (service instanceof  NavigationServiceImpl) {
             ((NavigationServiceImpl)service).clearCache();
         }
-
-        //
-        super.setUp();
     }
 
     protected NavigationService getNavigationService() {

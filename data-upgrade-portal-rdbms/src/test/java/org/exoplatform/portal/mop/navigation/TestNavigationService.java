@@ -186,7 +186,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultNav.addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("hidden_node"));
@@ -253,7 +253,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultNav.addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("hidden_insert_1"));
@@ -293,7 +293,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultNav.addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("hidden_insert_2"));
@@ -359,7 +359,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultNav.addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("hidden_insert_3"));
@@ -456,7 +456,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("invalidation_by_removal"));
@@ -464,14 +464,14 @@ public class TestNavigationService extends AbstractTestNavigationService {
         assertNotNull(root);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_removal").getRootNavigation()
                 .getChild("default").destroy();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NodeContext<Node> rootCtx = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null);
@@ -485,7 +485,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         // Put the navigation in the cache
         NavigationContext nav = service.loadNavigation(SiteKey.portal("invalidation_by_child"));
@@ -494,14 +494,14 @@ public class TestNavigationService extends AbstractTestNavigationService {
         assertFalse(iterator.hasNext());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_child").getRootNavigation()
                 .getChild("default").addChild("new");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -510,14 +510,14 @@ public class TestNavigationService extends AbstractTestNavigationService {
         assertFalse(iterator.hasNext());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_child").getRootNavigation()
                 .getChild("default").getChild("new").destroy();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -532,7 +532,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("invalidation_by_propertychange"));
@@ -540,7 +540,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         assertNull(defaultNode.getContext().getState().getLabel());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Described defaultDescribed = mop.getModel().getWorkspace()
@@ -549,14 +549,14 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultDescribed.setName("bilto");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
         assertEquals("bilto", defaultNode.getContext().getState().getLabel());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultDescribed = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_propertychange")
@@ -564,14 +564,14 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultDescribed.setName("bilta");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
         assertEquals("bilta", defaultNode.getContext().getState().getLabel());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultDescribed = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_propertychange")
@@ -579,7 +579,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         defaultDescribed.setName(null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
@@ -593,47 +593,47 @@ public class TestNavigationService extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("invalidation_by_attribute"));
         Node defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_attribute").getRootNavigation()
                 .getChild("default").getAttributes().setValue(MappedAttributes.URI, "foo_uri");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_attribute").getRootNavigation()
                 .getChild("default").getAttributes().setValue(MappedAttributes.URI, "bar_uri");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "invalidation_by_attribute").getRootNavigation()
                 .getChild("default").getAttributes().setValue(MappedAttributes.URI, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         defaultNode = service.loadNode(Node.MODEL, nav, Scope.SINGLE, null).getNode();
@@ -648,7 +648,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         rootNavigation.addChild("juu");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         portal = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "reorder_child_2");
@@ -656,7 +656,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         rootNavigation.getChild("bar").destroy();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         portal = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "reorder_child_2");
@@ -664,7 +664,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         rootNavigation.addChild("daa");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         portal = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "reorder_child_2");
@@ -684,7 +684,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         container.addNode("mop:juu");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         session = mop.getModel().getSession().getJCRSession();
@@ -693,7 +693,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         container.getNode("mop:bar").remove();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         session = mop.getModel().getSession().getJCRSession();
@@ -703,7 +703,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         container.orderBefore("mop:daa", null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         container = session.getRootNode().getNode(
@@ -720,8 +720,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "count");
         portal.getRootNavigation().addChild("default");
 
-        //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("count"));
@@ -750,7 +749,7 @@ public class TestNavigationService extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("insert_duplicate"));

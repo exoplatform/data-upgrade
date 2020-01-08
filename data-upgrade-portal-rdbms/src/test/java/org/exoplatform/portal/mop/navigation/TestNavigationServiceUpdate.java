@@ -41,7 +41,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         def.addChild("d");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_no_op"));
@@ -56,7 +56,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         Navigation def = portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_cannot_save"));
@@ -89,7 +89,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_add_first"));
@@ -100,7 +100,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root1.node.update(service, null);
@@ -116,7 +116,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_add_second"));
@@ -128,7 +128,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root1.update(service, null);
@@ -148,7 +148,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_remove"));
@@ -160,7 +160,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root1.node.update(service, null);
@@ -178,7 +178,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().getChild("default").addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_move"));
@@ -192,7 +192,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root1.node.update(service, null);
@@ -212,7 +212,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_add_with_same_name"));
@@ -222,7 +222,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root1.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root1 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
@@ -262,7 +262,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_complex"));
@@ -278,7 +278,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root1.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root1 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
@@ -302,7 +302,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root1.update(service, null);
@@ -341,7 +341,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         MOPService mop = mgr.getPOMService();
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "update_replace_child");
         portal.getRootNavigation().addChild("default").addChild("foo");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_replace_child"));
@@ -355,7 +355,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         foo.setState(new NodeState.Builder().label("foo2").build());
         service.saveNode(root2.context, null);
         String foo2Id = foo.getId();
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root1.update(service, null);
@@ -375,7 +375,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         MOPService mop = mgr.getPOMService();
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "update_rename");
         portal.getRootNavigation().addChild("default").addChild("foo");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_rename"));
@@ -385,7 +385,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.CHILDREN, null).getNode();
         root2.getChild("foo").setName("bar");
         service.saveNode(root2.context, null);
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> it = root1.update(service, null);
@@ -400,7 +400,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         MOPService mop = mgr.getPOMService();
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "update_state");
         portal.getRootNavigation().addChild("default").addChild("foo").addChild("bar");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_state"));
@@ -412,7 +412,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         Node root = service.loadNode(Node.MODEL, navigation, Scope.CHILDREN, null).getNode();
         root.getChild("foo").setState(new NodeState.Builder().label("foo").build());
         service.saveNode(root.context, null);
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = root1.update(service, Scope.GRANDCHILDREN);
@@ -450,19 +450,19 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         MOPService mop = mgr.getPOMService();
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "update_with_most_actual_children");
         portal.getRootNavigation().addChild("default").addChild("foo").addChild("bar");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_with_most_actual_children"));
         Node root = service.loadNode(Node.MODEL, navigation, Scope.CHILDREN, null).getNode();
         Node foo = root.getChild("foo");
-        end();
+        restartTransaction(true);
 
         //
         Node root1 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
         root1.getChild("foo").removeChild("bar");
         service.saveNode(root1.context, null);
-        end();
+        restartTransaction(true);
 
         //
         foo.update(service, Scope.CHILDREN);
@@ -477,19 +477,19 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         MOPService mop = mgr.getPOMService();
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "update_deleted_node");
         portal.getRootNavigation().addChild("default").addChild("foo").addChild("bar");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_deleted_node"));
         Node root = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
         Node bar = root.getChild("foo").getChild("bar");
-        end();
+        restartTransaction(true);
 
         //
         Node root1 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
         root1.getChild("foo").removeChild("bar");
         service.saveNode(root1.context, null);
-        end();
+        restartTransaction(true);
 
         //
         Iterator<NodeChange<Node>> changes = bar.update(service, Scope.CHILDREN);
@@ -504,7 +504,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         Navigation fooNav = portal.getRootNavigation().addChild("default").addChild("foo");
         fooNav.addChild("bar1");
         fooNav.addChild("bar2");
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_load_events"));
@@ -535,7 +535,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         MOPService mop = mgr.getPOMService();
         Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "update_twice2");
         portal.getRootNavigation().addChild("default").addChild("foo").addChild("bar");
-        end();
+        restartTransaction(true);
 
         // Browser 1 : Expand the "foo" node
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_twice2"));
@@ -543,13 +543,13 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         Node foo = root.getChild("foo");
         // If this line is commented, the test is passed
         service.updateNode(foo.context, Scope.CHILDREN, null);
-        end();
+        restartTransaction(true);
 
         // Browser 2: Change the "foo" node
         Node root1 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
         root1.getChild("foo").removeChild("bar");
         service.saveNode(root1.context, null);
-        end();
+        restartTransaction(true);
 
         // Browser 1: Try to expand the "foo" node 2 times ---> NPE after the 2nd updateNode method
         service.updateNode(foo.context, Scope.CHILDREN, null);
@@ -563,7 +563,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().getChild("default").addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_move2"));
@@ -577,7 +577,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         root1.getNode("c").addChild(root1.getNode("a").getChild("b"));
         service.saveNode(root1.getNode().context, null);
         //
-        end();
+        restartTransaction(true);
 
         // Browser 1: need NodeChange event to update UI
         NodeChangeQueue<NodeContext<Node>> queue = new NodeChangeQueue<NodeContext<Node>>();
@@ -596,7 +596,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().getChild("default").addChild("c").addChild("d");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_scope"));
@@ -612,7 +612,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         service.updateNode(a.context, Scope.CHILDREN, null);
@@ -630,7 +630,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         Navigation def = portal.getRootNavigation().addChild("default");
         def.addChild("foo");
         def.addChild("bar");
-        end();
+        restartTransaction(true);
 
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_pending_change"));
         Node root = service.loadNode(Node.MODEL, navigation, Scope.CHILDREN, null).getNode();
@@ -652,7 +652,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("update_removed_navigation"));
@@ -660,7 +660,7 @@ public class TestNavigationServiceUpdate extends AbstractTestNavigationService {
         service.destroyNavigation(navigation);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {

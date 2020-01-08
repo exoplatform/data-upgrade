@@ -48,7 +48,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         mgr.getPOMService().getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "save_navigation");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         nav = service.loadNavigation(SiteKey.portal("save_navigation"));
@@ -71,7 +71,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         assertEquals(5, nav.data.state.getPriority().intValue());
 
         //
-        end();
+        restartTransaction(true);
 
         //
         nav = service.loadNavigation(SiteKey.portal("save_navigation"));
@@ -92,7 +92,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
                 .addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
         if (service instanceof NavigationServiceImpl) {
             ((NavigationServiceImpl)service).clearCache();
         }
@@ -120,7 +120,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         assertNull(nav);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         nav = service.loadNavigation(SiteKey.portal("destroy_navigation"));
@@ -133,7 +133,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("add_child"));
@@ -171,7 +171,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -190,7 +190,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("foo");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("remove_child"));
@@ -223,7 +223,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -240,7 +240,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("remove_transient_child"));
@@ -259,7 +259,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -278,7 +278,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         def.addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("rename"));
@@ -313,7 +313,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         nav = service.loadNavigation(SiteKey.portal("rename"));
@@ -335,7 +335,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("juu");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("reorder_child"));
@@ -376,7 +376,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -402,7 +402,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root2.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root3 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -428,7 +428,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("juu");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("reorder_child_2"));
@@ -438,7 +438,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -448,7 +448,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = new NavigationServiceImpl(mgr).loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -475,7 +475,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("juu");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         portal = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "reorder_child_2");
@@ -483,7 +483,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.getChild("bar").destroy();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         portal = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "reorder_child_2");
@@ -491,7 +491,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("daa");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         portal = mop.getModel().getWorkspace().getSite(ObjectType.PORTAL_SITE, "reorder_child_2");
@@ -511,7 +511,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         container.addNode("mop:juu");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         session = mop.getModel().getSession().getJCRSession();
@@ -520,7 +520,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         container.getNode("mop:bar").remove();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         session = mop.getModel().getSession().getJCRSession();
@@ -530,7 +530,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         container.orderBefore("mop:daa", null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         container = session.getRootNode().getNode(
@@ -550,7 +550,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("bar");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("move_child"));
@@ -565,7 +565,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.ALL, null).getNode();
@@ -589,7 +589,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_move_after_1"));
@@ -610,7 +610,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         assertSame(c, root.getChild(2));
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, nav, Scope.ALL, null).getNode();
@@ -631,7 +631,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_move_after_2"));
@@ -652,7 +652,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         assertSame(c, root.getChild(2));
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, nav, Scope.ALL, null).getNode();
@@ -671,7 +671,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("foo");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("rename_node"));
@@ -684,7 +684,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         nav = service.loadNavigation(SiteKey.portal("rename_node"));
@@ -706,7 +706,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root2.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root3 = service.loadNode(Node.MODEL, nav, Scope.ALL, null).getNode();
@@ -737,7 +737,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("5");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_children"));
@@ -758,7 +758,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -780,7 +780,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         rootNavigation.addChild("foo");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_recursive"));
@@ -794,7 +794,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.ALL, null).getNode();
@@ -814,7 +814,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_state"));
@@ -831,7 +831,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.ALL, null).getNode();
@@ -851,7 +851,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_state_overwrite"));
@@ -860,14 +860,14 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root.addChild("bar");
         service.saveNode(root.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         nav = service.loadNavigation(SiteKey.portal("save_state_overwrite"));
@@ -881,7 +881,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("foo");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("recreate_node"));
@@ -895,7 +895,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, nav, Scope.CHILDREN, null).getNode();
@@ -913,7 +913,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         nav.addChild("a").addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("move_to_added"));
@@ -928,7 +928,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         navigation = service.loadNavigation(SiteKey.portal("move_to_added"));
@@ -952,7 +952,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         nav.addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("moved_from_removed"));
@@ -968,7 +968,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root1.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         navigation = service.loadNavigation(SiteKey.portal("moved_from_removed"));
@@ -989,7 +989,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("remove_added"));
@@ -1002,7 +1002,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, navigation, Scope.GRANDCHILDREN, null).getNode();
@@ -1015,7 +1015,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("transitive_remove_transient"));
@@ -1028,7 +1028,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         root.assertConsistent();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root = service.loadNode(Node.MODEL, navigation, Scope.GRANDCHILDREN, null).getNode();
@@ -1041,7 +1041,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("save_rename_created"));
@@ -1058,7 +1058,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("add_to_removed"));
@@ -1071,7 +1071,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1091,14 +1091,14 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         nav.addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("save_merge"));
         Node root1 = service.loadNode(Node.MODEL, navigation, Scope.CHILDREN, null).getNode();
 
         //
-        end();
+        restartTransaction(true);
 
         //
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.CHILDREN, null).getNode();
@@ -1106,7 +1106,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         service.saveNode(root1.context, null);
@@ -1124,7 +1124,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("remove_removed"));
@@ -1137,7 +1137,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         service.saveNode(root1.context, null);
@@ -1152,7 +1152,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a").addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("move_removed"));
@@ -1165,7 +1165,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1183,7 +1183,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().getChild("default").addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("move_to_removed"));
@@ -1196,7 +1196,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1215,7 +1215,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().getChild("default").addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("move_moved"));
@@ -1228,7 +1228,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1245,7 +1245,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_add_duplicate"));
@@ -1257,7 +1257,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         root1.addChild("a");
@@ -1275,7 +1275,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_add_after_removed"));
@@ -1288,7 +1288,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1307,7 +1307,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         def.addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_move_after_removed"));
@@ -1320,7 +1320,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1338,7 +1338,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().getChild("default").addChild("c");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_move_from_removed"));
@@ -1351,7 +1351,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1368,7 +1368,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_rename_removed"));
@@ -1381,7 +1381,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1398,7 +1398,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_duplicate_rename"));
@@ -1411,7 +1411,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1428,7 +1428,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("concurrent_save"));
@@ -1437,14 +1437,14 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root1.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         // Reload the root node and modify it
         root1 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
         root1.getChild("a").setState(root1.getState().builder().label("foo").build());
 
         //
-        end();
+        restartTransaction(true);
 
         // Edit navigation in another browser
         Node root2 = service.loadNode(Node.MODEL, navigation, Scope.ALL, null).getNode();
@@ -1452,7 +1452,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         // Now click Save button in the first browser
         try {
@@ -1469,7 +1469,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default").addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("removal_does_not_prevent_save"));
@@ -1479,7 +1479,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         service.saveNode(root1.context, null);
@@ -1492,7 +1492,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         def.addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("save_concurrent_rename"));
@@ -1517,7 +1517,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("save_removed_navigation"));
@@ -1525,7 +1525,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.destroyNavigation(navigation);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         try {
@@ -1542,7 +1542,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         portal.getRootNavigation().addChild("default");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext nav = service.loadNavigation(SiteKey.portal("pending_changes_bypass_cache"));
@@ -1563,7 +1563,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         def.addChild("b");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("save_atomic"));
@@ -1577,7 +1577,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         service.saveNode(root2.context, null);
 
         //
-        end();
+        restartTransaction(true);
 
         //
         assertFalse(mgr.getSession().isModified());
@@ -1601,7 +1601,7 @@ public class TestNavigationServiceSave extends AbstractTestNavigationService {
         def.addChild("a");
 
         //
-        end();
+        restartTransaction(true);
 
         //
         NavigationContext navigation = service.loadNavigation(SiteKey.portal("save_rebase"));
