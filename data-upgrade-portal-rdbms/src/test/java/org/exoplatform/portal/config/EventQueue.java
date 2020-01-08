@@ -18,14 +18,12 @@
  */
 package org.exoplatform.portal.config;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import junit.framework.Assert;
+import java.util.*;
 
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
+
+import junit.framework.Assert;
 
 /** @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a> */
 public class EventQueue extends Listener {

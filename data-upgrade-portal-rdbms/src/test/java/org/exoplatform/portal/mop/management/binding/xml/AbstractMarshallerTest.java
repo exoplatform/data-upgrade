@@ -25,16 +25,11 @@ package org.exoplatform.portal.mop.management.binding.xml;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-import org.exoplatform.portal.config.model.Application;
-import org.exoplatform.portal.config.model.ApplicationState;
-import org.exoplatform.portal.config.model.Container;
-import org.exoplatform.portal.config.model.ModelObject;
-import org.exoplatform.portal.config.model.PageBody;
-import org.exoplatform.portal.config.model.TransientApplicationState;
+import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.portal.pom.spi.portlet.Preference;
+
+import junit.framework.TestCase;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>

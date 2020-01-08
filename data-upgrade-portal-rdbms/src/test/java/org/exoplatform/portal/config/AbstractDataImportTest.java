@@ -22,15 +22,17 @@ package org.exoplatform.portal.config;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.exoplatform.component.test.*;
+import org.exoplatform.component.test.ContainerScope;
+import org.exoplatform.component.test.KernelBootstrap;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.mop.importer.ImportMode;
 
 /**
  * @author <a href="trongtt@gmail.com">Trong Tran</a>
  * @version $Revision$
  */
-public abstract class AbstractDataImportTest extends AbstractGateInTest {
+public abstract class AbstractDataImportTest extends AbstractPortalTest {
   private Set<String> clearProperties = new HashSet<String>();
 
   protected abstract ImportMode getMode();

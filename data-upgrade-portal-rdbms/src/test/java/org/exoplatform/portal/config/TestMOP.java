@@ -21,49 +21,29 @@ package org.exoplatform.portal.config;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+
+import org.gatein.mop.api.Attributes;
+import org.gatein.mop.api.content.Customization;
+import org.gatein.mop.api.workspace.*;
+import org.gatein.mop.api.workspace.link.Link;
+import org.gatein.mop.api.workspace.ui.*;
 
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.portal.config.model.Application;
-import org.exoplatform.portal.config.model.Container;
-import org.exoplatform.portal.config.model.ModelObject;
+import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.Described;
-import org.exoplatform.portal.mop.ProtectedContainer;
-import org.exoplatform.portal.mop.ProtectedResource;
-import org.exoplatform.portal.mop.SiteKey;
-import org.exoplatform.portal.mop.Visibility;
-import org.exoplatform.portal.mop.Visible;
-import org.exoplatform.portal.mop.navigation.NavigationContext;
-import org.exoplatform.portal.mop.navigation.NavigationService;
-import org.exoplatform.portal.mop.navigation.NodeContext;
-import org.exoplatform.portal.mop.navigation.NodeModel;
-import org.exoplatform.portal.mop.navigation.Scope;
+import org.exoplatform.portal.mop.*;
+import org.exoplatform.portal.mop.navigation.*;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.pom.config.POMSession;
 import org.exoplatform.portal.pom.config.POMSessionManager;
-import org.gatein.mop.api.Attributes;
-import org.gatein.mop.api.content.Customization;
-import org.gatein.mop.api.workspace.Navigation;
-import org.gatein.mop.api.workspace.ObjectType;
-import org.gatein.mop.api.workspace.Site;
-import org.gatein.mop.api.workspace.link.Link;
-import org.gatein.mop.api.workspace.ui.UIComponent;
-import org.gatein.mop.api.workspace.ui.UIContainer;
-import org.gatein.mop.api.workspace.ui.UIWindow;
 
 /**
  * Created by The eXo Platform SARL Author : Tung Pham thanhtungty@gmail.com Nov 13, 2007
  */
-public class TestMOP extends AbstractConfigTest {
+public class TestMOP extends AbstractPortalTest {
 
     /** . */
     private DataStorage storage;

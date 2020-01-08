@@ -23,6 +23,7 @@
 package org.exoplatform.portal.mop.management.binding.xml;
 
 import static org.junit.Assert.assertArrayEquals;
+
 import junit.framework.TestCase;
 
 /**

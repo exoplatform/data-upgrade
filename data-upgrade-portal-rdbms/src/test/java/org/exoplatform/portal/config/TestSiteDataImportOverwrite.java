@@ -19,21 +19,17 @@
 
 package org.exoplatform.portal.config;
 
+import org.gatein.mop.api.workspace.Workspace;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.portal.config.model.Application;
-import org.exoplatform.portal.config.model.Container;
-import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.importer.ImportMode;
 import org.exoplatform.portal.mop.importer.Imported;
-import org.exoplatform.portal.mop.page.PageContext;
-import org.exoplatform.portal.mop.page.PageKey;
-import org.exoplatform.portal.mop.page.PageService;
+import org.exoplatform.portal.mop.page.*;
 import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
-import org.gatein.mop.api.workspace.Workspace;
 
 /**
  * @author <a href="trongtt@gmail.com">Trong Tran</a>

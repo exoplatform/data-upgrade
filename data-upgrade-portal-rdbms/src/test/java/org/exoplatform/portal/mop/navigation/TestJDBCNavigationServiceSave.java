@@ -27,19 +27,18 @@ import javax.jcr.Session;
 import org.gatein.mop.api.workspace.*;
 import org.gatein.mop.core.api.MOPService;
 
-import org.exoplatform.component.test.*;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.mop.*;
 import org.exoplatform.portal.mop.jdbc.service.JDBCModelStorageImpl;
 import org.exoplatform.portal.pom.data.ContainerData;
 import org.exoplatform.portal.pom.data.PortalData;
 
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml")})
+//@ConfiguredBy({
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml")})
 public class TestJDBCNavigationServiceSave extends AbstractTestNavigationService {
 
   /** . */

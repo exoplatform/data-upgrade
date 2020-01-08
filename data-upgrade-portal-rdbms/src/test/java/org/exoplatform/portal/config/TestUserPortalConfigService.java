@@ -19,26 +19,15 @@
 
 package org.exoplatform.portal.config;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import junit.framework.AssertionFailedError;
+import org.gatein.common.util.Tools;
+import org.gatein.mop.api.workspace.Workspace;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.portal.config.model.Application;
-import org.exoplatform.portal.config.model.ApplicationState;
-import org.exoplatform.portal.config.model.ApplicationType;
-import org.exoplatform.portal.config.model.Container;
-import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.config.model.PageBody;
-import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.mop.EventType;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.importer.Imported;
@@ -47,29 +36,21 @@ import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.mop.user.UserNavigation;
 import org.exoplatform.portal.mop.user.UserPortal;
-import org.exoplatform.portal.pom.config.POMDataStorage;
-import org.exoplatform.portal.pom.config.POMSession;
-import org.exoplatform.portal.pom.config.POMSessionManager;
+import org.exoplatform.portal.pom.config.*;
 import org.exoplatform.portal.pom.config.cache.DataCache;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.services.listener.Listener;
-import org.exoplatform.services.listener.ListenerService;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.listener.*;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
-import org.gatein.common.util.Tools;
-import org.gatein.mop.api.workspace.Workspace;
+
+import junit.framework.AssertionFailedError;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
-public class TestUserPortalConfigService extends AbstractConfigTest {
+public class TestUserPortalConfigService extends AbstractPortalTest {
 
     /** . */
     private UserPortalConfigService userPortalConfigSer_;

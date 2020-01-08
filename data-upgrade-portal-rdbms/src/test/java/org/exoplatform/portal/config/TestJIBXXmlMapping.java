@@ -24,24 +24,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import org.exoplatform.component.test.AbstractGateInTest;
-import org.exoplatform.portal.config.model.Application;
-import org.exoplatform.portal.config.model.LocalizedString;
-import org.exoplatform.portal.config.model.ModelUnmarshaller;
-import org.exoplatform.portal.config.model.NavigationFragment;
+import org.gatein.common.util.Tools;
+import org.jibx.runtime.*;
+
+import org.exoplatform.portal.AbstractPortalTest;
+import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.config.model.Page.PageSet;
-import org.exoplatform.portal.config.model.PageNavigation;
-import org.exoplatform.portal.config.model.PageNode;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.config.model.TransientApplicationState;
-import org.exoplatform.portal.config.model.UnmarshalledObject;
-import org.exoplatform.portal.config.model.Version;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.portal.pom.spi.portlet.PortletBuilder;
-import org.gatein.common.util.Tools;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
 
 /**
  * Thu, May 15, 2003 @
@@ -50,7 +40,7 @@ import org.jibx.runtime.IUnmarshallingContext;
  * @version: $Id: TestConverter.java,v 1.6 2004/07/20 12:41:09 tuan08 Exp $
  * @since: 0.0
  */
-public class TestJIBXXmlMapping extends AbstractGateInTest {
+public class TestJIBXXmlMapping extends AbstractPortalTest {
 
     public TestJIBXXmlMapping(String name) {
         super(name);

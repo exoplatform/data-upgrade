@@ -21,18 +21,16 @@ package org.exoplatform.portal.mop.navigation;
 
 import java.util.Iterator;
 
-import org.exoplatform.component.test.*;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.mop.navigation.*;
 
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml")})
+//@ConfiguredBy({
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml")})
 public class TestJDBCNavigationServiceUpdate extends AbstractTestNavigationService {
 
   public void testNoop() throws Exception {

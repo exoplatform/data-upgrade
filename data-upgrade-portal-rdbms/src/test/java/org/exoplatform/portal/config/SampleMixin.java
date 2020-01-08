@@ -18,9 +18,7 @@
  */
 package org.exoplatform.portal.config;
 
-import org.chromattic.api.annotations.DefaultValue;
-import org.chromattic.api.annotations.MixinType;
-import org.chromattic.api.annotations.Property;
+import org.chromattic.api.annotations.*;
 
 /**
  * @author <a href="mailto:hoang281283@gmail.com">Minh Hoang TO</a> Aug 26, 2010

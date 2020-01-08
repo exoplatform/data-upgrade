@@ -20,10 +20,7 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
-import org.exoplatform.commons.testing.BaseTestCase;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 
@@ -31,10 +28,7 @@ import org.exoplatform.services.security.Identity;
  * Test just for the implementation service Created by The eXo Platform SAS
  * Author : eXoPlatform exo@exoplatform.com Nov 12, 2012
  */
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/settings/configuration.xml")
-})
-public class SettingServiceImplTest extends BaseTestCase {
+public class SettingServiceImplTest extends AbstractPortalTest {
 
   protected static SettingService settingService;
 

@@ -19,9 +19,11 @@
 
 package org.exoplatform.portal.config;
 
-import org.exoplatform.component.test.*;
+import org.exoplatform.component.test.ContainerScope;
+import org.exoplatform.component.test.KernelBootstrap;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.importer.ImportMode;
 import org.exoplatform.portal.mop.navigation.*;
@@ -29,7 +31,7 @@ import org.exoplatform.portal.mop.navigation.*;
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  */
-public abstract class AbstractImportTest extends AbstractGateInTest {
+public abstract class AbstractImportTest extends AbstractPortalTest {
 
     protected abstract ImportMode getMode();
 

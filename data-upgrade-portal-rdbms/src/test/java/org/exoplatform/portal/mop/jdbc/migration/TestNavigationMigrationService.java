@@ -10,7 +10,6 @@ import org.junit.After;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.component.test.*;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.AbstractPortalTest;
@@ -27,13 +26,13 @@ import org.exoplatform.portal.pom.data.*;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.listener.ListenerService;
 
-@ConfiguredBy({
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/portal-configuration.xml"),
-
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml") })
+//@ConfiguredBy({
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/portal-configuration.xml"),
+//
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml"),
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml") })
 public class TestNavigationMigrationService extends AbstractPortalTest {
 
   private NavigationService          navService;

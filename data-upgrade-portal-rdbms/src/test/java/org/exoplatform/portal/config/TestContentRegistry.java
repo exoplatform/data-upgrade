@@ -19,6 +19,7 @@
 package org.exoplatform.portal.config;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.pom.config.POMSession;
 import org.exoplatform.portal.pom.config.POMSessionManager;
 
@@ -26,7 +27,7 @@ import org.exoplatform.portal.pom.config.POMSessionManager;
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
-public class TestContentRegistry extends AbstractConfigTest {
+public class TestContentRegistry extends AbstractPortalTest {
 
     /** . */
     private DataStorage storage;

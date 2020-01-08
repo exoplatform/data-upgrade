@@ -21,9 +21,10 @@ package org.exoplatform.portal.mop.navigation;
 
 import java.util.Arrays;
 
+import org.gatein.common.io.IOTools;
+
 import org.exoplatform.component.test.AbstractGateInTest;
 import org.exoplatform.portal.mop.SiteKey;
-import org.gatein.common.io.IOTools;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>

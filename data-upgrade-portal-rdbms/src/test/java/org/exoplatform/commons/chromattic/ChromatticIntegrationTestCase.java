@@ -23,20 +23,18 @@ import javax.jcr.Workspace;
 
 import org.chromattic.api.Chromattic;
 import org.chromattic.api.ChromatticSession;
-import org.exoplatform.component.test.AbstractKernelTest;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
+
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/commons/chromattic/configuration.xml") })
-public class ChromatticIntegrationTestCase extends AbstractKernelTest {
+//@ConfiguredBy({
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/commons/chromattic/configuration.xml") })
+public class ChromatticIntegrationTestCase extends AbstractPortalTest {
 
     /** . */
     private ChromatticLifeCycle test1LF;

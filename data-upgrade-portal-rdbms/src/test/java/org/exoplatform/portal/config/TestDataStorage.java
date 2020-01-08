@@ -27,6 +27,7 @@ import org.gatein.common.transaction.JTAUserTransactionLifecycleService;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.mop.*;
 import org.exoplatform.portal.mop.navigation.*;
@@ -43,7 +44,7 @@ import junit.framework.AssertionFailedError;
  * Created by The eXo Platform SARL Author : Tung Pham thanhtungty@gmail.com Nov
  * 13, 2007
  */
-public class TestDataStorage extends AbstractConfigTest {
+public class TestDataStorage extends AbstractPortalTest {
 
   /** . */
   private final String                       testPage = "portal::classic::testPage";

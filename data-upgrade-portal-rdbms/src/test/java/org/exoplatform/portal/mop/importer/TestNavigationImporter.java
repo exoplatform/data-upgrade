@@ -22,25 +22,15 @@ package org.exoplatform.portal.mop.importer;
 import static org.exoplatform.portal.mop.importer.Builder.fragment;
 import static org.exoplatform.portal.mop.importer.Builder.node;
 
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
-import org.exoplatform.portal.config.model.I18NString;
-import org.exoplatform.portal.config.model.LocalizedString;
-import org.exoplatform.portal.config.model.NavigationFragment;
-import org.exoplatform.portal.config.model.PageNavigation;
-import org.exoplatform.portal.mop.Described;
-import org.exoplatform.portal.mop.SiteKey;
-import org.exoplatform.portal.mop.navigation.AbstractTestNavigationService;
-import org.exoplatform.portal.mop.navigation.NavigationContext;
-import org.exoplatform.portal.mop.navigation.Node;
-import org.exoplatform.portal.mop.navigation.NodeContext;
-import org.exoplatform.portal.mop.navigation.NodeModel;
-import org.exoplatform.portal.mop.navigation.Scope;
 import org.gatein.common.util.Tools;
 import org.gatein.mop.api.workspace.ObjectType;
 import org.gatein.mop.core.api.MOPService;
+
+import org.exoplatform.portal.config.model.*;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.navigation.*;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>

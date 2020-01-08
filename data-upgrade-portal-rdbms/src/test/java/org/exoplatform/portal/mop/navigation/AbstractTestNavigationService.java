@@ -22,30 +22,25 @@ package org.exoplatform.portal.mop.navigation;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.config.DataStorage;
-import org.exoplatform.portal.mop.AbstractMOPTest;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.description.DescriptionService;
 import org.exoplatform.portal.mop.description.DescriptionServiceImpl;
 import org.exoplatform.portal.pom.config.POMSessionManager;
-import org.exoplatform.portal.pom.data.ContainerData;
-import org.exoplatform.portal.pom.data.ModelDataStorage;
-import org.exoplatform.portal.pom.data.PortalData;
+import org.exoplatform.portal.pom.data.*;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  */
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml") })
-public abstract class AbstractTestNavigationService extends AbstractMOPTest {
+//@ConfiguredBy({
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/mop/navigation/configuration.xml") })
+public abstract class AbstractTestNavigationService extends AbstractPortalTest {
 
     /** . */
     protected POMSessionManager mgr;

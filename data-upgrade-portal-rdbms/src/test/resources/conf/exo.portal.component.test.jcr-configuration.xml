@@ -24,6 +24,19 @@
     xmlns="http://www.exoplaform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
+    <key>org.exoplatform.services.jcr.ext.app.SessionProviderService</key>
+    <type>org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService</type>
+  </component>
+  <component>
+    <key>org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator</key>
+    <type>org.exoplatform.services.jcr.ext.hierarchy.impl.NodeHierarchyCreatorImpl</type>
+  </component>
+  <component>
+    <key>org.exoplatform.services.jcr.ext.distribution.DataDistributionManager</key>
+    <type>org.exoplatform.services.jcr.ext.distribution.impl.DataDistributionManagerImpl</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.services.idgenerator.IDGeneratorService</key>
     <type>org.exoplatform.services.idgenerator.impl.IDGeneratorServiceImpl</type>
   </component>
@@ -33,167 +46,13 @@
   </component>
 
   <component>
-    <key>org.exoplatform.services.jdbc.DataSourceProvider</key>
-    <type>org.exoplatform.services.jdbc.impl.DataSourceProviderImpl</type>
-  </component>
-
-  <component>
-    <key>org.infinispan.transaction.lookup.TransactionManagerLookup</key>
-    <type>org.exoplatform.services.transaction.infinispan.JBossStandaloneJTAManagerLookup</type>
-  </component>
-
-  <component>
-    <key>org.exoplatform.services.transaction.TransactionService</key>
-    <type>org.exoplatform.services.transaction.infinispan.JBossTransactionsService</type>
-    <init-params>
-      <value-param>
-        <name>timeout</name>
-        <value>300</value>
-      </value-param>
-    </init-params>
-  </component>
-
-  <component>
     <key>org.exoplatform.services.document.DocumentReaderService</key>
     <type>org.exoplatform.services.document.impl.DocumentReaderServiceImpl</type>
-    <component-plugins>
-      <component-plugin>
-        <name>pdf.document.reader</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.PDFDocumentReader</type>
-        <description>to read the pdf inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.types</name>
-            <description>description</description>
-            <value>application/pdf</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerMSWord</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.MSWordDocumentReader</type>
-        <description>to read the ms word inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSWord</name>
-            <description>description</description>
-            <value>application/msword</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerMSExcel</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
-        <description>to read the ms excel inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSExcel</name>
-            <description>description</description>
-            <value>application/excel</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerMSOutlook</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.MSOutlookDocumentReader</type>
-        <description>to read the ms outlook inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSOutlook</name>
-            <description>description</description>
-            <value>application/vnd.ms-outlook</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>PPTdocument.reader</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.PPTDocumentReader</type>
-        <description>to read the ms ppt inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesPPT</name>
-            <description>description</description>
-            <value>application/ppt</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerHTML</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.HTMLDocumentReader</type>
-        <description>to read the html inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesHTML</name>
-            <description>description</description>
-            <value>text/html</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerXML</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.XMLDocumentReader</type>
-        <description>to read the xml inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesXML</name>
-            <description>description</description>
-            <value>text/xml</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>TPdocument.reader</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.TextPlainDocumentReader</type>
-        <description>to read the plain text inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesTextPlain</name>
-            <description>description</description>
-            <value>text/plain</value>
-          </values-param>
-          <!-- values-param>
-            <name>defaultEncoding</name>
-            <description>description</description>
-            <value>UTF-8</value>
-         </values-param -->
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerOO</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.OpenOfficeDocumentReader</type>
-        <description>to read the OO inputstream</description>
-      </component-plugin>
-
-    </component-plugins>
   </component>
 
   <component>
-    <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
-    <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
-    <init-params>
-      <value-param>
-        <name>conf-path</name>
-        <description>JCR configuration file</description>
-        <value>jar:/conf/exo.portal.component.test.jcr-repository-configuration.xml</value>
-      </value-param>
-    </init-params>
+    <key>org.exoplatform.services.jdbc.DataSourceProvider</key>
+    <type>org.exoplatform.services.jdbc.impl.DataSourceProviderImpl</type>
   </component>
 
   <component>
@@ -207,8 +66,43 @@
   </component>
 
   <component>
+    <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
+    <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
+    <init-params>
+      <value-param>
+        <name>conf-path</name>
+        <description>JCR configuration file</description>
+        <value>jar:/conf/jcr/repository-configuration.xml</value>
+      </value-param>
+      <properties-param>
+        <name>working-conf</name>
+        <description>working-conf</description>
+        <property name="source-name" value="jdbcexo" />
+        <property name="dialect" value="hsqldb" />
+        <property name="persister-class-name" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister" />
+      </properties-param>
+    </init-params>
+  </component>
+
+  <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
   </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
+    <component-plugin>
+      <name>add.namespaces</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+      <init-params>
+        <properties-param>
+          <name>namespaces</name>
+          <property name="mix" value="http://exoplatform.org/mix/1.0/" />
+          <property name="publication" value="http://exoplatform.org/publication/1.0/" />
+        </properties-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
 </configuration>

@@ -1,8 +1,8 @@
 package org.exoplatform.portal.mop.page;
 
-import junit.framework.TestCase;
-
 import org.exoplatform.portal.mop.SiteType;
+
+import junit.framework.TestCase;
 
 /** @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a> */
 public class TestPageKey extends TestCase {

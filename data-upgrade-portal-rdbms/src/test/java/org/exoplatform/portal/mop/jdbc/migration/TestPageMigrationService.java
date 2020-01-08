@@ -10,7 +10,6 @@ import org.gatein.mop.core.api.MOPService;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.component.test.*;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.AbstractPortalTest;
@@ -19,7 +18,6 @@ import org.exoplatform.portal.jdbc.migration.PageMigrationService;
 import org.exoplatform.portal.jdbc.migration.SiteMigrationService;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.mop.jdbc.service.PageServiceImpl;
 import org.exoplatform.portal.mop.page.*;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.pom.config.POMDataStorage;
@@ -29,13 +27,13 @@ import org.exoplatform.portal.pom.data.PageData;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.listener.ListenerService;
 
-@ConfiguredBy({
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/portal-configuration.xml"),
-
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml") })
+//@ConfiguredBy({
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/portal-configuration.xml"),
+//
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml"),
+//    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml") })
 public class TestPageMigrationService extends AbstractPortalTest {
 
   private POMDataStorage       pomStorage;
@@ -51,10 +49,6 @@ public class TestPageMigrationService extends AbstractPortalTest {
   private PageMigrationService pageMigrationService;
 
   private SiteMigrationService siteMigrationService;
-
-  public TestPageMigrationService(String name) {
-    super(name);
-  }
 
   @Override
   public void setUp() throws Exception {

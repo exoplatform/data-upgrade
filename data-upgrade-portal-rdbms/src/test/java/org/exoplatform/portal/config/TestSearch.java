@@ -20,6 +20,7 @@
 package org.exoplatform.portal.config;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.QueryResult;
 import org.exoplatform.portal.mop.SiteType;
@@ -30,7 +31,7 @@ import org.exoplatform.portal.mop.page.PageService;
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
-public class TestSearch extends AbstractConfigTest {
+public class TestSearch extends AbstractPortalTest {
 
   /** . */
   private DataStorage storage;

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertArrayEquals;
 import java.util.*;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.Visibility;
@@ -35,7 +36,7 @@ import org.exoplatform.portal.mop.page.PageService;
  * Created by The eXo Platform SARL Author : Tung Pham thanhtungty@gmail.com Nov
  * 13, 2007
  */
-public class TestLoadedPOM extends AbstractConfigTest {
+public class TestLoadedPOM extends AbstractPortalTest {
 
   /** . */
   private UserPortalConfigService portalConfigService;

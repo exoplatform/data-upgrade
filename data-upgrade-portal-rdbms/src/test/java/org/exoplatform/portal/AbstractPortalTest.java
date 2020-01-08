@@ -20,42 +20,69 @@ package org.exoplatform.portal;
 
 import org.exoplatform.commons.chromattic.ChromatticManager;
 import org.exoplatform.commons.chromattic.Synchronization;
-import org.exoplatform.component.test.AbstractKernelTest;
+import org.exoplatform.component.test.*;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>
  * @version $Revision$
  */
+@ConfiguredBy({
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.application-registry-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.jcr-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.test.rdmbs-migration-configuration.xml"),
+})
 public abstract class AbstractPortalTest extends AbstractKernelTest {
 
-    public AbstractPortalTest() {
-    }
+  public AbstractPortalTest() {
+  }
 
-    public AbstractPortalTest(String name) {
-        super(name);
-    }
+  public AbstractPortalTest(String name) {
+    super(name);
+  }
 
-    @Override
-    protected void end() {
-        end(false);
-    }
+  @Override
+  protected void end() {
+    end(false);
+  }
 
-    protected void end(boolean save) {
-        PortalContainer container = getContainer();
-        ChromatticManager manager = (ChromatticManager) container.getComponentInstanceOfType(ChromatticManager.class);
-        Synchronization synchronization = manager.getSynchronization();
-        synchronization.setSaveOnClose(save);
-        super.end();
-    }
+  protected void end(boolean save) {
+    PortalContainer container = getContainer();
+    ChromatticManager manager = container.getComponentInstanceOfType(ChromatticManager.class);
+    Synchronization synchronization = manager.getSynchronization();
+    synchronization.setSaveOnClose(save);
+    super.end();
+  }
 
-    protected final void sync() {
-        end();
-        begin();
-    }
+  protected final void sync() {
+    end();
+    begin();
+  }
 
-    protected final void sync(boolean save) {
-        end(save);
-        begin();
-    }
+  protected final void sync(boolean save) {
+    end(save);
+    begin();
+  }
+
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    ExoContainerContext.setCurrentContainer(getContainer());
+    begin();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    end();
+    super.tearDown();
+  }
+
+  protected <T> T getService(Class<T> clazz) {
+    return getContainer().getComponentInstanceOfType(clazz);
+  }
 }

@@ -22,19 +22,16 @@ package org.exoplatform.application.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.application.AbstractApplicationRegistryTest;
 import org.exoplatform.commons.chromattic.ChromatticManager;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.portal.config.model.ApplicationType;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.*;
 
 /**
  * Created by The eXo Platform SARL Author : Tung Pham thanhtungty@gmail.com Nov 27, 2007
  */
-public class TestApplicationRegistryService extends AbstractApplicationRegistryTest {
+public class TestApplicationRegistryService extends AbstractPortalTest {
 
     protected static String demo = "demo";
 

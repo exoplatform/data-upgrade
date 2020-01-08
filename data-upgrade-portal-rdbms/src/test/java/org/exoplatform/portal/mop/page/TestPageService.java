@@ -1,20 +1,13 @@
 package org.exoplatform.portal.mop.page;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-import org.exoplatform.portal.mop.Described;
-import org.exoplatform.portal.mop.ProtectedContainer;
-import org.exoplatform.portal.mop.ProtectedResource;
-import org.exoplatform.portal.mop.QueryResult;
-import org.exoplatform.portal.mop.SiteKey;
-import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.pom.data.MappedAttributes;
 import org.gatein.mop.api.Attributes;
 import org.gatein.mop.api.workspace.ObjectType;
 import org.gatein.mop.api.workspace.Page;
+
+import org.exoplatform.portal.mop.*;
+import org.exoplatform.portal.pom.data.MappedAttributes;
 
 /** @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a> */
 public class TestPageService extends AbstractTestPageService {

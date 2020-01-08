@@ -21,14 +21,13 @@ package org.exoplatform.portal.mop.navigation;
 
 import java.util.LinkedList;
 
+import org.gatein.mop.api.workspace.ObjectType;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.mop.EventType;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.pom.config.POMSessionManager;
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.services.listener.Listener;
-import org.exoplatform.services.listener.ListenerService;
-import org.gatein.mop.api.workspace.ObjectType;
+import org.exoplatform.services.listener.*;
 
 /**
  * @author <a href="mailto:julien.viet@exoplatform.com">Julien Viet</a>

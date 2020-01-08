@@ -17,14 +17,9 @@
 package org.exoplatform.settings.impl;
 
 import org.exoplatform.commons.api.event.EventManager;
-import org.exoplatform.commons.api.settings.SettingListener;
-import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.*;
 import org.exoplatform.commons.api.settings.data.*;
-import org.exoplatform.commons.testing.BaseTestCase;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
@@ -33,10 +28,7 @@ import org.exoplatform.services.security.Identity;
  * Created by The eXo Platform SAS Author : Nguyen Viet Bang
  * bangnv@exoplatform.com Nov 28, 2012
  */
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/settings/configuration.xml")
-})
-public class SettingServiceEventTest extends BaseTestCase {
+public class SettingServiceEventTest extends AbstractPortalTest {
 
   protected static SettingService                   settingService;
 

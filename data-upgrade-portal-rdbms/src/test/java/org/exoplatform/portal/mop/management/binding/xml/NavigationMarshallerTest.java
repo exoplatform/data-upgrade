@@ -24,21 +24,12 @@ package org.exoplatform.portal.mop.management.binding.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
+
+import org.exoplatform.portal.config.model.*;
+import org.exoplatform.portal.mop.Visibility;
 
 import junit.framework.TestCase;
-
-import org.exoplatform.portal.config.model.I18NString;
-import org.exoplatform.portal.config.model.LocalizedString;
-import org.exoplatform.portal.config.model.NavigationFragment;
-import org.exoplatform.portal.config.model.PageNavigation;
-import org.exoplatform.portal.config.model.PageNode;
-import org.exoplatform.portal.mop.Visibility;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>

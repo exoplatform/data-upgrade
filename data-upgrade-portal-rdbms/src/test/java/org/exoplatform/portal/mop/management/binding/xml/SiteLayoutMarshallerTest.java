@@ -26,35 +26,11 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.exoplatform.portal.config.model.Application;
-import org.exoplatform.portal.config.model.ApplicationState;
-import org.exoplatform.portal.config.model.ApplicationType;
-import org.exoplatform.portal.config.model.Container;
-import org.exoplatform.portal.config.model.DevicePropertyCondition;
-import org.exoplatform.portal.config.model.ModelObject;
-import org.exoplatform.portal.config.model.NodeMap;
-import org.exoplatform.portal.config.model.PageBody;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.config.model.PortalRedirect;
-import org.exoplatform.portal.config.model.RedirectCondition;
-import org.exoplatform.portal.config.model.RedirectMappings;
-import org.exoplatform.portal.config.model.TransientApplicationState;
-import org.exoplatform.portal.config.model.UserAgentConditions;
+import org.exoplatform.portal.config.model.*;
 import org.exoplatform.portal.pom.config.Utils;
-import org.exoplatform.portal.pom.data.ApplicationData;
-import org.exoplatform.portal.pom.data.BodyData;
-import org.exoplatform.portal.pom.data.BodyType;
-import org.exoplatform.portal.pom.data.ComponentData;
-import org.exoplatform.portal.pom.data.ContainerData;
-import org.exoplatform.portal.pom.data.PortalData;
+import org.exoplatform.portal.pom.data.*;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.portal.pom.spi.portlet.Preference;
 

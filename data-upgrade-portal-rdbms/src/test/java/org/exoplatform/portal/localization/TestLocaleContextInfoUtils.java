@@ -1,20 +1,18 @@
 package org.exoplatform.portal.localization;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.*;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.LocaleUtils;
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.portal.Constants;
-import org.exoplatform.portal.config.UserPortalConfigService;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.pom.config.POMSessionManager;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.UserProfile;
-import org.exoplatform.services.organization.UserProfileHandler;
-import org.exoplatform.services.organization.impl.UserProfileImpl;
-import org.exoplatform.services.resources.LocaleConfig;
-import org.exoplatform.services.resources.LocaleConfigService;
-import org.exoplatform.services.resources.LocaleContextInfo;
-import org.exoplatform.services.resources.impl.LocaleConfigImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,13 +20,16 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.Constants;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.pom.config.POMSessionManager;
+import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.services.resources.*;
+import org.exoplatform.services.resources.impl.LocaleConfigImpl;
 
 
 @RunWith(PowerMockRunner.class)

@@ -17,15 +17,14 @@
  **************************************************************************/
 package org.exoplatform.commons.event;
 
-import junit.framework.Assert;
 import org.exoplatform.commons.api.event.EventManager;
 import org.exoplatform.commons.event.impl.EventType;
 import org.exoplatform.commons.listener.impl.AbstractEventListener;
 import org.exoplatform.commons.testing.BaseTestCase;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
+import org.exoplatform.portal.AbstractPortalTest;
 import org.exoplatform.services.listener.Event;
+
+import junit.framework.Assert;
 
 /**
  * Created by The eXo Platform SARL
@@ -38,10 +37,10 @@ import org.exoplatform.services.listener.Event;
 /**
  * Test for <code>EventManager</code>
  */
-@ConfiguredBy({
-        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/commons/event/configuration.xml")
-})
-public class TestEventManager<S, D> extends BaseTestCase {
+//@ConfiguredBy({
+//        @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/commons/event/configuration.xml")
+//})
+public class TestEventManager<S, D> extends AbstractPortalTest {
     
     private EventManager<DMSFile, Integer> dmsEventManager_;
     
