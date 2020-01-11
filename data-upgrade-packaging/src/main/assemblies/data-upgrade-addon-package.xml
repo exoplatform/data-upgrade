@@ -95,6 +95,10 @@
         <exclude>org.icepdf:icepdf-core:*</exclude>
         <!-- COR-338: Exclude Apache poi-ooxml 3.8. Platform uses now 3.8-eXo01 -->
         <exclude>org.apache.poi:poi-ooxml:[3.8]</exclude>
+        <exclude>org.slf4j:*:*</exclude>
+        <exclude>javax.*:*:*</exclude>
+        <exclude>org.gatein.mop:mop-api:*</exclude>
+        <exclude>org.gatein.mop:mop-spi:*</exclude>
       </excludes>
       <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
       <useProjectArtifact>false</useProjectArtifact>
