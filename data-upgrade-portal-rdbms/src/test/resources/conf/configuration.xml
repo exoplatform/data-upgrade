@@ -14,9 +14,11 @@
         <property name="gatein.jcr.data.dir" value="${gatein.test.tmp.dir}/jcr/" />
         <property name="gatein.jcr.index.data.dir" value="${gatein.test.tmp.dir}/jcr/index" />
         <property name="gatein.jcr.storage.data.dir" value="${gatein.test.tmp.dir}/jcr/values" />
+        <property name="gatein.jcr.bloomfilter.system.enabled" value="false"/>
 
         <!-- Redefined to disable ISPN cache that is not performant -->
         <property name="exo.jcr.default.workspaces.config.path" value="jar:/conf/jcr/data-upgrate-test-repository-configuration.xml" />
+        <property name="exo.jcr.gatein.workspaces.config.path" value="jar:/conf/jcr/data-upgrate-test-gatein-repository-configuration.xml" />
       </properties-param>
     </init-params>
   </component>

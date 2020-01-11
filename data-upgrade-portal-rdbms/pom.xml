@@ -153,7 +153,6 @@
           <systemPropertyVariables>
             <exo.profiles>hsqldb</exo.profiles>
             <exo.files.storage.dir>target/exo-files</exo.files.storage.dir>
-            <exo.portal.mop.workspace>collaboration</exo.portal.mop.workspace>
           </systemPropertyVariables>
         </configuration>
       </plugin>

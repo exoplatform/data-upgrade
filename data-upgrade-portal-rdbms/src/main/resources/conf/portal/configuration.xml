@@ -27,37 +27,26 @@
   </component>
 
   <component>
-    <key>org.exoplatform.portal.pom.config.POMDataStorage</key>
-    <type>org.exoplatform.portal.pom.config.POMDataStorage</type>
-  </component>
-
-  <component>
-    <key>org.exoplatform.portal.pom.config.POMSessionManager</key>
     <type>org.exoplatform.portal.pom.config.POMSessionManager</type>
   </component>
 
   <component>
-    <key>org.exoplatform.portal.pom.config.POMDataStorage</key>
     <type>org.exoplatform.portal.pom.config.POMDataStorage</type>
   </component>
 
   <component>
-    <key>org.exoplatform.application.registry.impl.ApplicationRegistryServiceImpl</key>
     <type>org.exoplatform.application.registry.impl.ApplicationRegistryServiceImpl</type>
   </component>
 
   <component>
-    <key>org.exoplatform.portal.mop.page.PageServiceImpl</key>
     <type>org.exoplatform.portal.mop.page.PageServiceImpl</type>
   </component>
 
   <component>
-    <key>org.exoplatform.portal.mop.navigation.NavigationServiceWrapper</key>
     <type>org.exoplatform.portal.mop.navigation.NavigationServiceWrapper</type>
   </component>
 
   <component>
-    <key>org.exoplatform.portal.mop.description.DescriptionServiceImpl</key>
     <type>org.exoplatform.portal.mop.description.DescriptionServiceImpl</type>
   </component>
 
@@ -70,6 +59,7 @@
       </value-param>
     </init-params>
   </component>
+
   <component>
     <type>org.exoplatform.portal.jdbc.migration.PageMigrationService</type>
     <init-params>
@@ -79,6 +69,7 @@
       </value-param>
     </init-params>
   </component>
+
   <component>
     <type>org.exoplatform.portal.jdbc.migration.NavigationMigrationService</type>
     <init-params>
@@ -88,6 +79,7 @@
       </value-param>
     </init-params>
   </component>
+
   <component>
     <type>org.exoplatform.portal.jdbc.migration.AppRegistryMigrationService</type>
     <init-params>
@@ -97,6 +89,7 @@
       </value-param>
     </init-params>
   </component>
+
   <component>
     <type>org.exoplatform.portal.jdbc.migration.RDBMSMigrationManager</type>
     <init-params>
@@ -106,6 +99,23 @@
       </value-param>
     </init-params>
   </component>
+
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</target-component>
+    <component-plugin>
+      <name>RepositoryServiceConfiguration Plugin for GateIN</name>
+      <set-method>addConfig</set-method>
+      <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationPlugin</type>
+      <init-params>
+        <value-param>
+          <name>conf-path</name>
+          <description>JCR configuration file</description>
+          <value>${exo.jcr.gatein.workspaces.config.path:jar:/conf/jcr/gatein-repository-configuration.xml}</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
@@ -192,7 +202,6 @@
         </value-param>
         <values-param>
           <name>entities</name>
--
           <!-- The MOP node types -->
           <value>org.gatein.mop.core.api.workspace.WorkspaceImpl</value>
           <value>org.gatein.mop.core.api.workspace.UIContainerImpl</value>
@@ -224,7 +233,6 @@
           <value>org.gatein.mop.core.api.workspace.content.ContextSpecialization</value>
           <value>org.gatein.mop.core.api.workspace.content.WorkspaceClone</value>
           <value>org.gatein.mop.core.api.workspace.content.WorkspaceSpecialization</value>
--
           <!-- GateIn node types -->
           <value>org.exoplatform.portal.pom.spi.portlet.PortletState</value>
           <value>org.exoplatform.portal.pom.spi.portlet.PreferenceState</value>
