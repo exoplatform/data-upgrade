@@ -22,8 +22,11 @@
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">  
 
+  <component>
+    <type>org.exoplatform.web.filter.ExtensibleFilter</type>
+  </component>
+
   <import>jar:/conf/exo.portal.component.test.chromattic-impl-configuration.xml</import>
   <import>jar:/conf/exo.portal.component.test.jdbc-impl.configuration.xml</import>
-  <import>jar:/conf/exo.portal.component.test.rdmbs-migration-configuration.xml</import>
 
 </configuration>

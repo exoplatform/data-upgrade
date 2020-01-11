@@ -63,6 +63,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.exoplatform</groupId>
+      <artifactId>exo-jcr-services</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.chromattic</groupId>
       <artifactId>chromattic.core</artifactId>
     </dependency>
@@ -148,6 +153,7 @@
           <systemPropertyVariables>
             <exo.profiles>hsqldb</exo.profiles>
             <exo.files.storage.dir>target/exo-files</exo.files.storage.dir>
+            <exo.portal.mop.workspace>collaboration</exo.portal.mop.workspace>
           </systemPropertyVariables>
         </configuration>
       </plugin>

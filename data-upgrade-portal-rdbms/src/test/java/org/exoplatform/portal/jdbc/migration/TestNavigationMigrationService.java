@@ -5,13 +5,9 @@ import java.util.*;
 import org.gatein.mop.api.workspace.*;
 import org.gatein.mop.core.api.MOPService;
 
-import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.component.test.*;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.jdbc.migration.NavigationMigrationService;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.description.DescriptionService;
@@ -20,8 +16,6 @@ import org.exoplatform.portal.mop.navigation.*;
 import org.exoplatform.portal.pom.config.POMDataStorage;
 import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.exoplatform.portal.pom.data.*;
-import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.listener.ListenerService;
 
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
@@ -39,7 +33,7 @@ public class TestNavigationMigrationService extends AbstractJCRImplTest {
 
   private DescriptionServiceImpl     jcrDescriptionService;
 
-  private NavigationServiceImpl      jcrNavService;
+  private NavigationServiceWrapper   jcrNavService;
 
   private POMSessionManager          manager;
 
@@ -56,35 +50,18 @@ public class TestNavigationMigrationService extends AbstractJCRImplTest {
 
   @Override
   protected void setUp() throws Exception {
-    super.setUp();
     MigrationContext.resetForceStop();
 
-    this.pomStorage = getContainer().getComponentInstanceOfType(POMDataStorage.class);
-    this.navService = getContainer().getComponentInstanceOfType(NavigationService.class);
-    this.manager = getContainer().getComponentInstanceOfType(POMSessionManager.class);
-    this.modelStorage = getContainer().getComponentInstanceOfType(ModelDataStorage.class);
+    this.pomStorage = getService(POMDataStorage.class);
+    this.navService = getService(NavigationService.class);
+    this.manager = getService(POMSessionManager.class);
+    this.modelStorage = getService(ModelDataStorage.class);
+    this.jcrNavService = getService(NavigationServiceWrapper.class);
+    this.descriptionService = getService(DescriptionService.class);
+    this.jcrDescriptionService = getService(DescriptionServiceImpl.class);
+    this.migrationService = getService(NavigationMigrationService.class);
 
-    SimpleDataCache cache = new SimpleDataCache();
-    this.jcrNavService = new NavigationServiceImpl(manager, cache);
-
-    this.descriptionService = getContainer().getComponentInstanceOfType(DescriptionService.class);
-    this.jcrDescriptionService = new DescriptionServiceImpl(manager);
-
-    InitParams params = new InitParams();
-    ValueParam v = new ValueParam();
-    v.setName("workspace");
-    v.setValue("portal-test");
-    params.addParameter(v);
-    this.migrationService = new NavigationMigrationService(params,
-                                                           pomStorage,
-                                                           this.modelStorage,
-                                                           navService,
-                                                           descriptionService,
-                                                           getService(POMSessionManager.class),
-                                                           getService(ListenerService.class),
-                                                           getService(RepositoryService.class),
-                                                           getService(SettingService.class));
-
+    begin();
   }
 
   public void testMigrate() throws Exception {

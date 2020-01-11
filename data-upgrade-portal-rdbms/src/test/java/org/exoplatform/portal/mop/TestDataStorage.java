@@ -48,9 +48,6 @@ import junit.framework.AssertionFailedError;
 public class TestDataStorage extends AbstractJCRImplTest {
 
   /** . */
-  private final String                       testPage = "portal::classic::testPage";
-
-  /** . */
   private DataStorage                        storage_;
 
   /** . */
@@ -61,9 +58,6 @@ public class TestDataStorage extends AbstractJCRImplTest {
 
   /** . */
   private LinkedList<Event>                  events;
-
-  /** . */
-  private ListenerService                    listenerService;
 
   /** . */
   private OrganizationService                org;
@@ -81,20 +75,18 @@ public class TestDataStorage extends AbstractJCRImplTest {
         events.add(event);
       }
     };
+    events = new LinkedList<>();
 
     //
     super.setUp();
-    PortalContainer container = PortalContainer.getInstance();
-    storage_ = (DataStorage) container.getComponentInstanceOfType(DataStorage.class);
-    pageService = (PageService) container.getComponentInstanceOfType(PageService.class);
-    navService = (NavigationService) container.getComponentInstanceOfType(NavigationService.class);
-    events = new LinkedList<Event>();
-    listenerService = (ListenerService) container.getComponentInstanceOfType(ListenerService.class);
-    org = (OrganizationService) container.getComponentInstanceOfType(OrganizationService.class);
-    jtaUserTransactionLifecycleService = (JTAUserTransactionLifecycleService) container
-                                                                                       .getComponentInstanceOfType(JTAUserTransactionLifecycleService.class);
+    storage_ = getService(DataStorage.class);
+    pageService = getService(PageService.class);
+    navService = getService(NavigationService.class);
+    org = getService(OrganizationService.class);
+    jtaUserTransactionLifecycleService = getService(JTAUserTransactionLifecycleService.class);
 
     //
+    ListenerService listenerService = getService(ListenerService.class);
     listenerService.addListener(EventType.PAGE_CREATED, listener);
     listenerService.addListener(EventType.PAGE_DESTROYED, listener);
     listenerService.addListener(DataStorage.PAGE_UPDATED, listener);
@@ -813,22 +805,28 @@ public class TestDataStorage extends AbstractJCRImplTest {
 
   public void testJTA() throws Exception {
     jtaUserTransactionLifecycleService.beginJTATransaction();
+    PageContext pageContext = null;
+    try {
+      Page page = new Page();
+      page.setPageId("portal::test::searchedpage2");
+      pageService.savePage(new PageContext(page.getPageKey(), null));
 
-    Page page = new Page();
-    page.setPageId("portal::test::searchedpage2");
-    pageService.savePage(new PageContext(page.getPageKey(), null));
+      pageContext = pageService.loadPage(page.getPageKey());
+      pageContext.setState(pageContext.getState().builder().displayName("Juuu2 Ziii2").build());
+      pageService.savePage(pageContext);
 
-    PageContext pageContext = pageService.loadPage(page.getPageKey());
-    pageContext.setState(pageContext.getState().builder().displayName("Juuu2 Ziii2").build());
-    pageService.savePage(pageContext);
-
-    assertPageFound(0, 10, null, null, null, "Juuu2 Ziii2", "portal::test::searchedpage2");
-    jtaUserTransactionLifecycleService.finishJTATransaction();
+      assertPageFound(0, 10, null, null, null, "Juuu2 Ziii2", "portal::test::searchedpage2");
+    } finally {
+      jtaUserTransactionLifecycleService.finishJTATransaction();
+    }
 
     jtaUserTransactionLifecycleService.beginJTATransaction();
-    pageService.destroyPage(pageContext.getKey());
-    assertPageNotFound(0, 10, null, null, null, "Juuu2 Ziii2");
-    jtaUserTransactionLifecycleService.finishJTATransaction();
+    try {
+      pageService.destroyPage(pageContext.getKey());
+      assertPageNotFound(0, 10, null, null, null, "Juuu2 Ziii2");
+    } finally {
+      jtaUserTransactionLifecycleService.finishJTATransaction();
+    }
   }
 
 }

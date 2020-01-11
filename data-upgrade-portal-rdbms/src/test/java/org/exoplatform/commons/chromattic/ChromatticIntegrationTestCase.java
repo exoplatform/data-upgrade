@@ -61,7 +61,6 @@ public class ChromatticIntegrationTestCase extends AbstractJCRImplTest {
 
     public void testConfiguratorInitialized() throws Exception {
         assertNotNull(test1LF);
-        assertEquals("portal-test", test1LF.getWorkspaceName());
         assertNotNull(test1LF.getChromattic());
         assertSame(chromatticManager, test1LF.getManager());
     }
@@ -104,11 +103,9 @@ public class ChromatticIntegrationTestCase extends AbstractJCRImplTest {
         try {
             ChromatticSession session = test1LF.getChromattic().openSession();
             FooEntity foo = session.create(FooEntity.class);
-            assertEquals("portal-test", foo.getWorkspace());
             jcrSession = session.getJCRSession();
             assertTrue(jcrSession.isLive());
             Workspace workspace = jcrSession.getWorkspace();
-            assertEquals("portal-test", workspace.getName());
 
             session.close();
             assertTrue(jcrSession.isLive());
@@ -151,13 +148,11 @@ public class ChromatticIntegrationTestCase extends AbstractJCRImplTest {
 
             // Check how chromattic see the session
             FooEntity foo = session.create(FooEntity.class);
-            assertEquals("portal-test", foo.getWorkspace());
 
             // Check related JCR session
             jcrSession = session.getJCRSession();
             assertTrue(jcrSession.isLive());
             Workspace workspace = jcrSession.getWorkspace();
-            assertEquals("portal-test", workspace.getName());
 
             // Closing chromattic session should not close the underlying JCR session
             session.close();

@@ -175,4 +175,9 @@ public class NavigationServiceWrapper implements NavigationService, Startable {
     public void stop() {
         bridge.stop();
     }
+
+    public void clearCache() {
+      service.clearCache();
+    }
+
 }

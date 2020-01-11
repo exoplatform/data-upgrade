@@ -65,10 +65,6 @@ public class NavigationServiceImpl implements NavigationService {
     /** . */
     final Logger log = LoggerFactory.getLogger(NavigationServiceImpl.class);
 
-    public NavigationServiceImpl(POMSessionManager manager) throws NullPointerException {
-        this(manager, new SimpleDataCache());
-    }
-
     public NavigationServiceImpl(POMSessionManager manager, DataCache dataCache) throws NullPointerException {
         if (manager == null) {
             throw new NullPointerException("No null pom session manager allowed");
@@ -78,6 +74,10 @@ public class NavigationServiceImpl implements NavigationService {
         }
         this.manager = manager;
         this.dataCache = dataCache;
+    }
+
+    public NavigationServiceImpl(POMSessionManager manager) throws NullPointerException {
+        this(manager, new SimpleDataCache());
     }
 
     public NavigationContext loadNavigation(SiteKey key) {

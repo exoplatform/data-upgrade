@@ -7,20 +7,13 @@ import javax.persistence.EntityTransaction;
 import org.gatein.mop.api.workspace.*;
 import org.gatein.mop.core.api.MOPService;
 
-import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.component.test.*;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.jdbc.migration.SiteMigrationService;
-import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.pom.config.POMDataStorage;
 import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.exoplatform.portal.pom.data.*;
-import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.listener.ListenerService;
 
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
@@ -36,37 +29,18 @@ public class TestSiteMigrationService extends AbstractJCRImplTest {
 
   private ModelDataStorage     modelStorage;
 
-  private PageService          pageService;
-
   private POMSessionManager    manager;
-
-  private org.exoplatform.portal.mop.page.PageServiceImpl      jcrPageService;
 
   private SiteMigrationService siteMigrationService;
 
   @Override
   public void setUp() throws Exception {
-    super.setUp();
     MigrationContext.resetForceStop();
 
-    this.pomStorage = getContainer().getComponentInstanceOfType(POMDataStorage.class);
-    this.modelStorage = getContainer().getComponentInstanceOfType(ModelDataStorage.class);
-    this.pageService = getContainer().getComponentInstanceOfType(PageService.class);
-    this.manager = getContainer().getComponentInstanceOfType(POMSessionManager.class);
-    this.jcrPageService = new org.exoplatform.portal.mop.page.PageServiceImpl(manager);
-
-    InitParams params = new InitParams();
-    ValueParam v = new ValueParam();
-    v.setName("workspace");
-    v.setValue("portal-test");
-    params.addParameter(v);
-
-    this.siteMigrationService = new SiteMigrationService(params,
-                                                         pomStorage,
-                                                         modelStorage,
-                                                         getContainer().getComponentInstanceOfType(ListenerService.class),
-                                                         getContainer().getComponentInstanceOfType(RepositoryService.class),
-                                                         getContainer().getComponentInstanceOfType(SettingService.class));
+    this.pomStorage = getService(POMDataStorage.class);
+    this.modelStorage = getService(ModelDataStorage.class);
+    this.manager = getService(POMSessionManager.class);
+    this.siteMigrationService = getService(SiteMigrationService.class);
 
     begin();
 
@@ -76,10 +50,6 @@ public class TestSiteMigrationService extends AbstractJCRImplTest {
     if (!transaction.isActive()) {
       transaction.begin();
     }
-  }
-
-  protected void tearDown() throws Exception {
-    end(false);
   }
 
   public void testMigrate() throws Exception {
@@ -126,7 +96,6 @@ public class TestSiteMigrationService extends AbstractJCRImplTest {
 
     begin();
 
-    // assertNotNull(pageService.loadPage(pageKey));
     assertNotNull(modelStorage.getPortalConfig(new PortalKey(PortalConfig.PORTAL_TYPE, "testSiteMigration")));
   }
 }

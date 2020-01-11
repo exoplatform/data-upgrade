@@ -8,15 +8,10 @@ import org.gatein.mop.api.workspace.ObjectType;
 import org.gatein.mop.api.workspace.Site;
 import org.gatein.mop.core.api.MOPService;
 
-import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.component.test.*;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.jdbc.migration.PageMigrationService;
-import org.exoplatform.portal.jdbc.migration.SiteMigrationService;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.page.*;
@@ -25,8 +20,6 @@ import org.exoplatform.portal.pom.config.POMDataStorage;
 import org.exoplatform.portal.pom.config.POMSessionManager;
 import org.exoplatform.portal.pom.data.*;
 import org.exoplatform.portal.pom.data.PageData;
-import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.listener.ListenerService;
 
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
@@ -50,52 +43,18 @@ public class TestPageMigrationService extends AbstractJCRImplTest {
 
   private PageMigrationService pageMigrationService;
 
-  private SiteMigrationService siteMigrationService;
-
   @Override
   public void setUp() throws Exception {
-    super.setUp();
     MigrationContext.resetForceStop();
 
-    this.pomStorage = getContainer().getComponentInstanceOfType(POMDataStorage.class);
-    this.modelStorage = getContainer().getComponentInstanceOfType(ModelDataStorage.class);
-    this.pageService = getContainer().getComponentInstanceOfType(PageService.class);
-    this.manager = getContainer().getComponentInstanceOfType(POMSessionManager.class);
-    this.jcrPageService = new org.exoplatform.portal.mop.page.PageServiceImpl(manager);
+    this.pomStorage = getService(POMDataStorage.class);
+    this.modelStorage = getService(ModelDataStorage.class);
+    this.pageService = getService(PageService.class);
+    this.manager = getService(POMSessionManager.class);
+    this.jcrPageService = getService(PageServiceImpl.class);
+    this.pageMigrationService = getService(PageMigrationService.class);
 
-    InitParams params = new InitParams();
-    ValueParam v = new ValueParam();
-    v.setName("workspace");
-    v.setValue("portal-test");
-    params.addParameter(v);
-
-    this.pageMigrationService = new PageMigrationService(params,
-                                                         pomStorage,
-                                                         modelStorage,
-                                                         pageService,
-                                                         jcrPageService,
-                                                         getContainer().getComponentInstanceOfType(ListenerService.class),
-                                                         getContainer().getComponentInstanceOfType(RepositoryService.class),
-                                                         getContainer().getComponentInstanceOfType(SettingService.class));
-    this.siteMigrationService = new SiteMigrationService(params,
-                                                         pomStorage,
-                                                         modelStorage,
-                                                         getContainer().getComponentInstanceOfType(ListenerService.class),
-                                                         getContainer().getComponentInstanceOfType(RepositoryService.class),
-                                                         getContainer().getComponentInstanceOfType(SettingService.class));
-
-    super.begin();
-
-    EntityManagerService managerService =
-                                        getContainer().getComponentInstanceOfType(EntityManagerService.class);
-    EntityTransaction transaction = managerService.getEntityManager().getTransaction();
-    if (!transaction.isActive()) {
-      transaction.begin();
-    }
-  }
-
-  protected void tearDown() throws Exception {
-    end(false);
+    begin();
   }
 
   public void testMigrate() throws Exception {
