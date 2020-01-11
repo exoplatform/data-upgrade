@@ -536,7 +536,7 @@ public class ApplicationRegistryServiceImpl implements ApplicationRegistryServic
         application.setId(contentDef.getCategory().getName() + "/" + contentDef.getName());
         application.setCategoryName(contentDef.getCategory().getName());
         application.setType(applicationType);
-        if (ApplicationType.PORTLET.getName().equals(applicationType.getName())) {
+        if (applicationType != null && ApplicationType.PORTLET.getName().equals(applicationType.getName())) {
             String[] compositeId = customization.getContentId().split("/");
             application.setApplicationName(compositeId[compositeId.length - 1]);
         } else {
