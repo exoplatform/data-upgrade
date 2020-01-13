@@ -64,6 +64,7 @@ public class TestNavigationMigrationService extends AbstractJCRImplTest {
     begin();
   }
 
+  @SuppressWarnings("rawtypes")
   public void testMigrate() throws Exception {
     MOPService mop = manager.getPOMService();
     Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "testMigrate");

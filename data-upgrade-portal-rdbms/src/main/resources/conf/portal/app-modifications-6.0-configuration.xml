@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2003-2020 eXo Platform SAS.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<configuration
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
+  xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">  
+
+  <component>
+    <type>org.exoplatform.portal.jdbc.migration.AppReferencesMigrationService</type>
+  </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.portal.jdbc.migration.AppReferencesMigrationService</target-component>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>NotificationsAdminJuzuPortlet</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platform-notification</string>
+            </field>
+            <field name="oldPortletName">
+              <string>NotificationsAdminJuzuPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>commons-extension</string>
+            </field>
+            <field name="newPortletName">
+              <string>NotificationsAdminJuzuPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>QuickEditLayoutPortlet</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platformNavigation</string>
+            </field>
+            <field name="oldPortletName">
+              <string>PlatformAdminToolbarPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>commons-extension</string>
+            </field>
+            <field name="newPortletName">
+              <string>QuickEditLayoutPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>SearchIndexingManagement</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platform-extension</string>
+            </field>
+            <field name="oldPortletName">
+              <string>SearchIndexingManagement</string>
+            </field>
+            <field name="newApplicationName">
+              <string>commons-extension</string>
+            </field>
+            <field name="newPortletName">
+              <string>SearchIndexingManagement</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>UISetupPlatformToolBarPortlet</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platformNavigation</string>
+            </field>
+            <field name="oldPortletName">
+              <string>UISetupPlatformToolBarPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>commons-extension</string>
+            </field>
+            <field name="newPortletName">
+              <string>UISetupPlatformToolBarPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>Branding</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platform-branding</string>
+            </field>
+            <field name="oldPortletName">
+              <string>Branding</string>
+            </field>
+            <field name="newApplicationName">
+              <string>exoadmin</string>
+            </field>
+            <field name="newPortletName">
+              <string>Branding</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>Invitations</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>homepage-portlets</string>
+            </field>
+            <field name="oldPortletName">
+              <string>Invitations</string>
+            </field>
+            <field name="newApplicationName">
+              <string>social-juzu</string>
+            </field>
+            <field name="newPortletName">
+              <string>Invitations</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>SuggestionsPeopleSpace</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>homepage-portlets</string>
+            </field>
+            <field name="oldPortletName">
+              <string>SuggestionsPeopleSpace</string>
+            </field>
+            <field name="newApplicationName">
+              <string>social-juzu</string>
+            </field>
+            <field name="newPortletName">
+              <string>SuggestionsPeopleSpace</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>WhoIsOnLinePortlet</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>homepage-portlets</string>
+            </field>
+            <field name="oldPortletName">
+              <string>WhoIsOnLinPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>social-portlet</string>
+            </field>
+            <field name="newPortletName">
+              <string>WhoIsOnLinePortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name>UIHelpPlatformToolbarPortlet</name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platformNavigation</string>
+            </field>
+            <field name="oldPortletName">
+              <string>UIHelpPlatformToolbarPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>social-portlet</string>
+            </field>
+            <field name="newPortletName">
+              <string>UIHelpPlatformToolbarPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name></name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platformNavigation</string>
+            </field>
+            <field name="oldPortletName">
+              <string>UIUserNavigationPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>social-portlet</string>
+            </field>
+            <field name="newPortletName">
+              <string>UIUserNavigationPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        
+        <object-param>
+          <name></name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>update</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platformNavigation</string>
+            </field>
+            <field name="oldPortletName">
+              <string>UISpaceNavigationPortlet</string>
+            </field>
+            <field name="newApplicationName">
+              <string>social-portlet</string>
+            </field>
+            <field name="newPortletName">
+              <string>UISpaceNavigationPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Application contentId migration plugin</name>
+      <set-method>addApplicationModification</set-method>
+      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
+      <init-params>
+        <object-param>
+          <name></name>
+          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
+            <field name="modificationType">
+              <string>remove</string>
+            </field>
+            <field name="oldApplicationName">
+              <string>platformNavigation</string>
+            </field>
+            <field name="oldPortletName">
+              <string>UISearchPlatformToolbarPortlet</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+</configuration>

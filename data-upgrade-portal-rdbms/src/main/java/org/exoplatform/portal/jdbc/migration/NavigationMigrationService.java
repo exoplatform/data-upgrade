@@ -43,8 +43,9 @@ public class NavigationMigrationService extends AbstractMigrationService {
                                     POMSessionManager manager,
                                     ListenerService listenerService,
                                     RepositoryService repoService,
-                                    SettingService settingService) {
-    super(initParams, pomStorage, modelDataStorage, listenerService, repoService, settingService);
+                                    SettingService settingService,
+                                    AppReferencesMigrationService appReferencesMigrationService) {
+    super(initParams, pomStorage, modelDataStorage, listenerService, repoService, settingService, appReferencesMigrationService);
     this.navService = navService;
 
     SimpleDataCache cache = new SimpleDataCache();

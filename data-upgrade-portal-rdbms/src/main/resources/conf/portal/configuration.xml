@@ -281,4 +281,5 @@
     </component-plugin>
   </external-component-plugins>
 
+  <import>jar:/conf/portal/app-modifications-6.0-configuration.xml</import>
 </configuration>

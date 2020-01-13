@@ -16,8 +16,9 @@ public class SiteMigrationService extends AbstractMigrationService {
                               ModelDataStorage modelStorage,
                               ListenerService listenerService,
                               RepositoryService repoService,
-                              SettingService settingService) {
-    super(initParams, pomStorage, modelStorage, listenerService, repoService, settingService);
+                              SettingService settingService,
+                              AppReferencesMigrationService appReferencesMigrationService) {
+    super(initParams, pomStorage, modelStorage, listenerService, repoService, settingService, appReferencesMigrationService);
   }
 
   @Override

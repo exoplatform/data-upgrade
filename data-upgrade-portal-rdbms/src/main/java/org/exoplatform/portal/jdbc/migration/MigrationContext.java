@@ -34,6 +34,8 @@ public final class MigrationContext {
 
   protected static final String  NAVIGATION_SCOPE                  = "NAVIGATION";
 
+  public static final String     APP_ID_MIGRATION_STATUS_KEY       = "APP_ID_MIGRATION_STATUS_KEY";
+
   public static final String     PORTAL_RDBMS_MIGRATION_STATUS_KEY = "PORTAL_RDBMS_MIGRATION_DONE";
 
   public static final String     PORTAL_RDBMS_APP_MIGRATION_KEY    = "PORTAL_RDBMS_APP_MIGRATION_DONE";
@@ -53,6 +55,10 @@ public final class MigrationContext {
   private MigrationContext() {
   }
 
+  public static boolean isApplicationContentIdDone() {
+    return getSettingValue(APP_ID_MIGRATION_STATUS_KEY);
+  }
+  
   public static boolean isDone() {
     return getSettingValue(PORTAL_RDBMS_MIGRATION_STATUS_KEY);
   }
@@ -65,6 +71,10 @@ public final class MigrationContext {
             && isMigrated(siteToMigrateKey, PortalEntityType.SITE));
   }
 
+  protected static void setApplicationContentIdDone() {
+    updateSettingValue(APP_ID_MIGRATION_STATUS_KEY, true);
+  }
+  
   protected static void setDone() {
     updateSettingValue(PORTAL_RDBMS_MIGRATION_STATUS_KEY, true);
   }

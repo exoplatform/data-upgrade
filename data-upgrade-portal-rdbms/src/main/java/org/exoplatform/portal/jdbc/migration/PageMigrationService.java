@@ -27,8 +27,9 @@ public class PageMigrationService extends AbstractMigrationService {
                               PageServiceImpl jcrPageService,
                               ListenerService listenerService,
                               RepositoryService repoService,
-                              SettingService settingService) {
-    super(initParams, pomStorage, modelStorage, listenerService, repoService, settingService);
+                              SettingService settingService,
+                              AppReferencesMigrationService appReferencesMigrationService) {
+    super(initParams, pomStorage, modelStorage, listenerService, repoService, settingService, appReferencesMigrationService);
     this.pageService = pageService;
     this.jcrPageService = jcrPageService;
   }
@@ -66,10 +67,9 @@ public class PageMigrationService extends AbstractMigrationService {
           SiteKey siteKey = key.getSite();
           PageContext created = pageService.loadPage(key);
 
-          org.exoplatform.portal.pom.data.PageKey pomPageKey =
-                                                             new org.exoplatform.portal.pom.data.PageKey(siteKey.getTypeName(),
-                                                                                                         siteKey.getName(),
-                                                                                                         key.getName());
+          org.exoplatform.portal.pom.data.PageKey pomPageKey = new org.exoplatform.portal.pom.data.PageKey(siteKey.getTypeName(),
+                                                                                                           siteKey.getName(),
+                                                                                                           key.getName());
           PageData pageDataToMigrate = pomStorage.getPage(pomPageKey);
           String storageId = null;
           if (created == null) {

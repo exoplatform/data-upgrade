@@ -18,29 +18,32 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.web.filter.*;
 
 public class RDBMSMigrationManager implements Startable {
-  private static final Log            LOG                          = ExoLogger.getLogger(RDBMSMigrationManager.class);
+  private static final Log              LOG                          = ExoLogger.getLogger(RDBMSMigrationManager.class);
 
-  public static final String          MIGRATION_SETTING_GLOBAL_KEY = "MIGRATION_SETTING_GLOBAL";
+  public static final String            MIGRATION_SETTING_GLOBAL_KEY = "MIGRATION_SETTING_GLOBAL";
 
-  private PortalContainer             container;
+  private PortalContainer               container;
 
-  private SiteMigrationService        siteMigrationService;
+  private SiteMigrationService          siteMigrationService;
 
-  private PageMigrationService        pageMigrationService;
+  private PageMigrationService          pageMigrationService;
 
-  private NavigationMigrationService  navMigrationService;
+  private NavigationMigrationService    navMigrationService;
 
-  private AppRegistryMigrationService appMigrationService;
+  private AppRegistryMigrationService   appMigrationService;
 
-  private SettingService              settingService;
+  private AppReferencesMigrationService appReferencesMigrationService;
 
-  private ExtensibleFilter            extensibleFilter;
+  private SettingService                settingService;
+
+  private ExtensibleFilter              extensibleFilter;
 
   public RDBMSMigrationManager(PortalContainer container,
                                SiteMigrationService siteMigrationService,
                                PageMigrationService pageMigrationService,
                                NavigationMigrationService navMigrationService,
                                AppRegistryMigrationService appMigrationService,
+                               AppReferencesMigrationService appReferencesMigrationService,
                                ExtensibleFilter extensibleFilter,
                                SettingService settingService) {
     this.container = container;
@@ -48,6 +51,7 @@ public class RDBMSMigrationManager implements Startable {
     this.pageMigrationService = pageMigrationService;
     this.navMigrationService = navMigrationService;
     this.appMigrationService = appMigrationService;
+    this.appReferencesMigrationService = appReferencesMigrationService;
     this.settingService = settingService;
     this.extensibleFilter = extensibleFilter;
   }
@@ -56,6 +60,15 @@ public class RDBMSMigrationManager implements Startable {
   public void start() {
     if (MigrationContext.isDone()) {
       LOG.info("Overall Portal JCR to RDBMS migration already finished, ignore it.");
+
+      if (!MigrationContext.isApplicationContentIdDone()) {
+        try {
+          appReferencesMigrationService.doMigration();
+          MigrationContext.setApplicationContentIdDone();
+        } catch (Exception e) {
+          LOG.error("Error while migrating application names", e);
+        }
+      }
       return;
     }
 
@@ -131,6 +144,7 @@ public class RDBMSMigrationManager implements Startable {
       MigrationContext.restartTransaction();
 
       MigrationContext.setDone();
+      MigrationContext.setApplicationContentIdDone();
       MigrationContext.restartTransaction();
     }
   }

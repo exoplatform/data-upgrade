@@ -43,6 +43,8 @@ public abstract class AbstractMigrationService {
 
   protected final RepositoryService                  repoService;
 
+  protected final AppReferencesMigrationService      appReferencesMigrationService;
+
   protected final SettingService                     settingService;
 
   protected String                                   workspaceName;
@@ -52,12 +54,14 @@ public abstract class AbstractMigrationService {
                                   ModelDataStorage modelStorage,
                                   ListenerService listenerService,
                                   RepositoryService repoService,
-                                  SettingService settingService) {
+                                  SettingService settingService,
+                                  AppReferencesMigrationService appReferencesMigrationService) {
     this.pomStorage = pomDataStorage;
     this.modelStorage = modelStorage;
     this.listenerService = listenerService;
     this.repoService = repoService;
     this.settingService = settingService;
+    this.appReferencesMigrationService = appReferencesMigrationService;
 
     this.log = ExoLogger.getLogger(this.getClass().getName());
 
@@ -141,6 +145,13 @@ public abstract class AbstractMigrationService {
     try {
       S s = pomStorage.load(applicationData.getState(), applicationData.getType());
       String contentId = pomStorage.getId(app.getState());
+      if (appReferencesMigrationService.isApplicationToModify(contentId)) {
+        String newContentId = appReferencesMigrationService.modifyApplicationReference(contentId);
+        contentId = newContentId;
+      } else if (appReferencesMigrationService.isApplicationToRemove(contentId)) {
+        log.info("Remove application instance '{}' that has been removed", contentId);
+        return null;
+      }
       ApplicationState<S> migrated = new TransientApplicationState<>(contentId, s);
 
       return new ApplicationData<>(null,

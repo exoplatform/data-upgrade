@@ -61,6 +61,7 @@
   <remove-configuration>org.exoplatform.portal.jdbc.migration.PageMigrationService</remove-configuration>
   <remove-configuration>org.exoplatform.portal.jdbc.migration.SiteMigrationService</remove-configuration>
   <remove-configuration>org.exoplatform.portal.jdbc.migration.AppRegistryMigrationService</remove-configuration>
+  <remove-configuration>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</remove-configuration>
   <remove-configuration>org.exoplatform.portal.jdbc.migration.RDBMSMigrationManager</remove-configuration>
 
 </configuration>

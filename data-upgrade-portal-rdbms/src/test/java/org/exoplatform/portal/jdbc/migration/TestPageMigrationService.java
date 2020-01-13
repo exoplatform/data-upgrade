@@ -2,13 +2,10 @@ package org.exoplatform.portal.jdbc.migration;
 
 import java.util.*;
 
-import javax.persistence.EntityTransaction;
-
 import org.gatein.mop.api.workspace.ObjectType;
 import org.gatein.mop.api.workspace.Site;
 import org.gatein.mop.core.api.MOPService;
 
-import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.component.test.*;
 import org.exoplatform.portal.AbstractJCRImplTest;
 import org.exoplatform.portal.config.model.PortalConfig;
