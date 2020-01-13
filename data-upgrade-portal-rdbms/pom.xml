@@ -151,7 +151,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <exo.profiles>hsqldb</exo.profiles>
+            <exo.profiles>hsqldb,jcr</exo.profiles>
             <exo.files.storage.dir>target/exo-files</exo.files.storage.dir>
           </systemPropertyVariables>
         </configuration>
