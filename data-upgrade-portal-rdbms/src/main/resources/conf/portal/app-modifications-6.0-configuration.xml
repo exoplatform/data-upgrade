@@ -73,7 +73,7 @@
               <string>PlatformAdminToolbarPortlet</string>
             </field>
             <field name="newApplicationName">
-              <string>commons-extension</string>
+              <string>platformNavigation</string>
             </field>
             <field name="newPortletName">
               <string>QuickEditLayoutPortlet</string>
@@ -104,33 +104,6 @@
             </field>
             <field name="newPortletName">
               <string>SearchIndexingManagement</string>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>Application contentId migration plugin</name>
-      <set-method>addApplicationModification</set-method>
-      <type>org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification</type>
-      <init-params>
-        <object-param>
-          <name>UISetupPlatformToolBarPortlet</name>
-          <object type="org.exoplatform.portal.jdbc.migration.ApplicationReferenceModification">
-            <field name="modificationType">
-              <string>update</string>
-            </field>
-            <field name="oldApplicationName">
-              <string>platformNavigation</string>
-            </field>
-            <field name="oldPortletName">
-              <string>UISetupPlatformToolBarPortlet</string>
-            </field>
-            <field name="newApplicationName">
-              <string>commons-extension</string>
-            </field>
-            <field name="newPortletName">
-              <string>UISetupPlatformToolBarPortlet</string>
             </field>
           </object>
         </object-param>
