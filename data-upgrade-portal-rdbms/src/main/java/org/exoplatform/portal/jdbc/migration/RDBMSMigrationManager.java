@@ -282,7 +282,7 @@ public class RDBMSMigrationManager implements Startable {
     int siteToMigrateIndex = 0;
     for (PortalKey siteToMigrateKey : sitesToMigrate) {
       if (MigrationContext.isForceStop()) {
-        LOG.info("|  \\ FORCE STOPPING CLEANUO. Cleaned up {} / {} sites, failed = {}",
+        LOG.info("|  \\ FORCE STOPPING CLEANUP. Cleaned up {} / {} sites, failed = {}",
                  siteToMigrateIndex,
                  totalSitesToMigrateCount,
                  failedSitesToRemove.size());
