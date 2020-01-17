@@ -47,7 +47,7 @@ public class PageMigrationService extends AbstractMigrationService {
       pages = jcrPageService.findPages(offset,
                                        limitThreshold,
                                        SiteType.valueOf(siteToMigrateKey.getType().toUpperCase()),
-                                       siteToMigrateKey.getId(),
+                                       siteToMigrateKey.getId().replaceAll("'", "''"),
                                        null,
                                        null);
       Iterator<PageContext> pageItr = pages.iterator();
@@ -127,20 +127,46 @@ public class PageMigrationService extends AbstractMigrationService {
     int errors = 0;
     int offset = 0;
     QueryResult<PageContext> pages;
+    Set<PageKey> deletedPages = new HashSet<>();
     do {
-      pages = jcrPageService.findPages(offset, limitThreshold, null, null, null, null);
+      pages = jcrPageService.findPages(offset,
+                                       limitThreshold,
+                                       SiteType.valueOf(siteToMigrateKey.getType().toUpperCase()),
+                                       siteToMigrateKey.getId().replaceAll("'", "''"),
+                                       null,
+                                       null);
 
       Iterator<PageContext> pageItr = pages.iterator();
       while (pageItr.hasNext()) {
         PageContext page = pageItr.next();
+        PageKey key = page.getKey();
+        String siteType = key.getSite().getTypeName();
+        String siteId = key.getSite().getName();
         try {
-          jcrPageService.destroyPage(page.getKey());
+          if (deletedPages.contains(key)) {
+            log.info("|  ---- | IGNORE::page {}::{}::{} (already deleted)",
+                     siteType,
+                     siteId,
+                     key.getName());
+            continue;
+          }
+          deletedPages.add(key);
+          log.info("|  ---- | REMOVE::page {}::{}::{}",
+                   siteType,
+                   siteId,
+                   key.getName());
+          jcrPageService.destroyPage(key);
         } catch (Exception ex) {
-          log.error("Can't remove page", ex);
+          log.error("Can't remove page {}::{}::{}",
+                    siteType,
+                    siteId,
+                    key.getName(),
+                    ex);
           errors++;
         }
       }
-    } while (pages.getSize() > 0);
+      MigrationContext.restartTransaction();
+    } while (pages.getSize() > 0 && errors < limitThreshold);
     if (errors > 0) {
       throw new IllegalStateException("Some errors (" + errors + ") was encountered while removing pages of site "
           + siteToMigrateKey.getType() + "/" + siteToMigrateKey.getId() + "");

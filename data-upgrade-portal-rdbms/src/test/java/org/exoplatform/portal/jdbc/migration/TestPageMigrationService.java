@@ -55,11 +55,14 @@ public class TestPageMigrationService extends AbstractJCRImplTest {
   }
 
   public void testMigrate() throws Exception {
+    String ownerType = "portal";
+    String ownerId = "testPage'MigrationSite";
+
     MOPService mop = manager.getPOMService();
-    Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, "testPageMigrationSite");
+    Site portal = mop.getModel().getWorkspace().addSite(ObjectType.PORTAL_SITE, ownerId);
     portal.getRootPage().addChild("pages");
 
-    PageKey pageKey = new PageKey(SiteKey.portal("testPageMigrationSite"), "testPageMigration");
+    PageKey pageKey = new PageKey(SiteKey.portal(ownerId), "testPageMigration");
     PageState state = new PageState("",
                                     "",
                                     false,
@@ -97,8 +100,8 @@ public class TestPageMigrationService extends AbstractJCRImplTest {
                                  "",
                                  Collections.emptyList(),
                                  Arrays.asList(container),
-                                 "portal",
-                                 "testPageMigrationSite",
+                                 ownerType,
+                                 ownerId,
                                  "",
                                  false,
                                  Collections.emptyList(),
@@ -121,7 +124,7 @@ public class TestPageMigrationService extends AbstractJCRImplTest {
                                   Collections.emptyList(),
                                   Collections.emptyList());
     modelStorage.create(new PortalData(null,
-                                       "testPageMigrationSite",
+                                       ownerId,
                                        SiteType.PORTAL.getName(),
                                        null,
                                        null,
@@ -135,8 +138,8 @@ public class TestPageMigrationService extends AbstractJCRImplTest {
 
     restartTransaction(true);
 
-    pageMigrationService.doMigrate(new PortalKey(PortalConfig.PORTAL_TYPE, "testPageMigrationSite"));
-    pageMigrationService.doRemove(new PortalKey(PortalConfig.PORTAL_TYPE, "testPageMigrationSite"));
+    pageMigrationService.doMigrate(new PortalKey(PortalConfig.PORTAL_TYPE, ownerId));
+    pageMigrationService.doRemove(new PortalKey(PortalConfig.PORTAL_TYPE, ownerId));
 
     restartTransaction(true);
 
@@ -145,8 +148,8 @@ public class TestPageMigrationService extends AbstractJCRImplTest {
 
     // Clean up portal
     PortalData portalData = new PortalData(null,
-                                           "testPageMigrationSite",
-                                           "portal",
+                                           ownerId,
+                                           ownerType,
                                            "en",
                                            "",
                                            "",
