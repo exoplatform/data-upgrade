@@ -278,43 +278,52 @@ public class RDBMSMigrationManager implements Startable {
 
   private void doRemove(Set<PortalKey> failedSitesToRemove) {
     List<PortalKey> sitesToMigrate = siteMigrationService.getSitesToMigrate();
-    int totalSitesToMigrateCount = sitesToMigrate.size();
-    int siteToMigrateIndex = 0;
-    for (PortalKey siteToMigrateKey : sitesToMigrate) {
+    int totalSitesToCleanupCount = sitesToMigrate.size();
+    int siteToCleanupIndex = 0;
+    for (PortalKey siteToCleanupKey : sitesToMigrate) {
       if (MigrationContext.isForceStop()) {
         LOG.info("|  \\ FORCE STOPPING CLEANUP. Cleaned up {} / {} sites, failed = {}",
-                 siteToMigrateIndex,
-                 totalSitesToMigrateCount,
+                 siteToCleanupIndex,
+                 totalSitesToCleanupCount,
                  failedSitesToRemove.size());
         return;
       }
 
-      siteToMigrateIndex++;
+      siteToCleanupIndex++;
+      if (!MigrationContext.isMigrated(siteToCleanupKey)) {
+        LOG.info("|  ---- \\ IGNORE::NOT migrated yet site {} / {} (site: {}::{})",
+                 siteToCleanupIndex,
+                 totalSitesToCleanupCount,
+                 siteToCleanupKey.getType(),
+                 siteToCleanupKey.getId());
+        continue;
+      }
 
       boolean removed = doRemove(navMigrationService,
-                                 siteToMigrateKey,
+                                 siteToCleanupKey,
                                  PortalEntityType.NAVIGATION,
-                                 siteToMigrateIndex,
-                                 totalSitesToMigrateCount,
+                                 siteToCleanupIndex,
+                                 totalSitesToCleanupCount,
                                  failedSitesToRemove);
+
       if (!removed || MigrationContext.isForceStop()) {
         continue;
       }
       removed = doRemove(pageMigrationService,
-                         siteToMigrateKey,
+                         siteToCleanupKey,
                          PortalEntityType.PAGE,
-                         siteToMigrateIndex,
-                         totalSitesToMigrateCount,
+                         siteToCleanupIndex,
+                         totalSitesToCleanupCount,
                          failedSitesToRemove);
       if (!removed || MigrationContext.isForceStop()) {
         continue;
       }
 
       doRemove(siteMigrationService,
-               siteToMigrateKey,
+               siteToCleanupKey,
                PortalEntityType.SITE,
-               siteToMigrateIndex,
-               totalSitesToMigrateCount,
+               siteToCleanupIndex,
+               totalSitesToCleanupCount,
                failedSitesToRemove);
     }
   }
@@ -325,9 +334,9 @@ public class RDBMSMigrationManager implements Startable {
                              int siteToCleanupIndex,
                              int totalSitesToCleanupCount,
                              Set<PortalKey> failedSitesToCleanup) {
-    boolean removed = true;
+    boolean removed = false;
     long t1 = System.currentTimeMillis();
-    if (MigrationContext.isMigrated(siteToCleanupKey, entityType)) {
+    if (MigrationContext.isMigrated(siteToCleanupKey)) {
       LOG.info("|  ---- \\ START::cleanup {} {} / {} (site: {}::{})",
                entityType.getTitle(),
                siteToCleanupIndex,
@@ -336,6 +345,7 @@ public class RDBMSMigrationManager implements Startable {
                siteToCleanupKey.getId());
       try {
         migrationService.doRemove(siteToCleanupKey);
+        removed = true;
 
         LOG.info("|  ---- / END::cleanup {} {} / {} (site: {}::{}) in {}ms",
                  entityType.getTitle(),
@@ -345,7 +355,6 @@ public class RDBMSMigrationManager implements Startable {
                  siteToCleanupKey.getId(),
                  System.currentTimeMillis() - t1);
       } catch (Exception e) {
-        removed = false;
         failedSitesToCleanup.add(siteToCleanupKey);
         LOG.error("|  ---- / END::cleanup {} {} / {} (site: {}::{}) in {}ms",
                   entityType.getTitle(),
@@ -359,8 +368,7 @@ public class RDBMSMigrationManager implements Startable {
         MigrationContext.restartTransaction();
       }
     } else {
-      LOG.info("|  ---- \\ IGNORE::NOT migrated yet {} {} / {} (site: {}::{})",
-               entityType.getTitle(),
+      LOG.info("|  ---- \\ IGNORE::NOT migrated yet site {} / {} (site: {}::{})",
                siteToCleanupIndex,
                totalSitesToCleanupCount,
                siteToCleanupKey.getType(),
