@@ -44,12 +44,7 @@ public class PageMigrationService extends AbstractMigrationService {
       if (MigrationContext.isForceStop()) {
         throw new InterruptedException();
       }
-      pages = jcrPageService.findPages(offset,
-                                       limitThreshold,
-                                       SiteType.valueOf(siteToMigrateKey.getType().toUpperCase()),
-                                       siteToMigrateKey.getId().replaceAll("'", "''"),
-                                       null,
-                                       null);
+      pages = getPagesIterator(siteToMigrateKey, offset);
       Iterator<PageContext> pageItr = pages.iterator();
       while (pageItr.hasNext()) {
         if (MigrationContext.isForceStop()) {
@@ -129,12 +124,7 @@ public class PageMigrationService extends AbstractMigrationService {
     QueryResult<PageContext> pages;
     Set<PageKey> deletedPages = new HashSet<>();
     do {
-      pages = jcrPageService.findPages(offset,
-                                       limitThreshold,
-                                       SiteType.valueOf(siteToMigrateKey.getType().toUpperCase()),
-                                       siteToMigrateKey.getId().replaceAll("'", "''"),
-                                       null,
-                                       null);
+      pages = getPagesIterator(siteToMigrateKey, offset);
 
       Iterator<PageContext> pageItr = pages.iterator();
       while (pageItr.hasNext()) {
@@ -144,24 +134,14 @@ public class PageMigrationService extends AbstractMigrationService {
         String siteId = key.getSite().getName();
         try {
           if (deletedPages.contains(key)) {
-            log.info("|  ---- | IGNORE::page {}::{}::{} (already deleted)",
-                     siteType,
-                     siteId,
-                     key.getName());
+            log.info("|  ---- | IGNORE::page {}::{}::{} (already deleted)", siteType, siteId, key.getName());
             continue;
           }
           deletedPages.add(key);
-          log.info("|  ---- | REMOVE::page {}::{}::{}",
-                   siteType,
-                   siteId,
-                   key.getName());
+          log.info("|  ---- | REMOVE::page {}::{}::{}", siteType, siteId, key.getName());
           jcrPageService.destroyPage(key);
         } catch (Exception ex) {
-          log.error("Can't remove page {}::{}::{}",
-                    siteType,
-                    siteId,
-                    key.getName(),
-                    ex);
+          log.error("Can't remove page {}::{}::{}", siteType, siteId, key.getName(), ex);
           errors++;
         }
       }
@@ -176,4 +156,14 @@ public class PageMigrationService extends AbstractMigrationService {
   protected String getListenerKey() {
     return EVENT_LISTENER_KEY;
   }
+
+  private QueryResult<PageContext> getPagesIterator(PortalKey siteToMigrateKey, int offset) {
+    return jcrPageService.findPages(offset,
+                                    limitThreshold,
+                                    SiteType.valueOf(siteToMigrateKey.getType().toUpperCase()),
+                                    siteToMigrateKey.getId().replaceAll("'", "''"),
+                                    null,
+                                    null);
+  }
+
 }
