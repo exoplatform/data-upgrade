@@ -58,17 +58,17 @@ public class RDBMSMigrationManager implements Startable {
 
   @Override
   public void start() {
+    if (!MigrationContext.isApplicationContentIdDone()) {
+      try {
+        appReferencesMigrationService.doMigration();
+        MigrationContext.setApplicationContentIdDone();
+      } catch (Exception e) {
+        LOG.error("Error while migrating application names", e);
+      }
+    }
+
     if (MigrationContext.isDone()) {
       LOG.info("Overall Portal JCR to RDBMS migration already finished, ignore it.");
-
-      if (!MigrationContext.isApplicationContentIdDone()) {
-        try {
-          appReferencesMigrationService.doMigration();
-          MigrationContext.setApplicationContentIdDone();
-        } catch (Exception e) {
-          LOG.error("Error while migrating application names", e);
-        }
-      }
       return;
     }
 
