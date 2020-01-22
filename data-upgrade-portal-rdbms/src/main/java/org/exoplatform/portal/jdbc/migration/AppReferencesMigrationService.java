@@ -54,7 +54,7 @@ public class AppReferencesMigrationService {
       }
     }
 
-    LOG.info("| / END::Application References migration from app registry in {}ms", System.currentTimeMillis() - t);
+    LOG.info("| / END::Application References migration from pages and sites in {}ms", System.currentTimeMillis() - t);
   }
 
   private void migrateApplicationRegistryEntries() throws Exception {

@@ -58,13 +58,11 @@ public class RDBMSMigrationManager implements Startable {
 
   @Override
   public void start() {
+    // This is added only for installations that made a weekly deployment
+    // through 6.0.0 milestones versions only (Tribe). The real migration of
+    // application identifiers is made in {@link PageMigrationService}
     if (!MigrationContext.isApplicationContentIdDone()) {
-      try {
-        appReferencesMigrationService.doMigration();
-        MigrationContext.setApplicationContentIdDone();
-      } catch (Exception e) {
-        LOG.error("Error while migrating application names", e);
-      }
+      migrateApplicationNames();
     }
 
     if (MigrationContext.isDone()) {
@@ -123,6 +121,23 @@ public class RDBMSMigrationManager implements Startable {
     migrationThread.start();
   }
 
+  @Override
+  public void stop() {
+    MigrationContext.setForceStop();
+  }
+
+  private void migrateApplicationNames() {
+    RequestLifeCycle.begin(container);
+    try {
+      appReferencesMigrationService.doMigration();
+      MigrationContext.setApplicationContentIdDone();
+    } catch (Exception e) {
+      LOG.error("Error while migrating application names", e);
+    } finally {
+      RequestLifeCycle.end();
+    }
+  }
+
   private void installMigrationFilter() {
     InitParams params = new InitParams();
     ObjectParameter objectParameter = new ObjectParameter();
@@ -133,18 +148,15 @@ public class RDBMSMigrationManager implements Startable {
     this.extensibleFilter.addFilterDefinitions(new FilterDefinitionPlugin(params));
   }
 
-  @Override
-  public void stop() {
-    MigrationContext.setForceStop();
-  }
-
   private void setMigrationAsDone(Set<PortalKey> failedSitesToMigrate, Set<PortalKey> failedSitesToRemove) {
     if (MigrationContext.isAppCleanupDone() && failedSitesToMigrate.isEmpty() && failedSitesToRemove.isEmpty()) {
       settingService.remove(MigrationContext.CONTEXT);
       MigrationContext.restartTransaction();
 
       MigrationContext.setDone();
-      MigrationContext.setApplicationContentIdDone();
+      MigrationContext.restartTransaction();
+
+      migrateApplicationNames();
       MigrationContext.restartTransaction();
     }
   }
