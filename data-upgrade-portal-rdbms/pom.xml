@@ -30,6 +30,9 @@
   <artifactId>data-upgrade-portal-rdbms</artifactId>
   <packaging>jar</packaging>
   <name>eXo Add-on:: Data Upgrade Add-on - Portal RDBMS</name>
+  <properties>
+    <exo.test.coverage.ratio>0.50</exo.test.coverage.ratio>
+  </properties>
 
   <dependencies>
     <dependency>
