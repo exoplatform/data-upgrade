@@ -21,11 +21,13 @@
   </scm>
   <modules>
     <module>data-upgrade-portal-rdbms</module>
+    <module>data-upgrade-wiki-editor</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
     <org.exoplatform.social.version>6.0.x-wiki-editor-SNAPSHOT</org.exoplatform.social.version>
+    <org.exoplatform.wiki.version>6.0.x-wiki-editor-SNAPSHOT</org.exoplatform.wiki.version>
     <org.exoplatform.jcr.version>6.0.x-wiki-editor-SNAPSHOT</org.exoplatform.jcr.version>
 
     <!-- Used to generate default methods for POJO -->
@@ -49,6 +51,13 @@
         <groupId>org.exoplatform.social</groupId>
         <artifactId>social</artifactId>
         <version>${org.exoplatform.social.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.wiki</groupId>
+        <artifactId>wiki</artifactId>
+        <version>${org.exoplatform.wiki.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -134,6 +143,26 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-portal-rdbms</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-wiki-editor-upgrade</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-wiki-editor-wiki-renderer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-wiki-editor-macros-iframe</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-wiki-editor-wiki-service-xwiki</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
