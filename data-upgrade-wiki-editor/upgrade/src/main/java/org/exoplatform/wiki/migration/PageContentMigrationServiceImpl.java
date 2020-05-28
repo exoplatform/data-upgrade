@@ -281,7 +281,10 @@ public class PageContentMigrationServiceImpl implements PageContentMigrationServ
         portalURL += "/" + page.getWikiOwner();
       }
     } else {
-      portalURL = page.getUrl().substring(0, page.getUrl().lastIndexOf("/wiki/"));
+      int index = page.getUrl().lastIndexOf("/wiki/");
+      if(index >= 0) {
+        portalURL = page.getUrl().substring(0, index);
+      }
     }
     wikiContext.setPortalURL(portalURL);
     wikiContext.setPortletURI("/wiki");
