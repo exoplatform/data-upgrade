@@ -9,3 +9,4 @@ org.exoplatform.wiki.rendering.context.DefaultMarkupContextManager
 org.exoplatform.wiki.rendering.builder.ReferenceBuilder
 org.exoplatform.wiki.rendering.builder.XWiki20ReferenceBuilder
 org.exoplatform.wiki.rendering.reference.ObjectReferenceConverter
+100:org.exoplatform.wiki.rendering.impl.XHTMLRenderer
