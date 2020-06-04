@@ -16,35 +16,20 @@
  */
 package org.exoplatform.wiki.rendering.macro.children;
 
-import org.apache.commons.lang.StringUtils;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.wiki.mow.api.Page;
-import org.exoplatform.wiki.mow.api.Wiki;
-import org.exoplatform.wiki.rendering.builder.ReferenceBuilder;
 import org.exoplatform.wiki.rendering.context.MarkupContextManager;
-import org.exoplatform.wiki.rendering.macro.ExcerptUtils;
-import org.exoplatform.wiki.service.WikiContext;
-import org.exoplatform.wiki.service.WikiPageParams;
-import org.exoplatform.wiki.service.WikiService;
-import org.exoplatform.wiki.tree.TreeNode;
-import org.exoplatform.wiki.tree.utils.TreeUtils;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.context.Execution;
-import org.xwiki.context.ExecutionContext;
 import org.xwiki.rendering.block.*;
-import org.xwiki.rendering.listener.reference.DocumentResourceReference;
-import org.xwiki.rendering.listener.reference.ResourceType;
 import org.xwiki.rendering.macro.AbstractMacro;
 import org.xwiki.rendering.macro.MacroExecutionException;
 import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.rendering.transformation.MacroTransformationContext;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -75,8 +60,6 @@ public class ChildrenMacro extends AbstractMacro<ChildrenMacroParameters> {
   @Inject
   private MarkupContextManager markupContextManager;
   
-  private boolean excerpt;
-  
   public ChildrenMacro() {
     super("Children", DESCRIPTION, ChildrenMacroParameters.class);
     setDefaultCategory(DEFAULT_CATEGORY_NAVIGATION);
@@ -84,103 +67,16 @@ public class ChildrenMacro extends AbstractMacro<ChildrenMacroParameters> {
 
   @Override
   public List<Block> execute(ChildrenMacroParameters parameters, String content, MacroTransformationContext context) throws MacroExecutionException {
-    boolean descendant = parameters.isDescendant();
-    excerpt = parameters.isExcerpt();
-    String documentName = parameters.getParent();
-    String childrenNum = parameters.getChildrenNum();
-    String depth = parameters.getDepth();
-    
-    WikiPageParams params = markupContextManager.getMarkupContext(documentName, ResourceType.DOCUMENT);
-    if (StringUtils.EMPTY.equals(documentName)) {
-      ExecutionContext ec = execution.getContext();
-      if (ec != null) {
-        WikiContext wikiContext = (WikiContext) ec.getProperty(WikiContext.WIKICONTEXT);
-        params = wikiContext;
-      }
-    }
-    Block root;
-    try {
-      WikiService wikiService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(WikiService.class);
-            
-      // Check if root page exist
-      Page wikiPage = wikiService.getPageOfWikiByName(params.getType(), params.getOwner(), params.getPageName());
-      if (wikiPage == null) {
-        // if root page was renamed then find it
-        wikiPage = wikiService.getRelatedPage(params.getType(), params.getOwner(), params.getPageName());
-        if (wikiPage != null) {
-          Wiki wiki = wikiService.getWikiByTypeAndOwner(wikiPage.getWikiType(), wikiPage.getWikiOwner());
-          params = new WikiPageParams(wiki.getType(), wiki.getOwner(), wikiPage.getName());
-        }
-      }
-      
-      root = generateTree(params, descendant, childrenNum, depth, context);
-      WikiContext wikiContext = getWikiContext();
-      wikiService.addPageLink(new WikiPageParams(wikiContext.getType(), wikiContext.getOwner(), wikiContext.getPageName()),
-                                        new WikiPageParams(params.getType(), params.getOwner(), params.getPageName()));
-      return Collections.singletonList(root);
-    } catch (Exception e) {
-      log.debug("Failed to ", e);
-      return Collections.emptyList();
-    }
-  }
+    Block includePageBlock = new RawBlock("<exo-wiki-children-pages></exo-wiki-children-pages>", Syntax.XHTML_1_0);
 
-  private Block generateTree(WikiPageParams params, boolean descendant, String childrenNum, String depth, MacroTransformationContext context) throws Exception {
-    Block block = new RawBlock("<exo-wiki-children-pages depth=\"" + depth + "\"></exo-wiki-children-pages>", Syntax.XHTML_1_0);
-    return block;
-  }
+    Block container = new GroupBlock(Arrays.asList(includePageBlock));
+    container.setParameter("class", "wiki-children-pages");
 
-  public ListItemBlock trankformToBlock(TreeNode node, MacroTransformationContext context) throws Exception {
-    WikiService wikiService = (WikiService) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(WikiService.class);
-    List<Block> blocks = new ArrayList<Block>();
-    
-    WikiPageParams params = TreeUtils.getPageParamsFromPath(node.getPath());
-    Page page = wikiService.getPageOfWikiByName(params.getType(), params.getOwner(), params.getPageName());
-    DocumentResourceReference link = new DocumentResourceReference(getReferenceBuilder(context).build(params));
-    List<Block> content = new ArrayList<Block>();
-    content.add(new WordBlock(page.getTitle()));
-
-    LinkBlock linkBlock = new LinkBlock(content, link, true);
-    blocks.add(linkBlock);
-    if (excerpt) {
-      String excerpts = ExcerptUtils.getExcerpts(params);
-      if (!StringUtils.EMPTY.equals(excerpts)) {
-        blocks.add(new RawBlock(excerpts, Syntax.XHTML_1_0));
-      }
-    }
-    return new ListItemBlock(blocks);
-  }
-
-  public void addBlock(Block block, TreeNode node, MacroTransformationContext context) throws Exception {
-    List<TreeNode> children = node.getChildren();
-    Block childrenBlock = new BulletedListBlock(Collections.<Block> emptyList());
-    int size = children.size();
-    for (int i = 0; i < size; i++) {
-      Block listBlock = trankformToBlock(children.get(i), context);
-      addBlock(listBlock, children.get(i), context);
-      childrenBlock.addChild(listBlock);
-    }
-    block.addChild(childrenBlock);
+    return Collections.singletonList(container);
   }
 
   @Override
   public boolean supportsInlineMode() {
     return true;
-  }
-
-  private ReferenceBuilder getReferenceBuilder(MacroTransformationContext context) throws MacroExecutionException {
-    try {
-      return componentManager.getInstance(ReferenceBuilder.class, context.getSyntax().toIdString());
-    } catch (ComponentLookupException e) {
-      throw new MacroExecutionException(String.format("Failed to find reference builder for syntax %s", context.getSyntax().toIdString()), e);
-    }
-  }
-  
-  private WikiContext getWikiContext() {
-    ExecutionContext ec = execution.getContext();
-    WikiContext wikiContext = null;
-    if (ec != null) {
-      wikiContext = (WikiContext) ec.getProperty(WikiContext.WIKICONTEXT);
-    }
-    return wikiContext;
   }
 }

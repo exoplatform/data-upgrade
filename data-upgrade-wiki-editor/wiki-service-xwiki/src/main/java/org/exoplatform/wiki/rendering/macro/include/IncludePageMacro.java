@@ -50,7 +50,8 @@ public class IncludePageMacro extends AbstractMacro<IncludePageMacroParameters> 
     Block container = new GroupBlock(Arrays.asList(includePageBlock));
     container.setParameter("class", "wiki-include-page");
 
-    return Collections.singletonList(container);  }
+    return Collections.singletonList(container);
+  }
 
   @Override
   public boolean supportsInlineMode() {

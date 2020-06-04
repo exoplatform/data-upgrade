@@ -241,7 +241,7 @@ public class TestMigrationService extends BaseTest {
     assertNotNull(migratedPage1);
     assertEquals(Syntax.XHTML_1_0.toIdString(), migratedPage1.getSyntax());
     assertEquals(page1.getTitle(), migratedPage1.getTitle());
-    assertEquals("<p>Page 1</p><exo-wiki-children-pages depth=\"1\"></exo-wiki-children-pages>", migratedPage1.getContent());
+    assertEquals("<p>Page 1</p><div class=\"wiki-children-pages\"><exo-wiki-children-pages></exo-wiki-children-pages></div>", migratedPage1.getContent());
   }
 
   public void testShouldMigratePortalPageWithToCMacro() throws Exception {
