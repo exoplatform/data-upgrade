@@ -123,7 +123,7 @@ public class TestMacroRendering extends AbstractRenderingTestCase {
     WikiContext wikiContext = (WikiContext) ec.getContext().getProperty(WikiContext.WIKICONTEXT);
     wikiContext.setPageName("samplePage");
     ec.getContext().setProperty(WikiContext.WIKICONTEXT, wikiContext);
-    String xwikiExpectedHtml = "<exo-wiki-children-pages depth=\"\"></exo-wiki-children-pages>";
+    String xwikiExpectedHtml = "<div class=\"wiki-children-pages\"><exo-wiki-children-pages></exo-wiki-children-pages></div>";
 
     // When
     String renderedHtml = renderingService.render("{{children descendant=\"true\"/}}",
