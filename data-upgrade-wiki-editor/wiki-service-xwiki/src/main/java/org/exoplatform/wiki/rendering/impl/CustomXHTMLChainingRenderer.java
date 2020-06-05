@@ -4,6 +4,8 @@ import org.xwiki.rendering.internal.renderer.xhtml.XHTMLChainingRenderer;
 import org.xwiki.rendering.internal.renderer.xhtml.image.XHTMLImageRenderer;
 import org.xwiki.rendering.internal.renderer.xhtml.link.XHTMLLinkRenderer;
 import org.xwiki.rendering.listener.chaining.ListenerChain;
+import org.xwiki.rendering.listener.reference.ResourceReference;
+import org.xwiki.rendering.listener.reference.ResourceType;
 
 import java.util.Map;
 
@@ -69,5 +71,33 @@ public class CustomXHTMLChainingRenderer extends XHTMLChainingRenderer {
       this.getXHTMLWikiPrinter().printXMLEndElement("thead");
     }
     rowCount++;
+  }
+
+  @Override
+  public void onImage(ResourceReference reference, boolean isFreeStandingURI, Map<String, String> parameters) {
+    if(reference.getType().equals(ResourceType.ICON)) {
+      switch (reference.getReference()) {
+        case "emoticon_smile": this.getXHTMLWikiPrinter().printRaw("&#x1F642️"); break;
+        case "emoticon_unhappy": this.getXHTMLWikiPrinter().printRaw("&#x1F641️"); break;
+        case "emoticon_tongue": this.getXHTMLWikiPrinter().printRaw("&#x1F61B;"); break;
+        case "emoticon_grin": this.getXHTMLWikiPrinter().printRaw("&#x1F600;"); break;
+        case "emoticon_wink": this.getXHTMLWikiPrinter().printRaw("&#x1F609;"); break;
+        case "thumb_up": this.getXHTMLWikiPrinter().printRaw("&#x1F44D;"); break;
+        case "thumb_down": this.getXHTMLWikiPrinter().printRaw("&#x1F44E;"); break;
+        case "information": this.getXHTMLWikiPrinter().printRaw("ℹ️"); break;
+        case "accept": this.getXHTMLWikiPrinter().printRaw("✅️"); break;
+        case "cancel": this.getXHTMLWikiPrinter().printRaw("❌"); break;
+        case "error": this.getXHTMLWikiPrinter().printRaw("⚠️"); break;
+        case "add": this.getXHTMLWikiPrinter().printRaw("➕"); break;
+        case "delete": this.getXHTMLWikiPrinter().printRaw("➖"); break;
+        case "help": this.getXHTMLWikiPrinter().printRaw("❓"); break;
+        case "lightbulb": this.getXHTMLWikiPrinter().printRaw("&#x1F4A1;"); break;
+        case "lightbulb_off": this.getXHTMLWikiPrinter().printRaw("&#x1F3C1;"); break;
+        case "star": this.getXHTMLWikiPrinter().printRaw("⭐"); break;
+        default: break;
+      }
+    } else {
+      super.onImage(reference, isFreeStandingURI, parameters);
+    }
   }
 }
