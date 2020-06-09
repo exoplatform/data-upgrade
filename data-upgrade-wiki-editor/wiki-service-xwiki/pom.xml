@@ -11,7 +11,7 @@
   <name>eXo Add-on:: Data Upgrade Add-on - Wiki Editor - Wiki Service XWiki</name>
 
   <properties>
-    <exo.test.coverage.ratio>0.50</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.48</exo.test.coverage.ratio>
   </properties>
 
   <dependencies>

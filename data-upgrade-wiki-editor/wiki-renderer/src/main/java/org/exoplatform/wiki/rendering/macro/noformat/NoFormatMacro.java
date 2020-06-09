@@ -21,10 +21,13 @@ import java.util.List;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.rendering.block.Block;
+import org.xwiki.rendering.block.RawBlock;
 import org.xwiki.rendering.block.VerbatimBlock;
+import org.xwiki.rendering.block.XDOM;
 import org.xwiki.rendering.macro.AbstractMacro;
 import org.xwiki.rendering.macro.MacroExecutionException;
 import org.xwiki.rendering.macro.descriptor.DefaultContentDescriptor;
+import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.rendering.transformation.MacroTransformationContext;
 
 @Component("noformat")
@@ -51,8 +54,9 @@ public class NoFormatMacro extends AbstractMacro<Object> {
   @Override
   public List<Block> execute(Object parameters, String content, MacroTransformationContext context) throws MacroExecutionException {
     if (content != null) {
-      Block verbatimBlock = new VerbatimBlock(content, context.isInline());
-      return Collections.singletonList(verbatimBlock);
+      String contentWithCode = new StringBuilder("<pre><code class=\"language-plaintext\">").append(content).append("</code></pre>").toString();
+      Block rawBlock = new RawBlock(contentWithCode, Syntax.XHTML_1_0);
+      return Collections.singletonList(rawBlock);
     } else {
       return Collections.emptyList();
     }

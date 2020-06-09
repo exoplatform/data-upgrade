@@ -76,7 +76,7 @@ public class TestMacroRendering extends AbstractRenderingTestCase {
   }
   
   public void testRenderNoFormatMacro() throws Exception {
-    String expectedXWikiHtml = "<pre>pre-formatted piece of text so **no** further __formatting__ is done here</pre>";
+    String expectedXWikiHtml = "<pre><code class=\"language-plaintext\">pre-formatted piece of text so **no** further __formatting__ is done here</code></pre>";
     assertEquals(expectedXWikiHtml, renderingService.render("{{noformat}}pre-formatted piece of text so **no** further __formatting__ is done here{{/noformat}}", Syntax.XWIKI_2_0.toIdString(), Syntax.XHTML_1_0.toIdString(), false));
   }
   

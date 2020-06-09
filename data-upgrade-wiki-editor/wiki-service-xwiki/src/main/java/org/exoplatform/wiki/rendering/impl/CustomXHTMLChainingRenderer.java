@@ -100,4 +100,24 @@ public class CustomXHTMLChainingRenderer extends XHTMLChainingRenderer {
       super.onImage(reference, isFreeStandingURI, parameters);
     }
   }
+
+  @Override
+  public void onVerbatim(String protectedString, boolean isInline, Map<String, String> parameters) {
+    if (isInline) {
+      // Note: We generate a tt element rather than a pre element since pre elements cannot be located inside
+      // paragraphs for example. There also no tag in XHTML that has a semantic of preserving inline content so
+      // tt is the closed to pre for inline.
+      // The class is what is expected by wikimodel to understand the tt as meaning a verbatim and not a Monospace
+      // element.
+      getXHTMLWikiPrinter().printXMLStartElement("tt", new String[][] {{"class", "wikimodel-verbatim"}});
+      getXHTMLWikiPrinter().printXML(protectedString);
+      getXHTMLWikiPrinter().printXMLEndElement("tt");
+    } else {
+      getXHTMLWikiPrinter().printXMLStartElement("pre", parameters);
+      getXHTMLWikiPrinter().printXMLStartElement("code", new String[][] {{"class", "language-plaintext"}});
+      getXHTMLWikiPrinter().printXML(protectedString);
+      getXHTMLWikiPrinter().printXMLEndElement("code");
+      getXHTMLWikiPrinter().printXMLEndElement("pre");
+    }
+  }
 }
