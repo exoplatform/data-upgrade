@@ -7,6 +7,24 @@
   </component>
 
   <component>
+    <key>org.exoplatform.wiki.migration.PageContentMigrationService</key>
+    <type>org.exoplatform.wiki.migration.PageContentMigrationServiceImpl</type>
+  </component>
+
+  <component>
+    <key>org.exoplatform.wiki.rendering.RenderingService</key>
+    <type>org.exoplatform.wiki.rendering.impl.RenderingServiceImpl</type>
+  </component>
+
+  <component>
+    <type>org.exoplatform.wiki.rendering.render.xwiki.image.BaseImageWriterImpl</type>
+  </component>
+
+  <component>
+    <type>org.exoplatform.wiki.migration.WikiPageContentMigrationUpgradePlugin</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.wiki.service.DataStorage</key>
     <type>org.exoplatform.wiki.jpa.JPADataStorage</type>
   </component>

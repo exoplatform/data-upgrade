@@ -24,13 +24,13 @@
    xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
    xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
-  <component>
+  <component profiles="wiki">
     <key>org.exoplatform.wiki.rendering.RenderingService</key>
     <type>org.exoplatform.wiki.rendering.impl.RenderingServiceImpl</type>
   </component>
 
-  <component>
+  <component profiles="wiki">
     <type>org.exoplatform.wiki.rendering.render.xwiki.image.BaseImageWriterImpl</type>
   </component>
-  
+
 </configuration>
