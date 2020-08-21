@@ -26,9 +26,9 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <org.exoplatform.social.version>6.1.x-SNAPSHOT</org.exoplatform.social.version>
-    <addon.exo.wiki.version>6.1.x-SNAPSHOT</addon.exo.wiki.version>
-    <addon.exo.jcr.version>6.1.x-SNAPSHOT</addon.exo.jcr.version>
+    <org.exoplatform.social.version>6.1.0-21082020</org.exoplatform.social.version>
+    <addon.exo.wiki.version>6.1.0-21082020</addon.exo.wiki.version>
+    <addon.exo.jcr.version>6.1.0-21082020</addon.exo.jcr.version>
 
     <!-- Used to generate default methods for POJO -->
     <org.lombok.version>1.18.2</org.lombok.version>
