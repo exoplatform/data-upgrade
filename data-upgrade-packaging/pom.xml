@@ -56,6 +56,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-ecms</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-news</artifactId>
+    </dependency>
 
     <!-- Transitive dependencies provided by eXo : set to provided -->
     <dependency>
