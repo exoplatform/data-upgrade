@@ -23,6 +23,7 @@
     <module>data-upgrade-portal-rdbms</module>
     <module>data-upgrade-wiki-editor</module>
     <module>data-upgrade-ecms</module>
+    <module>data-upgrade-news</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
@@ -63,7 +64,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-	  
       <dependency>
         <groupId>org.exoplatform.ecms</groupId>
         <artifactId>ecms</artifactId>
@@ -173,6 +173,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-wiki-editor-wiki-service-xwiki</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-news</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
