@@ -26,9 +26,10 @@ import javax.jcr.NodeIterator;
 import javax.jcr.Session;
 
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.Startable;
 
+import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.PrivilegedSystemHelper;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cms.BasePath;
 import org.exoplatform.services.cms.impl.DMSConfiguration;
 import org.exoplatform.services.cms.impl.DMSRepositoryConfiguration;
@@ -40,40 +41,52 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Nguyen Anh Vu
- *          vuna@exoplatform.com
- * Feb 24, 2012  
- *
- * This class will be used to upgrade pre-defined templates of Site Explorer. Templates with desire of manual upgration 
- * can be specified in file configuration.properties.<br>
- * Syntax :<br>
- * unchanged-site-explorer-templates={templates name list}
- * For examples :<br>
- * unchanged-site-explorer-templates=ThumbnailsView, ContentView
+ * Created by The eXo Platform SAS 
+ * Author : Nguyen Anh Vu 
+ * vuna@exoplatform.com
+ * Feb 24, 2012
  * 
+ * This class will be used to upgrade pre-defined templates of Site
+ * Explorer. Templates with desire of manual upgrade can be specified in file
+ * configuration.properties.<br>
+ * Syntax :<br>
+ * unchanged-site-explorer-templates={templates name list} For examples :<br>
+ * unchanged-site-explorer-templates=ThumbnailsView, ContentView
  */
-public class SiteExplorerTemplateUpgradePlugin implements Startable {
+public class SiteExplorerTemplateUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log log = ExoLogger.getLogger(SiteExplorerTemplateUpgradePlugin.class.getName());
-  private NodeHierarchyCreator nodeHierarchyCreator_;
-  private DMSConfiguration dmsConfiguration_;
-  private RepositoryService repositoryService_;
-  private ManageViewService manageViewService_;
-
-  public SiteExplorerTemplateUpgradePlugin(NodeHierarchyCreator nodeHierarchyCreator, RepositoryService repoService, 
-                                       DMSConfiguration dmsConfiguration, ManageViewService manageViewService
-                                       ) {
-    this.nodeHierarchyCreator_ = nodeHierarchyCreator;
-    this.repositoryService_ = repoService;
-    this.dmsConfiguration_ = dmsConfiguration;
-    this.manageViewService_ = manageViewService;
+  /**
+   * @param initParams
+   */
+  public SiteExplorerTemplateUpgradePlugin(InitParams initParams,
+                                           NodeHierarchyCreator nodeHierarchyCreator,
+                                           RepositoryService repoService,
+                                           DMSConfiguration dmsConfiguration,
+                                           ManageViewService manageViewService) {
+    super(initParams);
+    this.nodeHierarchyCreator = nodeHierarchyCreator;
+    this.repositoryService = repoService;
+    this.dmsConfiguration = dmsConfiguration;
+    this.manageViewService = manageViewService;
   }
-  
-  public void start() {
-    if (log.isInfoEnabled()) {
-      log.info("Start " + this.getClass().getName() + ".............");
-    }
+
+  private static final Log     log = ExoLogger.getLogger(SiteExplorerTemplateUpgradePlugin.class.getName());
+
+  private NodeHierarchyCreator nodeHierarchyCreator;
+
+  private DMSConfiguration     dmsConfiguration;
+
+  private RepositoryService    repositoryService;
+
+  private ManageViewService    manageViewService;
+
+  private int                  siteExplorerTemplatesUpdatedCount;
+
+  @Override
+  public void processUpgrade(String oldVersion, String newVersion) {
+    long startupTime = System.currentTimeMillis();
+    log.info("Start upgrade of site explorer templates");
+
     String unchangedViews = PrivilegedSystemHelper.getProperty("unchanged-site-explorer-templates");
     SessionProvider sessionProvider = null;
     if (StringUtils.isEmpty(unchangedViews)) {
@@ -82,44 +95,47 @@ public class SiteExplorerTemplateUpgradePlugin implements Startable {
     try {
       Set<String> unchangedViewSet = new HashSet<String>();
       // Force load all configured templates
-      manageViewService_.init();
-      Set<String> configuredTemplates = manageViewService_.getConfiguredTemplates();
+      manageViewService.init();
+      Set<String> configuredTemplates = manageViewService.getConfiguredTemplates();
       List<Node> removedNodes = new ArrayList<Node>();
       for (String unchangedView : unchangedViews.split(",")) {
         unchangedViewSet.add(unchangedView.trim());
       }
-      //get all old query nodes that need to be removed.
+      // get all old query nodes that need to be removed.
       sessionProvider = SessionProvider.createSystemProvider();
-      DMSRepositoryConfiguration dmsRepoConfig = dmsConfiguration_.getConfig();
-      Session session = sessionProvider.getSession(dmsRepoConfig.getSystemWorkspace(), 
-                                                   repositoryService_.getCurrentRepository());
-      
-      String ecmExplorerViewNodePath = nodeHierarchyCreator_.getJcrPath(BasePath.ECM_EXPLORER_TEMPLATES);
-      Node ecmExplorerViewNode = (Node)session.getItem(ecmExplorerViewNodePath);
+      DMSRepositoryConfiguration dmsRepoConfig = dmsConfiguration.getConfig();
+      Session session = sessionProvider.getSession(dmsRepoConfig.getSystemWorkspace(),
+                                                   repositoryService.getCurrentRepository());
+
+      String ecmExplorerViewNodePath = nodeHierarchyCreator.getJcrPath(BasePath.ECM_EXPLORER_TEMPLATES);
+      Node ecmExplorerViewNode = (Node) session.getItem(ecmExplorerViewNodePath);
       NodeIterator iter = ecmExplorerViewNode.getNodes();
       while (iter.hasNext()) {
         Node viewNode = iter.nextNode();
-        if (!unchangedViewSet.contains(viewNode.getName()) &&
-            configuredTemplates.contains(viewNode.getName())) {
+        if (!unchangedViewSet.contains(viewNode.getName()) && configuredTemplates.contains(viewNode.getName())) {
           removedNodes.add(viewNode);
         }
       }
-      //remove the old query nodes
+      // remove the old query nodes
       for (Node removedNode : removedNodes) {
         try {
           removedNode.remove();
           ecmExplorerViewNode.save();
+          siteExplorerTemplatesUpdatedCount ++;
         } catch (Exception e) {
           if (log.isInfoEnabled()) {
             log.error("Error in " + this.getClass().getName() + ": Can not remove old query node: " + removedNode.getPath());
           }
         }
       }
-      //re-initialize new views
-      manageViewService_.init();
+      // re-initialize new views
+      manageViewService.init();
+      log.info("End upgrade of '{}' site explorer templates. It took {} ms",
+               siteExplorerTemplatesUpdatedCount,
+               (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
       if (log.isErrorEnabled()) {
-        log.error("An unexpected error occurs when migrating Site Explorer views:", e);        
+        log.error("An unexpected error occurs when migrating Site Explorer views:", e);
       }
     } finally {
       if (sessionProvider != null) {
@@ -128,10 +144,10 @@ public class SiteExplorerTemplateUpgradePlugin implements Startable {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.picocontainer.Startable#stop()
+  /**
+   * @return the siteExplorerTemplatesUpdatedCount
    */
-  @Override
-  public void stop() {
+  public int getSiteExplorerTemplatesUpdatedCount() {
+    return siteExplorerTemplatesUpdatedCount;
   }
 }
