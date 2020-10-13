@@ -39,7 +39,7 @@
       <name>WikiPermissionsUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.wiki.migration.WikiPermissionsUpgradePlugin</type>
-      <description>Update wiki and pages with default permissions</description>
+      <description>Reset default permissions for all wikis and their related pages</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
