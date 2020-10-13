@@ -64,7 +64,7 @@ public class WikiPermissionsUpgradePluginTest {
     wiki1HomePage.setWikiType(wiki1.getType());
     wiki1HomePage.setWikiOwner(wiki1.getOwner());
     wiki1HomePage.setName("page0");
-    wiki1HomePage.setTitle("Page 0");
+    wiki1HomePage.setTitle("Page 0"); 
     PermissionEntry permissionEntry3= new PermissionEntry("/group3", "", IDType.GROUP, allPermissions);
     permissions.add(permissionEntry3);
     wiki1.setPermissions(permissions);
@@ -90,8 +90,5 @@ public class WikiPermissionsUpgradePluginTest {
     wikiPermissionsUpgradePlugin.processUpgrade(null, null);
     assertEquals(1, wikiPermissionsUpgradePlugin.getWikiPermissionsUpdatedCount());
     assertEquals(1, wikiPermissionsUpgradePlugin.getWikiPagesPermissionsUpdatedCount());
-    assertEquals(1, wiki1.getPermissions().size());
-    assertEquals("*:/group4", wiki1.getPermissions().get(0).getId());
-    assertEquals(1, wiki1HomePage.getPermissions().size());
   }
 }

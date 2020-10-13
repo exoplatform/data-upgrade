@@ -27,6 +27,7 @@ import org.exoplatform.wiki.jpa.JPADataStorage;
 import org.exoplatform.wiki.mow.api.Page;
 import org.exoplatform.wiki.mow.api.PermissionEntry;
 import org.exoplatform.wiki.mow.api.Wiki;
+import org.exoplatform.wiki.service.PageUpdateType;
 import org.exoplatform.wiki.service.WikiService;
 
 /**
@@ -88,17 +89,18 @@ public class WikiPermissionsUpgradePlugin extends UpgradeProductPlugin {
     return wikiPagesPermissionsUpdatedCount;
   }
 
-  public void setWikiPermissions(Wiki wiki) throws WikiException {
+  private void setWikiPermissions(Wiki wiki) throws WikiException {
     List<PermissionEntry> defaultPermissions = wikiService.getWikiDefaultPermissions(wiki.getType(), wiki.getOwner());
-    wiki.setPermissions(defaultPermissions);
+    wikiService.updateWikiPermission(wiki.getType(), wiki.getOwner(), defaultPermissions);
     wikiPermissionsUpdatedCount ++;
   }
   
-  public void setWikiPagesPermissions(Wiki wiki) throws WikiException {
+  private void setWikiPagesPermissions(Wiki wiki) throws WikiException {
     List<Page> wikiPagesList = wikiService.getPagesOfWiki(wiki.getType(), wiki.getOwner());
     List<PermissionEntry> defaultPermissions = jpaDataStorage.getWikiHomePageDefaultPermissions(wiki.getType(), wiki.getOwner());
     for (Page wikiPage : wikiPagesList) {
       wikiPage.setPermissions(defaultPermissions);
+      wikiService.updatePage(wikiPage, PageUpdateType.EDIT_PAGE_PERMISSIONS);
       wikiPagesPermissionsUpdatedCount ++;
     }
   }
