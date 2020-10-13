@@ -16,10 +16,7 @@
  */
 package org.exoplatform.wiki.migration;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
@@ -30,11 +27,10 @@ import org.exoplatform.wiki.jpa.JPADataStorage;
 import org.exoplatform.wiki.mow.api.Page;
 import org.exoplatform.wiki.mow.api.PermissionEntry;
 import org.exoplatform.wiki.mow.api.Wiki;
-import org.exoplatform.wiki.mow.api.WikiType;
 import org.exoplatform.wiki.service.WikiService;
 
 /**
- * Created by The eXo Platform SAS Author : Ayoub Zayati Sept 14, 2020 
+ * Created by The eXo Platform SAS Author : Ayoub Zayati Oct 12, 2020 
  * This plugin will be executed in order to reset default permissions for all wikis and their related pages
  */
 public class WikiPermissionsUpgradePlugin extends UpgradeProductPlugin {
