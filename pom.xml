@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.exoplatform.addons</groupId>
     <artifactId>addons-parent-pom</artifactId>
-    <version>13-RC01</version>
+    <version>14-M01</version>
     <relativePath/>
   </parent>
   <groupId>org.exoplatform.addons.upgrade</groupId>
