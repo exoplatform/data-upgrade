@@ -252,11 +252,6 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.organization.jdbc</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>xpp3</groupId>
       <artifactId>xpp3</artifactId>
       <scope>runtime</scope>
