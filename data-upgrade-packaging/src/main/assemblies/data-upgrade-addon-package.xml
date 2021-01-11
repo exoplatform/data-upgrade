@@ -49,8 +49,6 @@
         <exclude>org.slf4j:slf4j-logj12:*</exclude>
         <!-- We use jul-to-slf4j, thus this one is forbidden to avoid infinite loops -->
         <exclude>org.slf4j:slf4j-jdk14:*</exclude>
-        <!-- These old versions of xstream are in conflict with new ones under com.thoughtworks.xstream:xstream -->
-        <exclude>xstream:xstream:*</exclude>
         <!-- These old versions of jdom are in conflict with new ones under org.jdom -->
         <exclude>jdom:*:*</exclude>
         <!-- Servlet API are provided by the app server. It shouldn't come from a project -->
