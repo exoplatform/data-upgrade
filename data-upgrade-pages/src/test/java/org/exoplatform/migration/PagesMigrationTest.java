@@ -1,4 +1,4 @@
-package org.exoplatform.agenda.migration;
+package org.exoplatform.migration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

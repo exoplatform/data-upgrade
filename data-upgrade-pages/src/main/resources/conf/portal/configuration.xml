@@ -26,7 +26,7 @@
     <component-plugin profiles="agenda">
       <name>CalendarPagesUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.agenda.migration.PagesMigration</type>
+      <type>org.exoplatform.migration.PagesMigration</type>
       <description>Replaces the application reference to old calendar application with the new application</description>
       <init-params>
         <value-param>
@@ -69,7 +69,7 @@
     <component-plugin profiles="agenda">
       <name>CalendarWidgetPagesUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.agenda.migration.PagesMigration</type>
+      <type>org.exoplatform.migration.PagesMigration</type>
       <description>Replaces the application reference to old calendar application with the new application</description>
       <init-params>
         <value-param>
@@ -115,7 +115,7 @@
     <component-plugin>
       <name>TasksPagesUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.agenda.migration.PagesMigration</type>
+      <type>org.exoplatform.migration.PagesMigration</type>
       <description>Replaces the application reference to old task application with the new application</description>
       <init-params>
         <value-param>
@@ -162,7 +162,7 @@
     <component-plugin>
       <name>DlpQuarantinePagesUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.agenda.migration.PagesMigration</type>
+      <type>org.exoplatform.migration.PagesMigration</type>
       <description>Replaces the application reference to old dlp quarantine application with the new application</description>
       <init-params>
         <value-param>
