@@ -1,4 +1,4 @@
-package org.exoplatform.agenda.migration;
+package org.exoplatform.migration;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
