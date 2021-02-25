@@ -26,6 +26,7 @@
     <module>data-upgrade-ecms</module>
     <module>data-upgrade-news</module>
     <module>data-upgrade-pages</module>
+	<module>data-upgrade-dlp</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
@@ -198,6 +199,11 @@
         <artifactId>data-upgrade-wiki</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-dlp</artifactId>
+        <version>${project.version}</version>
+      </dependency>	  
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-packaging</artifactId>
