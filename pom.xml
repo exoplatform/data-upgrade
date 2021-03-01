@@ -21,6 +21,7 @@
   </scm>
   <modules>
     <module>data-upgrade-portal-rdbms</module>
+    <module>data-upgrade-wiki</module>
     <module>data-upgrade-wiki-editor</module>
     <module>data-upgrade-ecms</module>
     <module>data-upgrade-news</module>
@@ -190,6 +191,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-pages</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-wiki</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
