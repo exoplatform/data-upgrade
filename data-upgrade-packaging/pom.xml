@@ -64,6 +64,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-pages</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-wiki</artifactId>
+    </dependency>
 
     <!-- Transitive dependencies provided by eXo : set to provided -->
     <dependency>
