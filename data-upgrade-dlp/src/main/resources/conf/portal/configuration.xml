@@ -100,5 +100,51 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
+    <component-plugin>
+      <name>DlpFolderAndDriveMigration</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.migration.dlp.DlpFolderAndDriveMigration</type>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.ecms</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>3</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>Execute this upgrade plugin only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>Execute this upgrade asynchronously</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>Target version of the plugin</description>
+          <value>6.2.0</value>
+        </value-param>
+        <value-param>
+          <name>old.nodePath</name>
+          <description>The plugin will move all nodes under /Security to /Quarantine and remove security node</description>
+          <value>/Security</value>
+        </value-param>
+        <value-param>
+          <name>new.nodePath</name>
+          <description>The plugin will move all nodes under old node to new node and remove security node</description>
+          <value>/Quarantine</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 </configuration>
 
