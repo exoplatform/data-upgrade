@@ -3,27 +3,15 @@ package org.exoplatform.migration.dlp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-
-import java.util.ArrayList;
 
 import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
-import org.exoplatform.services.cms.BasePath;
 import org.exoplatform.services.cms.drives.DriveData;
 import org.exoplatform.services.cms.drives.ManageDriveService;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import org.exoplatform.container.xml.InitParams;
@@ -41,22 +29,16 @@ import javax.jcr.Workspace;
 public class DlpFolderAndDriveMigrationTest {
 
   @Mock
-  protected RepositoryService  repositoryService;
+  RepositoryService  repositoryService;
 
   @Mock
-  protected ManageDriveService manageDriveService;
-
-  @Mock
-  NodeHierarchyCreator         nodeHierarchyCreator;
+  ManageDriveService manageDriveService;
 
   @Mock
   SessionProviderService       sessionProviderService;
 
   @Mock
   ManageableRepository         repository;
-
-  @Mock
-  RepositoryEntry              repositoryEntry;
 
   @Mock
   SessionProvider              sessionProvider;
