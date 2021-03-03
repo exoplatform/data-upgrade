@@ -66,6 +66,7 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
       return;
     }
     SessionProvider sessionProvider = null;
+    long startupTime = System.currentTimeMillis();
     LOG.info("Start migration of Dlp folder and drive");
     try {
       sessionProvider = sessionProviderService.getSystemSessionProvider(null);
@@ -82,7 +83,7 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
       manageDriveService.removeDrive(oldNode.getName());
       oldNode.remove();
       session.save();
-
+      LOG.info("End migration of Dlp folder and drive It took {} ms", (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
       throw new RuntimeException("An error occurred while migration of Dlp folder and drive", e);
     } finally {
