@@ -6,6 +6,7 @@ import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cms.drives.ManageDriveService;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -33,13 +34,19 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
 
   private final ManageDriveService manageDriveService;
 
+  private SessionProviderService   sessionProviderService;
+
+  private int                      nodesMovedCount;
+
   public DlpFolderAndDriveMigration(InitParams initParams,
                                     SettingService settingService,
                                     RepositoryService repositoryService,
-                                    ManageDriveService manageDriveService) {
+                                    ManageDriveService manageDriveService,
+                                    SessionProviderService sessionProviderService) {
     super(settingService, initParams);
     this.repositoryService = repositoryService;
     this.manageDriveService = manageDriveService;
+    this.sessionProviderService = sessionProviderService;
     if (initParams.containsKey(OLD_NODE_PATH)) {
       oldNodePath = initParams.getValueParam(OLD_NODE_PATH).getValue();
     }
@@ -61,23 +68,21 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
     SessionProvider sessionProvider = null;
     LOG.info("Start migration of Dlp folder and drive");
     try {
-      sessionProvider = SessionProvider.createSystemProvider();
+      sessionProvider = sessionProviderService.getSystemSessionProvider(null);
       Session session = sessionProvider.getSession(WORKSPACE_COLLABORATION, repositoryService.getCurrentRepository());
       Workspace workspace = session.getWorkspace();
       Node oldNode = (Node) session.getItem(oldNodePath);
-      if (oldNode.hasNodes()) {
-        NodeIterator iter = oldNode.getNodes();
-        while (iter.hasNext()) {
-          Node node = iter.nextNode();
-          workspace.move(node.getPath(), newNodePath + "/" + node.getName());
-          node.save();
-        }
-        manageDriveService.removeDrive(oldNode.getName());
-        Node parent = oldNode.getParent();
-        oldNode.remove();
-        parent.save();
-        session.save();
+      NodeIterator iter = oldNode.getNodes();
+      while (iter.hasNext()) {
+        Node node = iter.nextNode();
+        workspace.move(node.getPath(), newNodePath + "/" + node.getName());
+        node.save();
+        nodesMovedCount++;
       }
+      manageDriveService.removeDrive(oldNode.getName());
+      oldNode.remove();
+      session.save();
+
     } catch (Exception e) {
       throw new RuntimeException("An error occurred while migration of Dlp folder and drive", e);
     } finally {
@@ -87,8 +92,10 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
     }
   }
 
-  @Override
-  public boolean shouldProceedToUpgrade(String newVersion, String previousVersion) {
-    return true;
+  /**
+   * @return the newsJcrNodesUpdatedCount
+   */
+  public int getNodesMovedCount() {
+    return nodesMovedCount;
   }
 }
