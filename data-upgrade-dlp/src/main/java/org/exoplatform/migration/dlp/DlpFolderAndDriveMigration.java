@@ -1,6 +1,7 @@
 package org.exoplatform.migration.dlp;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
@@ -56,7 +57,7 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
   }
 
   @Override
-  public void processUpgrade(String s, String s1) {
+  public void processUpgrade(String oldVersion, String newVersion) {
     if (StringUtils.isBlank(oldNodePath)) {
       LOG.error("Couldn't process upgrade, the parameter '{}' is mandatory", OLD_NODE_PATH);
       return;
@@ -66,26 +67,28 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
       return;
     }
     SessionProvider sessionProvider = null;
-    long startupTime = System.currentTimeMillis();
-    LOG.info("Start migration of Dlp folder and drive");
     try {
       sessionProvider = sessionProviderService.getSystemSessionProvider(null);
       Session session = sessionProvider.getSession(WORKSPACE_COLLABORATION, repositoryService.getCurrentRepository());
-      Workspace workspace = session.getWorkspace();
-      Node oldNode = (Node) session.getItem(oldNodePath);
-      NodeIterator iter = oldNode.getNodes();
-      while (iter.hasNext()) {
-        Node node = iter.nextNode();
-        workspace.move(node.getPath(), newNodePath + "/" + node.getName());
-        node.save();
-        nodesMovedCount++;
+      if (session.itemExists(oldNodePath)) {
+        long startupTime = System.currentTimeMillis();
+        LOG.info("Start migration of Dlp folder and drive");
+        Node oldNode = (Node) session.getItem(oldNodePath);
+        NodeIterator iter = oldNode.getNodes();
+        Workspace workspace = session.getWorkspace();
+        while (iter.hasNext()) {
+          Node node = iter.nextNode();
+          workspace.move(node.getPath(), newNodePath + "/" + node.getName());
+          node.save();
+          nodesMovedCount++;
+        }
+        manageDriveService.removeDrive(oldNode.getName());
+        oldNode.remove();
+        session.save();
+        LOG.info("End migration of '{}' node under Dlp folder and drive It took {} ms",
+                 nodesMovedCount,
+                 (System.currentTimeMillis() - startupTime));
       }
-      manageDriveService.removeDrive(oldNode.getName());
-      oldNode.remove();
-      session.save();
-      LOG.info("End migration of '{}' node under Dlp folder and drive It took {} ms",
-               nodesMovedCount,
-               (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
       throw new RuntimeException("An error occurred while migration of Dlp folder and drive", e);
     } finally {

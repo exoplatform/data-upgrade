@@ -53,7 +53,7 @@ public class DlpFolderAndDriveMigrationTest {
   SettingService               settingService;
 
   @Test
-  public void testAdminDlpQuarantinePageMigration() throws Exception {
+  public void testDlpFolderAndDriveMigration() throws Exception {
 
     InitParams initParams = new InitParams();
 
@@ -73,6 +73,7 @@ public class DlpFolderAndDriveMigrationTest {
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
     when(sessionProvider.getSession(any(), any())).thenReturn(session);
     when(session.getWorkspace()).thenReturn(workspace);
+    when(session.itemExists(any())).thenReturn(true);
     Node securityNode = mock(Node.class);
     when((Node) session.getItem("/Security")).thenReturn(securityNode);
     when(securityNode.hasNodes()).thenReturn(true);
