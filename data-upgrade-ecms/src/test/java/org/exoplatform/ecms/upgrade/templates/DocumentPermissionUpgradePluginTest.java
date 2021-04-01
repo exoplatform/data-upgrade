@@ -13,6 +13,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -44,6 +45,9 @@ public class DocumentPermissionUpgradePluginTest {
     SessionProvider sessionProvider;
 
     @Mock
+    SpaceService spaceService;
+
+    @Mock
     Session session;
 
     @Test
@@ -68,7 +72,7 @@ public class DocumentPermissionUpgradePluginTest {
         ExtendedNode spaceDocumentsExtendedRootNode = mock(ExtendedNode.class);
         when(spaceNode.getNode(DocumentPermissionUpgradePlugin.ADMINISTRATORS_IDENTITY)).thenReturn(spaceDocumentsExtendedRootNode);
         spaceDocumentsExtendedRootNode.setPermission(DocumentPermissionUpgradePlugin.ADMINISTRATORS_IDENTITY, PermissionType.ALL);
-        DocumentPermissionUpgradePlugin documentPermissionUpgradePlugin = new DocumentPermissionUpgradePlugin(initParams, nodeHierarchyCreator, repositoryService, sessionProviderService);
+        DocumentPermissionUpgradePlugin documentPermissionUpgradePlugin = new DocumentPermissionUpgradePlugin(initParams, nodeHierarchyCreator, repositoryService, sessionProviderService, spaceService);
         documentPermissionUpgradePlugin.processUpgrade(null, null);
     }
 }

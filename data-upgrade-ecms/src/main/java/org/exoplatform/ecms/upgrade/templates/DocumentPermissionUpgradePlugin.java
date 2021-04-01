@@ -11,10 +11,14 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Session;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * plugin will be executed in order to remove administrators permission from
@@ -29,17 +33,18 @@ public class DocumentPermissionUpgradePlugin extends UpgradeProductPlugin {
 
     private SessionProviderService sessionProviderService;
 
+    private SpaceService spaceService;
+
     public static final String ADMINISTRATORS_IDENTITY = "*:/platform/administrators";
 
     public static final String EXO_PRIVILEGEABLE = "exo:privilegeable";
 
-    public static final String DOCUMENTS_NODE = "/spaces";
-
-    public DocumentPermissionUpgradePlugin(InitParams initParams, NodeHierarchyCreator nodeHierarchyCreator, RepositoryService repositoryService, SessionProviderService sessionProviderService) {
+    public DocumentPermissionUpgradePlugin(InitParams initParams, NodeHierarchyCreator nodeHierarchyCreator, RepositoryService repositoryService, SessionProviderService sessionProviderService, SpaceService spaceService) {
         super(initParams);
         this.nodeHierarchyCreator = nodeHierarchyCreator;
         this.repositoryService = repositoryService;
         this.sessionProviderService = sessionProviderService;
+        this.spaceService = spaceService;
     }
 
     @Override
@@ -49,20 +54,36 @@ public class DocumentPermissionUpgradePlugin extends UpgradeProductPlugin {
 
         SessionProvider sessionProvider = null;
         try {
-            sessionProvider = sessionProviderService.getSystemSessionProvider(null);
-            ManageableRepository repository = repositoryService.getCurrentRepository();
-            Session session = sessionProvider.getSession(repository.getConfiguration().getDefaultWorkspaceName(), repository);
-            String spacesNodePath = nodeHierarchyCreator.getJcrPath(BasePath.CMS_GROUPS_PATH) + DOCUMENTS_NODE;
-            Node spacesRootNode = (Node) session.getItem(spacesNodePath);
-            if (!spacesRootNode.isNodeType(EXO_PRIVILEGEABLE)) {
-                spacesRootNode.addMixin(EXO_PRIVILEGEABLE);
-            }
-            NodeIterator iter = spacesRootNode.getNodes();
-            while (iter.hasNext()) {
-                Node spaceNode = iter.nextNode();
-                if (spaceNode!= null) {
-                    ((ExtendedNode) spaceNode).removePermission(ADMINISTRATORS_IDENTITY);
-                    spaceNode.save();
+            List<Space> spaces = spaceService.getAllSpaces();
+            List<String> spaceGroupIds = new ArrayList<>();
+            if (spaces != null) {
+                for (Space space : spaces) {
+                    spaceGroupIds.add(space.getGroupId());
+                }
+                sessionProvider = sessionProviderService.getSystemSessionProvider(null);
+                ManageableRepository repository = repositoryService.getCurrentRepository();
+                Session session = sessionProvider.getSession(repository.getConfiguration().getDefaultWorkspaceName(), repository);
+                NodeIterator nodeIter = null;
+                for (String groupId : spaceGroupIds) {
+                    String spacesNodePath = nodeHierarchyCreator.getJcrPath(BasePath.CMS_GROUPS_PATH) + groupId;
+                    Node spacesRootNode = (Node) session.getItem(spacesNodePath);
+                    NodeIterator iter = spacesRootNode.getNodes();
+                    while (iter.hasNext()) {
+                        Node spaceNode = iter.nextNode();
+                        if (spaceNode != null && spaceNode.getName().equals("Documents")) {
+                            nodeIter = spaceNode.getNodes();
+                        }
+                    }
+                }
+                if (nodeIter != null) {
+                    while (nodeIter.hasNext()) {
+                        Node spaceDocuments = nodeIter.nextNode();
+                        if (!spaceDocuments.isNodeType(EXO_PRIVILEGEABLE)) {
+                            spaceDocuments.addMixin(EXO_PRIVILEGEABLE);
+                        }
+                        ((ExtendedNode) spaceDocuments).removePermission(ADMINISTRATORS_IDENTITY);
+                        spaceDocuments.save();
+                    }
                 }
             }
             log.info("End upgrade of '{}' space documents nodes. It took {} ms", (System.currentTimeMillis() - startupTime));
