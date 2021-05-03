@@ -97,6 +97,8 @@
         <exclude>javax.*:*:*</exclude>
         <exclude>org.gatein.mop:mop-api:*</exclude>
         <exclude>org.gatein.mop:mop-spi:*</exclude>
+        <exclude>*:jdom2:*</exclude>
+        <exclude>*:dom4j:*</exclude>
       </excludes>
       <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
       <useProjectArtifact>false</useProjectArtifact>
