@@ -34,26 +34,6 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-portal-rdbms</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-wiki-editor-upgrade</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-wiki-editor-wiki-renderer</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-wiki-editor-macros-iframe</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-wiki-editor-wiki-service-xwiki</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-ecms</artifactId>
     </dependency>
     <dependency>
