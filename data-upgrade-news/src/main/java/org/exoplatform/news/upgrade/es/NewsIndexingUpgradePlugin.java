@@ -28,6 +28,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.news.search.NewsIndexingServiceConnector;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -43,22 +44,29 @@ public class NewsIndexingUpgradePlugin extends UpgradeProductPlugin {
 
   private final IndexingService   indexingService;
 
+  private SessionProviderService  sessionProviderService;
+
   private int                     newsIndexingCount;
 
-  public NewsIndexingUpgradePlugin(InitParams initParams, RepositoryService repositoryService, IndexingService indexingService) {
+  public NewsIndexingUpgradePlugin(InitParams initParams,
+                                   RepositoryService repositoryService,
+                                   IndexingService indexingService,
+                                   SessionProviderService sessionProviderService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.indexingService = indexingService;
+    this.sessionProviderService = sessionProviderService;
   }
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
-    log.info("Start indexing of old news");
-    Session session = null;
+    log.info("Start unindexing old news activities and indexing old news");
+    SessionProvider sessionProvider = null;
     try {
       ManageableRepository currentRepository = repositoryService.getCurrentRepository();
-      session = SessionProvider.createSystemProvider().getSession(COLLABORATION_WS, currentRepository);
+      sessionProvider = sessionProviderService.getSessionProvider(null);
+      Session session = sessionProvider.getSession(COLLABORATION_WS, currentRepository);
       QueryManager qm = session.getWorkspace().getQueryManager();
       Query q =
               qm.createQuery("select * from exo:news WHERE publication:currentState = 'published' AND jcr:path LIKE '/Groups/spaces/%'",
@@ -76,12 +84,19 @@ public class NewsIndexingUpgradePlugin extends UpgradeProductPlugin {
       log.info("End indexing of '{}' old news. It took {} ms", newsIndexingCount, (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
       if (log.isErrorEnabled()) {
-        log.error("An unexpected error occurs when indexing old news", e);
+        log.error("An unexpected error occurs when unindexing old news activities or indexing old news", e);
       }
     } finally {
-      if (session != null) {
-        session.logout();
+      if (sessionProvider != null) {
+        sessionProvider.close();
       }
     }
+  }
+
+  /**
+   * @return the newsJcrNodesUpdatedCount
+   */
+  public int getNewsIndexingCount() {
+    return newsIndexingCount;
   }
 }

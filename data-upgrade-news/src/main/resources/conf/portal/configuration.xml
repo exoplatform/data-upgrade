@@ -56,7 +56,7 @@
       <name>NewsIndexingUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.news.upgrade.es.NewsIndexingUpgradePlugin</type>
-      <description>Unindex old news activities and index old news. </description>
+      <description>Unindex old news activities and index old news</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
