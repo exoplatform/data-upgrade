@@ -33,6 +33,7 @@
     <addon.exo.ecms.version>6.2.x-rewards-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.wiki.version>6.2.x-rewards-SNAPSHOT</addon.exo.wiki.version>
     <addon.exo.jcr.version>6.2.x-rewards-SNAPSHOT</addon.exo.jcr.version>
+    <addon.exo.news.version>2.2.x-SNAPSHOT</addon.exo.news.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -55,6 +56,15 @@
         <groupId>org.exoplatform.ecms</groupId>
         <artifactId>ecms</artifactId>
         <version>${addon.exo.ecms.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+	  
+      <!-- News dependencies -->
+      <dependency>
+        <groupId>org.exoplatform.addons.news</groupId>
+        <artifactId>news</artifactId>
+        <version>${addon.exo.news.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
