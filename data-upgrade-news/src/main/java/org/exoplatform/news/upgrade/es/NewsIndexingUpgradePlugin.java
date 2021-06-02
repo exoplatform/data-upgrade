@@ -27,8 +27,6 @@ import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.news.search.NewsIndexingServiceConnector;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.core.ManageableRepository;
-import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -44,18 +42,14 @@ public class NewsIndexingUpgradePlugin extends UpgradeProductPlugin {
 
   private final IndexingService   indexingService;
 
-  private SessionProviderService  sessionProviderService;
-
   private int                     newsIndexingCount;
 
   public NewsIndexingUpgradePlugin(InitParams initParams,
                                    RepositoryService repositoryService,
-                                   IndexingService indexingService,
-                                   SessionProviderService sessionProviderService) {
+                                   IndexingService indexingService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.indexingService = indexingService;
-    this.sessionProviderService = sessionProviderService;
   }
 
   @Override
@@ -64,9 +58,8 @@ public class NewsIndexingUpgradePlugin extends UpgradeProductPlugin {
     log.info("Start unindexing old news activities and indexing old news");
     SessionProvider sessionProvider = null;
     try {
-      ManageableRepository currentRepository = repositoryService.getCurrentRepository();
-      sessionProvider = sessionProviderService.getSessionProvider(null);
-      Session session = sessionProvider.getSession(COLLABORATION_WS, currentRepository);
+      sessionProvider = SessionProvider.createSystemProvider();
+      Session session = sessionProvider.getSession(COLLABORATION_WS, repositoryService.getCurrentRepository());
       QueryManager qm = session.getWorkspace().getQueryManager();
       Query q =
               qm.createQuery("select * from exo:news WHERE publication:currentState = 'published' AND jcr:path LIKE '/Groups/spaces/%'",

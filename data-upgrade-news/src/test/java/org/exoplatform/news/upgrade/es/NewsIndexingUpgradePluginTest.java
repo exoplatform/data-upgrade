@@ -1,29 +1,31 @@
 package org.exoplatform.news.upgrade.es;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import javax.jcr.*;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.Workspace;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
-import org.exoplatform.commons.search.index.IndexingService;
-import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.ManageableRepository;
-import org.exoplatform.services.jcr.ext.app.SessionProviderService;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 
 @RunWith(PowerMockRunner.class)
 public class NewsIndexingUpgradePluginTest {
@@ -35,19 +37,13 @@ public class NewsIndexingUpgradePluginTest {
   IndexingService        indexingService;
 
   @Mock
-  SessionProviderService sessionProviderService;
-
-  @Mock
   ManageableRepository   repository;
 
   @Mock
   RepositoryEntry        repositoryEntry;
 
   @Mock
-  SessionProvider        sessionProvider;
-
-  @Mock
-  Session                session;
+  ExtendedSession                session;
 
   @Test
   public void testOdlNewsIndexing() throws Exception {
@@ -58,11 +54,9 @@ public class NewsIndexingUpgradePluginTest {
     valueParam.setValue("org.exoplatform.addons.news");
     initParams.addParameter(valueParam);
 
-    when(sessionProviderService.getSessionProvider(any())).thenReturn(sessionProvider);
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
     when(repository.getConfiguration()).thenReturn(repositoryEntry);
-    when(repositoryEntry.getDefaultWorkspaceName()).thenReturn("collaboration");
-    when(sessionProvider.getSession(any(), any())).thenReturn(session);
+    when(repository.getSystemSession(anyString())).thenReturn(session);
     QueryManager qm = mock(QueryManager.class);
     Workspace workSpace = mock(Workspace.class);
     when(session.getWorkspace()).thenReturn(workSpace);
@@ -82,8 +76,7 @@ public class NewsIndexingUpgradePluginTest {
 
     NewsIndexingUpgradePlugin newsIndexingUpgradePlugin = new NewsIndexingUpgradePlugin(initParams,
                                                                                         repositoryService,
-                                                                                        indexingService,
-                                                                                        sessionProviderService);
+                                                                                        indexingService);
     newsIndexingUpgradePlugin.processUpgrade(null, null);
 
     assertEquals(2, newsIndexingUpgradePlugin.getNewsIndexingCount());
