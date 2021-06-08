@@ -1,4 +1,4 @@
-package org.exoplatform.news.upgrade.es;
+package org.exoplatform.news.upgrade.activities;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
@@ -18,7 +18,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -26,27 +25,32 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
 
 @RunWith(PowerMockRunner.class)
-public class NewsIndexingUpgradePluginTest {
+public class SharedNewsActivitiesUpgradePluginTest {
 
   @Mock
-  RepositoryService      repositoryService;
+  RepositoryService    repositoryService;
 
   @Mock
-  IndexingService        indexingService;
+  ActivityManager      activityManager;
 
   @Mock
-  ManageableRepository   repository;
+  ManageableRepository repository;
 
   @Mock
-  RepositoryEntry        repositoryEntry;
+  RepositoryEntry      repositoryEntry;
 
   @Mock
-  ExtendedSession                session;
+  ExtendedSession      session;
+
+  @Mock
+  ExoSocialActivity    sharedNewsActivity;
 
   @Test
-  public void testOldNewsIndexing() throws Exception {
+  public void testOldSharedNewsActivitiesMigration() throws Exception {
     InitParams initParams = new InitParams();
 
     ValueParam valueParam = new ValueParam();
@@ -71,14 +75,14 @@ public class NewsIndexingUpgradePluginTest {
     Node newsNode = mock(Node.class);
     Property property = mock(Property.class);
     when(newsNode.getProperty("exo:activities")).thenReturn(property);
-    when(property.getString()).thenReturn("1:1;1:2;1:3");
+    when(property.getString()).thenReturn("1:1;1:2;2:3", "2:4;1:5;2:6");
     when(nodeIterator.nextNode()).thenReturn(newsNode);
+    when(activityManager.getActivity(anyString())).thenReturn(sharedNewsActivity);
+    SharedNewsActivitiesUpgradePlugin sharedNewsActivitiesUpgradePlugin = new SharedNewsActivitiesUpgradePlugin(initParams,
+                                                                                                                repositoryService,
+                                                                                                                activityManager);
+    sharedNewsActivitiesUpgradePlugin.processUpgrade(null, null);
 
-    NewsIndexingUpgradePlugin newsIndexingUpgradePlugin = new NewsIndexingUpgradePlugin(initParams,
-                                                                                        repositoryService,
-                                                                                        indexingService);
-    newsIndexingUpgradePlugin.processUpgrade(null, null);
-
-    assertEquals(2, newsIndexingUpgradePlugin.getNewsIndexingCount());
+    assertEquals(4, sharedNewsActivitiesUpgradePlugin.getSharedNewsActivitiesCount());
   }
 }
