@@ -89,7 +89,7 @@
       <name>SharedNewsActivitiesUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.news.upgrade.activities.SharedNewsActivitiesUpgradePlugin</type>
-      <description>Put original news activity id on shared news activities template params</description>
+      <description>Put original news activity id on old shared news activities template params</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
