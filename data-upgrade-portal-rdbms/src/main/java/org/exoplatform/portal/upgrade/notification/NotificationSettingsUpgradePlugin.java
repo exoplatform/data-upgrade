@@ -51,11 +51,11 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
-    int pageSize = 20;
-    int current = 0;
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
 
     for (String pluginType : pluginTypes) {
+      int pageSize = 20;
+      int current = 0;
       try {
         LOG.info("=== Start initialisation of {} settings", pluginType);
         LOG.info("  Starting activating {} Notifications for users", pluginType);
