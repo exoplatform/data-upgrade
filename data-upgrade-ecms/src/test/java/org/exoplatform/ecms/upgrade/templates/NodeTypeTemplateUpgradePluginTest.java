@@ -1,34 +1,33 @@
 package org.exoplatform.ecms.upgrade.templates;
 
-import org.exoplatform.commons.info.ProductInformations;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
-import org.exoplatform.services.cms.templates.TemplateService;
-import org.exoplatform.services.cms.impl.Utils;
-import org.exoplatform.services.cms.templates.impl.TemplateServiceImpl;
-import org.exoplatform.services.jcr.core.ExtendedSession;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Workspace;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.exoplatform.commons.info.ProductInformations;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.services.cms.impl.Utils;
+import org.exoplatform.services.cms.templates.impl.TemplateServiceImpl;
+import org.exoplatform.services.jcr.core.ExtendedSession;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Utils.class)
