@@ -1,0 +1,16 @@
+{
+  "conflicts": "proceed",
+  "source": {
+    "remote": {
+      "host": "ES5_HOST",
+      "socket_timeout": "SOCKET_TIMEOUT",
+      "connect_timeout": "CONNECT_TIMEOUT"
+    },
+    "index": "SOURCE_INDEX",
+    "type": "SOURCE_TYPE"
+  },
+  "dest": {
+    "index": "TARGET_INDEX",
+    "op_type": "create"
+  }
+}
