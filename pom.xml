@@ -29,11 +29,11 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <org.exoplatform.social.version>6.2.x-SNAPSHOT</org.exoplatform.social.version>
-    <addon.exo.ecms.version>6.2.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.wiki.version>6.2.x-SNAPSHOT</addon.exo.wiki.version>
-    <addon.exo.jcr.version>6.2.x-SNAPSHOT</addon.exo.jcr.version>
-    <addon.exo.news.version>2.2.x-SNAPSHOT</addon.exo.news.version>
+    <org.exoplatform.social.version>6.2.0-20210706</org.exoplatform.social.version>
+    <addon.exo.ecms.version>6.2.0-20210706</addon.exo.ecms.version>
+    <addon.exo.wiki.version>6.2.0-20210706</addon.exo.wiki.version>
+    <addon.exo.jcr.version>6.2.0-20210706</addon.exo.jcr.version>
+    <addon.exo.news.version>2.2.0-20210706</addon.exo.news.version>
   </properties>
   <dependencyManagement>
     <dependencies>
