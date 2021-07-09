@@ -25,6 +25,7 @@
     <module>data-upgrade-news</module>
     <module>data-upgrade-pages</module>
     <module>data-upgrade-dlp</module>
+    <module>data-upgrade-portal-rdbms</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
