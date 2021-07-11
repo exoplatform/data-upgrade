@@ -30,6 +30,7 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
+    <org.exoplatform.commons.version>6.2.x-SNAPSHOT</org.exoplatform.commons.version>
     <org.exoplatform.social.version>6.2.x-SNAPSHOT</org.exoplatform.social.version>
     <addon.exo.ecms.version>6.2.x-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.wiki.version>6.2.x-SNAPSHOT</addon.exo.wiki.version>
@@ -39,6 +40,13 @@
   <dependencyManagement>
     <dependencies>
       <!-- Import versions from platform project -->
+      <dependency>
+        <groupId>org.exoplatform.commons</groupId>
+        <artifactId>commons</artifactId>
+        <version>${org.exoplatform.commons.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.exoplatform.social</groupId>
         <artifactId>social</artifactId>
