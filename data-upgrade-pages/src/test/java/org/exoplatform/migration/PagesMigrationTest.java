@@ -1,13 +1,13 @@
 package org.exoplatform.migration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
 import org.junit.*;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -108,6 +108,8 @@ public class PagesMigrationTest {
     assertEquals(0, pagesMigration.getPagesUpdatedCount());
     pagesMigration.processUpgrade(null, null);
     assertEquals(1, pagesMigration.getPagesUpdatedCount());
+
+    assertTrue(pagesMigration.shouldProceedToUpgrade("v1", "v1", new UpgradePluginExecutionContext("v1;0")));
 
     end();
     begin();

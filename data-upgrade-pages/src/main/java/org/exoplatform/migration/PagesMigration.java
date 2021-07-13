@@ -6,6 +6,7 @@ import javax.persistence.Query;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -43,6 +44,14 @@ public class PagesMigration extends UpgradeProductPlugin {
     if (initParams.containsKey(NEW_APPLICATION_CONTENT_ID)) {
       newApplicationReference = initParams.getValueParam(NEW_APPLICATION_CONTENT_ID).getValue();
     }
+  }
+
+  @Override
+  public boolean shouldProceedToUpgrade(String newVersion,
+                                        String previousGroupVersion,
+                                        UpgradePluginExecutionContext previousUpgradePluginExecution) {
+    int executionCount = previousUpgradePluginExecution == null ? 0 : previousUpgradePluginExecution.getExecutionCount();
+    return !isExecuteOnlyOnce() || executionCount == 0;
   }
 
   @Override
