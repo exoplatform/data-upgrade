@@ -1,5 +1,8 @@
 package org.exoplatform.migration;
 
+import java.util.*;
+import java.util.Map.Entry;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -19,6 +22,8 @@ public class PagesMigration extends UpgradeProductPlugin {
 
   private static final Log     LOG                        = ExoLogger.getExoLogger(PagesMigration.class);
 
+  private static final String  APPLICATION_CONTENT_IDS    = "application.contentIds";
+
   private static final String  OLD_APPLICATION_CONTENT_ID = "old.application.contentId";
 
   private static final String  NEW_APPLICATION_CONTENT_ID = "new.application.contentId";
@@ -27,9 +32,7 @@ public class PagesMigration extends UpgradeProductPlugin {
 
   private EntityManagerService entityManagerService;
 
-  private String               oldApplicationReference;
-
-  private String               newApplicationReference;
+  private Map<String, String>  applicationReferences      = new HashMap<>();
 
   private int                  pagesUpdatedCount;
 
@@ -39,10 +42,23 @@ public class PagesMigration extends UpgradeProductPlugin {
     this.entityManagerService = entityManagerService;
 
     if (initParams.containsKey(OLD_APPLICATION_CONTENT_ID)) {
-      oldApplicationReference = initParams.getValueParam(OLD_APPLICATION_CONTENT_ID).getValue();
-    }
-    if (initParams.containsKey(NEW_APPLICATION_CONTENT_ID)) {
-      newApplicationReference = initParams.getValueParam(NEW_APPLICATION_CONTENT_ID).getValue();
+      String oldApplicationReference = initParams.getValueParam(OLD_APPLICATION_CONTENT_ID).getValue();
+      if (initParams.containsKey(NEW_APPLICATION_CONTENT_ID)) {
+        String newApplicationReference = initParams.getValueParam(NEW_APPLICATION_CONTENT_ID).getValue();
+        if (StringUtils.isNotBlank(oldApplicationReference) && StringUtils.isNotBlank(newApplicationReference)) {
+          applicationReferences.put(oldApplicationReference, newApplicationReference);
+        }
+      }
+    } else if (initParams.containsKey(APPLICATION_CONTENT_IDS)) {
+      List<String> values = initParams.getValuesParam(APPLICATION_CONTENT_IDS).getValues();
+      for (String value : values) {
+        String[] parts = value.split(":");
+        String oldApplicationReference = parts[0];
+        String newApplicationReference = parts[1];
+        if (StringUtils.isNotBlank(oldApplicationReference) && StringUtils.isNotBlank(newApplicationReference)) {
+          applicationReferences.put(oldApplicationReference, newApplicationReference);
+        }
+      }
     }
   }
 
@@ -56,49 +72,51 @@ public class PagesMigration extends UpgradeProductPlugin {
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
-    if (StringUtils.isBlank(oldApplicationReference)) {
+    if (applicationReferences.isEmpty()) {
       LOG.error("Couldn't process upgrade, the parameter '{}' is mandatory", OLD_APPLICATION_CONTENT_ID);
       return;
     }
-    if (StringUtils.isBlank(newApplicationReference)) {
-      LOG.error("Couldn't process upgrade, the parameter '{}' is mandatory", NEW_APPLICATION_CONTENT_ID);
-      return;
-    }
-
-    ExoContainerContext.setCurrentContainer(container);
-    RequestLifeCycle.begin(this.entityManagerService);
-    EntityManager entityManager = this.entityManagerService.getEntityManager();
-    boolean transactionStarted = false;
 
     long startupTime = System.currentTimeMillis();
-    LOG.info("Start upgrade of pages with application references '{}' to use application '{}'",
-             oldApplicationReference,
-             newApplicationReference);
-    try {
-      if (!entityManager.getTransaction().isActive()) {
-        entityManager.getTransaction().begin();
-        transactionStarted = true;
-      }
 
-      String sqlString = "UPDATE PORTAL_WINDOWS w SET w.CONTENT_ID = '" + newApplicationReference
-          + "' WHERE w.CONTENT_ID = '" + oldApplicationReference + "' AND w.ID > 0;";
-      Query nativeQuery = entityManager.createNativeQuery(sqlString);
-      this.pagesUpdatedCount = nativeQuery.executeUpdate();
-      LOG.info("End upgrade of '{}' pages with application references '{}' to use application '{}'. It took {} ms",
-               pagesUpdatedCount,
+    ExoContainerContext.setCurrentContainer(container);
+    boolean transactionStarted = false;
+
+    Set<Entry<String, String>> applicationReferencesEntrySet = applicationReferences.entrySet();
+    for (Entry<String, String> applicationReference : applicationReferencesEntrySet) {
+      String oldApplicationReference = applicationReference.getKey().trim();
+      String newApplicationReference = applicationReference.getValue().trim();
+      LOG.info("Start upgrade of pages with application references '{}' to use application '{}'",
                oldApplicationReference,
-               newApplicationReference,
-               (System.currentTimeMillis() - startupTime));
-      if (transactionStarted && entityManager.getTransaction().isActive()) {
-        entityManager.getTransaction().commit();
-        entityManager.flush();
+               newApplicationReference);
+      RequestLifeCycle.begin(this.entityManagerService);
+      EntityManager entityManager = this.entityManagerService.getEntityManager();
+      try {
+        if (!entityManager.getTransaction().isActive()) {
+          entityManager.getTransaction().begin();
+          transactionStarted = true;
+        }
+
+        String sqlString = "UPDATE PORTAL_WINDOWS w SET w.CONTENT_ID = '" + newApplicationReference
+            + "' WHERE w.CONTENT_ID = '" + oldApplicationReference + "' AND w.ID > 0;";
+        Query nativeQuery = entityManager.createNativeQuery(sqlString);
+        this.pagesUpdatedCount = nativeQuery.executeUpdate();
+        LOG.info("End upgrade of '{}' pages with application references '{}' to use application '{}'. It took {} ms",
+                 pagesUpdatedCount,
+                 oldApplicationReference,
+                 newApplicationReference,
+                 (System.currentTimeMillis() - startupTime));
+        if (transactionStarted && entityManager.getTransaction().isActive()) {
+          entityManager.getTransaction().commit();
+          entityManager.flush();
+        }
+      } catch (Exception e) {
+        if (transactionStarted && entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
+          entityManager.getTransaction().rollback();
+        }
+      } finally {
+        RequestLifeCycle.end();
       }
-    } catch (Exception e) {
-      if (transactionStarted && entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
-        entityManager.getTransaction().rollback();
-      }
-    } finally {
-      RequestLifeCycle.end();
     }
   }
 
