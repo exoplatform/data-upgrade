@@ -153,7 +153,7 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>BrandingAdminPagesUpgradePlugin</name>
+      <name>BrandingAdminPageUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.migration.PagesMigration</type>
       <description>Replaces the application reference to old Branding application with the new application</description>
@@ -183,16 +183,128 @@
           <description>The plugin will be executed in an asynchronous mode</description>
           <value>true</value>
         </value-param>
+        <values-param>
+          <name>application.contentIds</name>
+          <description>The plugin will replace the pages containing exoadmin/Branding application</description>
+          <value>exoadmin/Branding:social-portlet/Branding</value>
+          <value>Branding:social-portlet/Branding</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>SocialLegacyPagesUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.migration.PagesMigration</type>
+      <description>Replaces the Old Social application references to new ones</description>
+      <init-params>
         <value-param>
-          <name>old.application.contentId</name>
-          <description>The plugin will replace the pages containing task-management/TaskManagementApplication application</description>
-          <value>exoadmin/Branding</value>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
         </value-param>
         <value-param>
-          <name>new.application.contentId</name>
-          <description>The plugin will replace the pages by task-management/TasksManagement application</description>
-          <value>social-portlet/Branding</value>
+          <name>plugin.upgrade.target.version</name>
+          <description>The plugin target version of selected groupId</description>
+          <value>6.2.0</value>
         </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>20</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>The plugin must be executed only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+        <values-param>
+          <name>application.contentIds</name>
+          <value>unified-search/UnifiedsearchPortlet:legacy-social-portlet/Blank</value>
+          <value>unified-search/QuicksearchPortlet:legacy-social-portlet/Blank</value>
+          <value>unified-search/SearchAdministrationPortlet:legacy-social-portlet/Blank</value>
+          <value>social-juzu/NotificationSettingsPortlet:social-portlet/UserSettingNotifications</value>
+          <value>social-juzu/SuggestionsPeopleSpace:legacy-social-portlet/Blank</value>
+          <value>social-juzu/Invitations:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialBannerPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialExtensionLogoPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialExtensionHomePagePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialDemoHomePagePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/HomeSpacePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SpacesToolbarPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialUserToolBarGroupPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialFooterPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SpacesToolbarPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/ProfileNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/UserProfileToolBarPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/SocialLogoPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/MyConnectionsNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/StatusProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/ActionProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/MiniConnectionsPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/RecentActivitiesPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/EditUserProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/UIUserNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/UISpaceNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/ProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/UserProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/ExperienceProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>social-portlet/MySpacesPortlet:social-portlet/SpacesList</value>
+          <value>social-portlet/InvitationSpacesPortlet:social-portlet/SpacesList</value>
+          <value>social-portlet/AllSpacesPortlet:social-portlet/SpacesList</value>
+          <value>social-portlet/AllSpacesPortlet:social-portlet/SpacesList</value>
+          <value>social-portlet/PeoplePortlet:social-portlet/PeopleList</value>
+          <value>social-portlet/ConnectionsNavigationPortlet:social-portlet/PeopleList</value>
+          <value>social-portlet/AllPeoplePortlet:social-portlet/PeopleList</value>
+          <value>social-portlet/ConnectionsPortlet:social-portlet/PeopleList</value>
+          <value>social-portlet/InvitationsPortlet:social-portlet/PeopleList</value>
+          <value>social-portlet/RequestsPortlet:social-portlet/PeopleList</value>
+          <value>UnifiedsearchPortlet:legacy-social-portlet/Blank</value>
+          <value>QuicksearchPortlet:legacy-social-portlet/Blank</value>
+          <value>SearchAdministrationPortlet:legacy-social-portlet/Blank</value>
+          <value>NotificationSettingsPortlet:social-portlet/UserSettingNotifications</value>
+          <value>SuggestionsPeopleSpace:legacy-social-portlet/Blank</value>
+          <value>Invitations:legacy-social-portlet/Blank</value>
+          <value>SocialBannerPortlet:legacy-social-portlet/Blank</value>
+          <value>SocialExtensionLogoPortlet:legacy-social-portlet/Blank</value>
+          <value>SocialExtensionHomePagePortlet:legacy-social-portlet/Blank</value>
+          <value>SocialDemoHomePagePortlet:legacy-social-portlet/Blank</value>
+          <value>SocialNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>HomeSpacePortlet:legacy-social-portlet/Blank</value>
+          <value>SpacesToolbarPortlet:legacy-social-portlet/Blank</value>
+          <value>SocialUserToolBarGroupPortlet:legacy-social-portlet/Blank</value>
+          <value>SocialFooterPortlet:legacy-social-portlet/Blank</value>
+          <value>SpacesToolbarPortlet:legacy-social-portlet/Blank</value>
+          <value>ProfileNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>UserProfileToolBarPortlet:legacy-social-portlet/Blank</value>
+          <value>SocialLogoPortlet:legacy-social-portlet/Blank</value>
+          <value>MyConnectionsNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>StatusProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>ActionProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>MiniConnectionsPortlet:legacy-social-portlet/Blank</value>
+          <value>RecentActivitiesPortlet:legacy-social-portlet/Blank</value>
+          <value>EditUserProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>UIUserNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>UISpaceNavigationPortlet:legacy-social-portlet/Blank</value>
+          <value>ProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>UserProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>ExperienceProfilePortlet:legacy-social-portlet/Blank</value>
+          <value>MySpacesPortlet:social-portlet/SpacesList</value>
+          <value>InvitationSpacesPortlet:social-portlet/SpacesList</value>
+          <value>AllSpacesPortlet:social-portlet/SpacesList</value>
+          <value>AllSpacesPortlet:social-portlet/SpacesList</value>
+          <value>PeoplePortlet:social-portlet/PeopleList</value>
+          <value>ConnectionsNavigationPortlet:social-portlet/PeopleList</value>
+          <value>AllPeoplePortlet:social-portlet/PeopleList</value>
+          <value>ConnectionsPortlet:social-portlet/PeopleList</value>
+          <value>InvitationsPortlet:social-portlet/PeopleList</value>
+          <value>RequestsPortlet:social-portlet/PeopleList</value>
+        </values-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
