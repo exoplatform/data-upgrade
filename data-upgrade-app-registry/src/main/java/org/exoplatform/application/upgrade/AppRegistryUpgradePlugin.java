@@ -1,8 +1,9 @@
-package org.exoplatform.wiki.upgrade;
+package org.exoplatform.application.upgrade;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
@@ -13,9 +14,9 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class WikiAppRegistryUpgradePlugin extends UpgradeProductPlugin {
+public class AppRegistryUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log     LOG                        = ExoLogger.getExoLogger(WikiAppRegistryUpgradePlugin.class);
+  private static final Log     LOG                        = ExoLogger.getExoLogger(AppRegistryUpgradePlugin.class);
 
 
 
@@ -26,10 +27,50 @@ public class WikiAppRegistryUpgradePlugin extends UpgradeProductPlugin {
 
   private int                  pagesUpdatedCount;
 
-  public WikiAppRegistryUpgradePlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
+  private static final String  OLD_CONTENT_ID = "old.content.id";
+
+  private static final String  NEW_DESCRIPTION = "new.description";
+
+  private static final String  NEW_DISPLAY_NAME = "new.display.name";
+
+
+  private static final String  NEW_APP_NAME = "new.app.name";
+
+
+  private static final String  NEW_CONTENT_ID = "new.content.id";
+
+  private  String              oldContentId;
+  private  String              newDisplayName;
+  private  String              newAppName;
+  private  String              newContentId;
+  private  String              newDescription;
+
+
+
+  public AppRegistryUpgradePlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
     this.container = container;
     this.entityManagerService = entityManagerService;
+
+
+    if (initParams.containsKey(OLD_CONTENT_ID)) {
+      oldContentId = initParams.getValueParam(OLD_CONTENT_ID).getValue();
+    }
+    if (initParams.containsKey(NEW_DISPLAY_NAME)) {
+      newDisplayName = initParams.getValueParam(NEW_DISPLAY_NAME).getValue();
+    }
+    if (initParams.containsKey(NEW_DESCRIPTION)) {
+      newDescription = initParams.getValueParam(NEW_DESCRIPTION).getValue();
+    }
+
+    if (initParams.containsKey(NEW_APP_NAME)) {
+      newAppName = initParams.getValueParam(NEW_APP_NAME).getValue();
+    }
+
+    if (initParams.containsKey(NEW_CONTENT_ID)) {
+      newContentId = initParams.getValueParam(NEW_CONTENT_ID).getValue();
+    }
+
   }
 
   @Override
@@ -42,13 +83,16 @@ public class WikiAppRegistryUpgradePlugin extends UpgradeProductPlugin {
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
-
+    if (StringUtils.isEmpty(oldContentId)||StringUtils.isEmpty(newAppName)||StringUtils.isEmpty(newDisplayName)||StringUtils.isEmpty(newDescription)||StringUtils.isEmpty(newContentId)) {
+      LOG.error("Couldn't process upgrade, all parameters are mandatory");
+      return;
+    }
     long startupTime = System.currentTimeMillis();
 
     ExoContainerContext.setCurrentContainer(container);
     boolean transactionStarted = false;
 
-      LOG.info("Start upgrade of wiki app name in registry to use notes");
+      LOG.info("Start upgrade of app with content id {} in registry to use {}", oldContentId,newContentId);
       RequestLifeCycle.begin(this.entityManagerService);
       EntityManager entityManager = this.entityManagerService.getEntityManager();
       try {
@@ -57,10 +101,12 @@ public class WikiAppRegistryUpgradePlugin extends UpgradeProductPlugin {
           transactionStarted = true;
         }
 
-        String sqlString = "UPDATE PORTAL_APPLICATIONS w SET w.DISPLAY_NAME = 'Notes' , w.DESCRIPTION = 'Notes Portlet' , w.APP_NAME = 'Notes', w.CONTENT_ID = 'notes/Notes' WHERE w.CONTENT_ID = 'wiki/WikiPortlet'  AND w.ID > 0;";
+        String sqlString = "UPDATE PORTAL_APPLICATIONS w SET w.DISPLAY_NAME = '"+newDisplayName+"' , w.DESCRIPTION = '"+newDescription+"' , w.APP_NAME = '"+newAppName+"', w.CONTENT_ID = '"+newContentId+"' WHERE w.CONTENT_ID = '"+oldContentId+"'  AND w.ID > 0;";
         Query nativeQuery = entityManager.createNativeQuery(sqlString);
         this.pagesUpdatedCount = nativeQuery.executeUpdate();
-        LOG.info("End upgrade of '{}'  wiki app name in registry to use notes. It took {} ms",
+        LOG.info("End upgrade of '{}' apps with content id {} in registry to use {}. It took {} ms",
+                oldContentId,
+                newContentId,
                 pagesUpdatedCount,
                 (System.currentTimeMillis() - startupTime));
         if (transactionStarted && entityManager.getTransaction().isActive()) {

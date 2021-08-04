@@ -46,6 +46,8 @@ public class NavigationNodesMigrationTest {
 
   protected String               newName          = "newName";
 
+  protected String               newLabel         = "newLabel";
+
   @Before
   public void setUp() throws Exception {
 
@@ -83,6 +85,11 @@ public class NavigationNodesMigrationTest {
     valueParam.setValue(newName);
     initParams.addParameter(valueParam);
 
+    valueParam = new ValueParam();
+    valueParam.setName("new.nav.label");
+    valueParam.setValue(newLabel);
+    initParams.addParameter(valueParam);
+
     NodeContext node = navigationService.loadNode(Node.MODEL, nav, Scope.ALL, null);
     NodeContext page = node.get(oldName);
     assertNotNull(page);
@@ -102,6 +109,7 @@ public class NavigationNodesMigrationTest {
     NodeEntity newPage  = nodeDAO.find(Long.valueOf(page.getId()));
     assertNotNull(newPage);
     assertEquals(newName, newPage.getName());
+    assertEquals(newLabel, newPage.getLabel());
 
   }
 

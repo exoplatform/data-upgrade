@@ -47,7 +47,7 @@
         <value-param>
           <name>plugin.upgrade.execute.once</name>
           <description>The plugin must be executed only once</description>
-          <value>false</value>
+          <value>true</value>
         </value-param>
         <value-param>
           <name>plugin.upgrade.async.execution</name>
@@ -106,6 +106,11 @@
           <name>new.nav.name</name>
           <description>The plugin will replace the old node name by the this one</description>
           <value>notes</value>
+        </value-param>
+        <value-param>
+          <name>new.nav.label</name>
+          <description>The plugin will replace the old node label by the this one</description>
+          <value>#{Notes.label.name}</value>
         </value-param>
       </init-params>
     </component-plugin>

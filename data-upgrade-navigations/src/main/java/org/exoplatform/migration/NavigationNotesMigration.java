@@ -33,13 +33,18 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
 
   private static final String  NEW_NAVIGATION_NODE_NAME = "new.nav.name";
 
+  private static final String  NEW_NAVIGATION_NODE_LABEL = "new.nav.label";
+
   private final PortalContainer      container;
 
   private final EntityManagerService entityManagerService;
 
-  private final Map<String, String>  nodesReferences      = new HashMap<>();
 
   private int                  pagesNodesCount;
+
+  private  String              oldNavName;
+  private  String              newNavName;
+  private  String              newNavLabel;
 
   public NavigationNotesMigration(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
@@ -47,14 +52,17 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
     this.entityManagerService = entityManagerService;
 
     if (initParams.containsKey(OLD_NAVIGATION_NODE_NAME)) {
-      String oldNavName = initParams.getValueParam(OLD_NAVIGATION_NODE_NAME).getValue();
-      if (initParams.containsKey(NEW_NAVIGATION_NODE_NAME)) {
-        String newNavName = initParams.getValueParam(NEW_NAVIGATION_NODE_NAME).getValue();
-        if (StringUtils.isNotBlank(oldNavName) && StringUtils.isNotBlank(newNavName)) {
-          nodesReferences.put(oldNavName, newNavName);
-        }
-      }
+      oldNavName = initParams.getValueParam(OLD_NAVIGATION_NODE_NAME).getValue();
     }
+    if (initParams.containsKey(NEW_NAVIGATION_NODE_NAME)) {
+      newNavName = initParams.getValueParam(NEW_NAVIGATION_NODE_NAME).getValue();
+    }
+
+    if (initParams.containsKey(NEW_NAVIGATION_NODE_NAME)) {
+      newNavLabel = initParams.getValueParam(NEW_NAVIGATION_NODE_LABEL).getValue();
+    }
+
+
   }
 
   @Override
@@ -67,23 +75,18 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
-    if (nodesReferences.isEmpty()) {
-      LOG.error("Couldn't process upgrade, the parameter '{}' is mandatory", OLD_NAVIGATION_NODE_NAME);
+    if (StringUtils.isEmpty(oldNavName)||StringUtils.isEmpty(newNavName)||StringUtils.isEmpty(newNavLabel)) {
+      LOG.error("Couldn't process upgrade, all parameters are mandatory");
       return;
     }
-
     long startupTime = System.currentTimeMillis();
 
     ExoContainerContext.setCurrentContainer(container);
     boolean transactionStarted = false;
 
-    Set<Entry<String, String>> applicationReferencesEntrySet = nodesReferences.entrySet();
-    for (Entry<String, String> applicationReference : applicationReferencesEntrySet) {
-      String oldApplicationReference = applicationReference.getKey().trim();
-      String newApplicationReference = applicationReference.getValue().trim();
       LOG.info("Start upgrade of navigation node with name '{}' to use name '{}'",
-               oldApplicationReference,
-               newApplicationReference);
+               oldNavName,
+               newNavName);
       RequestLifeCycle.begin(this.entityManagerService);
       EntityManager entityManager = this.entityManagerService.getEntityManager();
       try {
@@ -92,8 +95,9 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
           transactionStarted = true;
         }
 
-        String sqlString = "UPDATE PORTAL_NAVIGATION_NODES w SET w.NAME = '" + newApplicationReference
-            + "' WHERE w.NAME = '" + oldApplicationReference + "' AND w.NODE_ID > 0;";
+        String sqlString = "UPDATE PORTAL_NAVIGATION_NODES w SET w.NAME = '" + newNavName
+            + "' , w.LABEL = '" + newNavLabel
+            + "' WHERE w.NAME = '" + oldNavName + "' AND w.NODE_ID > 0;";
         Query nativeQuery = entityManager.createNativeQuery(sqlString);
         this.pagesNodesCount = nativeQuery.executeUpdate();
 
@@ -119,8 +123,8 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
         }
         LOG.info("End upgrade of '{}' navigation node with name '{}' to use name '{}'. It took {} ms",
                 pagesNodesCount,
-                oldApplicationReference,
-                newApplicationReference,
+                oldNavName,
+                newNavName,
                 (System.currentTimeMillis() - startupTime));
 
         if (transactionStarted && entityManager.getTransaction().isActive()) {
@@ -136,7 +140,7 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
       } finally {
         RequestLifeCycle.end();
       }
-    }
+
   }
 
   public int getNodesUpdatedCount() {
