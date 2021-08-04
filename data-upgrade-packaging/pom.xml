@@ -56,6 +56,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-elasticsearch7</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-navigations</artifactId>
+    </dependency>
 
     <!-- Transitive dependencies provided by eXo : set to provided -->
     <dependency>

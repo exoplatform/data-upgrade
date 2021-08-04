@@ -1,0 +1,105 @@
+package org.exoplatform.wiki.upgrade;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+
+import org.exoplatform.application.registry.Application;
+import org.exoplatform.application.registry.ApplicationCategory;
+import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.portal.config.model.ApplicationType;
+import org.exoplatform.wiki.WikiException;
+import org.exoplatform.wiki.service.DataStorage;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class WikiAppRegistryUpgradePluginTest {
+
+  protected PortalContainer         container;
+
+  protected ApplicationRegistryService             applicationRegistryService;
+
+  protected DataStorage             dataStorage;
+
+  protected EntityManagerService    entityManagerService;
+
+
+  @Before
+  public void setUp() {
+    container = PortalContainer.getInstance();
+    applicationRegistryService= CommonsUtils.getService(ApplicationRegistryService.class);
+    dataStorage = CommonsUtils.getService(DataStorage.class);
+    entityManagerService = CommonsUtils.getService(EntityManagerService.class);
+    begin();
+  }
+
+  @After
+  public void tearDown() {
+    end();
+  }
+
+  @Test
+  public void testWikiMigration() throws WikiException {
+    InitParams initParams = new InitParams();
+
+    String officeCategoryName = "Office";
+    ApplicationCategory officeCategory = createAppCategory(officeCategoryName, "None");
+    applicationRegistryService.save(officeCategory);
+    Application msApp = createApplication();
+    applicationRegistryService.save(officeCategory, msApp);
+
+    try {
+      List<Application> apps = applicationRegistryService.getApplications(officeCategory);
+      assertEquals(apps.size(),1);
+      assertEquals(apps.get(0).getContentId(),"wiki/WikiPortlet");
+    } catch (Exception e) {
+      fail();
+    }
+
+    WikiAppRegistryUpgradePlugin wikiAppRegistryUpgradePlugin = new WikiAppRegistryUpgradePlugin(container, entityManagerService, initParams);
+    wikiAppRegistryUpgradePlugin.processUpgrade(null, null);
+    try {
+      List<Application> apps = applicationRegistryService.getApplications(officeCategory);
+      assertEquals(apps.get(0).getContentId(),"notes/Notes");
+    } catch (Exception e) {
+      fail();
+    }
+
+
+  }
+
+  protected void begin() {
+    ExoContainerContext.setCurrentContainer(container);
+    RequestLifeCycle.begin(container);
+  }
+
+  protected void end() {
+    RequestLifeCycle.end();
+  }
+
+  private ApplicationCategory createAppCategory(String categoryName, String categoryDes) {
+    ApplicationCategory category = new ApplicationCategory();
+    category.setName(categoryName);
+    category.setDisplayName(categoryName);
+    category.setDescription(categoryDes);
+    return category;
+  }
+
+  private Application createApplication() {
+    Application app = new Application();
+    app.setContentId("wiki/WikiPortlet");
+    app.setApplicationName("appName");
+    app.setDisplayName("appName");
+    app.setType(ApplicationType.PORTLET);
+    return app;
+  }
+
+}
