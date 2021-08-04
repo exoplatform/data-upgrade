@@ -58,7 +58,7 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
       newNavName = initParams.getValueParam(NEW_NAVIGATION_NODE_NAME).getValue();
     }
 
-    if (initParams.containsKey(NEW_NAVIGATION_NODE_NAME)) {
+    if (initParams.containsKey(NEW_NAVIGATION_NODE_LABEL)) {
       newNavLabel = initParams.getValueParam(NEW_NAVIGATION_NODE_LABEL).getValue();
     }
 

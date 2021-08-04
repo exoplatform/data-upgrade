@@ -64,6 +64,11 @@
           <description>The plugin will replace the old node name by the this one</description>
           <value>notes</value>
         </value-param>
+        <value-param>
+          <name>new.nav.label</name>
+          <description>The plugin will replace the old node label by the this one</description>
+          <value>#{Notes.label.name}</value>
+        </value-param>
       </init-params>
     </component-plugin>
     <component-plugin  profiles="notes">
