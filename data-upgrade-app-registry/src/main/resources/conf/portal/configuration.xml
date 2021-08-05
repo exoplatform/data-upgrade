@@ -23,39 +23,11 @@
 
   <external-component-plugins>
     <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
-    <component-plugin profiles="wiki">
-      <name>WikiGlobalPortalSiteUpgradePlugin</name>
-      <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.wiki.upgrade.WikiGlobalPortalSiteUpgradePlugin</type>
-      <description>Migrates the wiki owner 'global' to 'dw'</description>
-      <init-params>
-        <value-param>
-          <name>product.group.id</name>
-          <description>The groupId of the product</description>
-          <value>org.exoplatform.platform</value>
-        </value-param>
-        <value-param>
-          <name>plugin.execution.order</name>
-          <description>The plugin execution order</description>
-          <value>20</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.execute.once</name>
-          <description>The plugin must be executed only once</description>
-          <value>true</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.async.execution</name>
-          <description>The plugin will be executed in an asynchronous mode</description>
-          <value>false</value>
-        </value-param>
-      </init-params>
-    </component-plugin>
     <component-plugin  profiles="notes">
-      <name>WikiHomeHomePageUpgradePlugin</name>
+      <name>WikiAppRegistryUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.wiki.upgrade.WikiPageNameUpgradePlugin</type>
-      <description>Rename WikiHome pages</description>
+      <type>org.exoplatform.application.upgrade.AppRegistryUpgradePlugin</type>
+      <description>Upgrade App registry cats</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
@@ -83,19 +55,29 @@
           <value>true</value>
         </value-param>
         <value-param>
-          <name>old.note.name</name>
-          <description>The plugin will replace this note name by the new one</description>
-          <value>WikiHome</value>
+          <name>old.content.id</name>
+          <description>The plugin will replace this app content by the new one</description>
+          <value>wiki/WikiPortlet</value>
         </value-param>
         <value-param>
-          <name>new.note.name</name>
-          <description>The plugin will replace the old note name by the this one</description>
-          <value>Home</value>
+          <name>new.description</name>
+          <description>The plugin will replace this app description by the new one</description>
+          <value>Notes Portlet</value>
         </value-param>
         <value-param>
-          <name>new.note.title</name>
-          <description>The plugin will replace the old note title by the this one</description>
-          <value>Home</value>
+          <name>new.display.name</name>
+          <description>The plugin will replace this app display name by the new one</description>
+          <value>Notes</value>
+        </value-param>
+        <value-param>
+          <name>new.app.name</name>
+          <description>The plugin will replace this app name by the new one</description>
+          <value>Notes</value>
+        </value-param>
+        <value-param>
+          <name>new.content.id</name>
+          <description>The plugin will replace this app contentId by the new one</description>
+          <value>notes/Notes</value>
         </value-param>
       </init-params>
     </component-plugin>
