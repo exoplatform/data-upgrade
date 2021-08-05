@@ -340,7 +340,7 @@
         </value-param>
         <value-param>
           <name>old.application.contentId</name>
-          <description>The plugin will replace the pages containing task-management/TaskManagementApplication application</description>
+          <description>The plugin will replace the pages containing wiki/WikiPortlet application</description>
           <value>wiki/WikiPortlet</value>
         </value-param>
         <value-param>
