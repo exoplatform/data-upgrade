@@ -311,7 +311,7 @@
       <name>NotesPagesUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.migration.PagesMigration</type>
-      <description>Replaces the application reference to old task application with the new application</description>
+      <description>Replaces the application reference to old wiki application with the new application</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
