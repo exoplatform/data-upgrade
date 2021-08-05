@@ -345,7 +345,7 @@
         </value-param>
         <value-param>
           <name>new.application.contentId</name>
-          <description>The plugin will replace the pages by task-management/TasksManagement application</description>
+          <description>The plugin will replace the pages by wiki/WikiPortlet application</description>
           <value>notes/Notes</value>
         </value-param>
       </init-params>
