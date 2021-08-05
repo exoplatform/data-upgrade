@@ -25,6 +25,8 @@
     <module>data-upgrade-ecms</module>
     <module>data-upgrade-news</module>
     <module>data-upgrade-pages</module>
+    <module>data-upgrade-navigations</module>
+    <module>data-upgrade-app-registry</module>
     <module>data-upgrade-dlp</module>
     <module>data-upgrade-portal-rdbms</module>
     <module>data-upgrade-packaging</module>
@@ -128,7 +130,17 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-dlp</artifactId>
         <version>${project.version}</version>
-      </dependency>	  
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-navigations</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-app-registry</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-packaging</artifactId>
