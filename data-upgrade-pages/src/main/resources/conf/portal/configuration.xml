@@ -351,5 +351,93 @@
       </init-params>
     </component-plugin>
 
+
+    <component-plugin profiles="multifactor-authentication">
+      <name>MfaPagesUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.migration.PagesMigration</type>
+      <description>Replaces the application reference to old mfa application with the new application</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>The plugin target version of selected groupId</description>
+          <value>6.3.0</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>10</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>The plugin must be executed only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>old.application.contentId</name>
+          <description>The plugin will replace the pages containing social-portlet/mfaAccess application</description>
+          <value>social-portlet/mfaAccess</value>
+        </value-param>
+        <value-param>
+          <name>new.application.contentId</name>
+          <description>The plugin will replace the pages by multifactor-authentication/mfaAccess application</description>
+          <value>multifactor-authentication/mfaAccess</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+
+    <component-plugin profiles="multifactor-authentication">
+      <name>MfaAdminPagesUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.migration.PagesMigration</type>
+      <description>Replaces the application reference to old mfa application with the new application</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>The plugin target version of selected groupId</description>
+          <value>6.3.0</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>10</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>The plugin must be executed only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>old.application.contentId</name>
+          <description>The plugin will replace the pages containing social-portlet/mfaAccess application</description>
+          <value>social-portlet/multifactorAuthentication</value>
+        </value-param>
+        <value-param>
+          <name>new.application.contentId</name>
+          <description>The plugin will replace the pages by multifactor-authentication/mfaAccess application</description>
+          <value>multifactor-authentication/multifactorAuthentication</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 </configuration>
