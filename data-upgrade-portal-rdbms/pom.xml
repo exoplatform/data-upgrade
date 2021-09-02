@@ -19,9 +19,9 @@
     <version>6.3.x-maintenance-SNAPSHOT</version>
   </parent>
 
-  <artifactId>data-upgrade-portal-rdbms</artifactId>
+  <artifactId>data-upgrade-plugin-notification</artifactId>
   <packaging>jar</packaging>
-  <name>eXo Add-on:: Data Upgrade - PORTAL</name>
+  <name>eXo Add-on:: Data Upgrade - plugin notification</name>
 
   <properties>
     <exo.test.coverage.ratio>1</exo.test.coverage.ratio>
@@ -37,31 +37,6 @@
       <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-component-upgrade</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

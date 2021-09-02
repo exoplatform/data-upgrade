@@ -143,6 +143,11 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-plugin-notification</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-packaging</artifactId>
         <version>${project.version}</version>
         <type>zip</type>
