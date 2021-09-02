@@ -28,7 +28,7 @@
     <module>data-upgrade-navigations</module>
     <module>data-upgrade-app-registry</module>
     <module>data-upgrade-dlp</module>
-    <module>data-upgrade-portal-rdbms</module>
+    <module>data-upgrade-notifications</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>

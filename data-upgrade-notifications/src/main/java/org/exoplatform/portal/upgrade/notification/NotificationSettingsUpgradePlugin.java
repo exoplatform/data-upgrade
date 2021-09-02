@@ -21,7 +21,7 @@ import java.util.List;
 public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
   private static final Log     LOG                 = ExoLogger.getLogger(NotificationSettingsUpgradePlugin.class);
 
-  private static final String  NOTIFICATION_PLUGIN = "notification.upgrade.settings.plugin";
+  private static final String  NOTIFICATION_PLUGIN = "notification.upgrade.settings.plugin.types";
 
   private SettingService       settingService;
 
@@ -51,8 +51,8 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
-    List<String>    pluginTypes = Arrays.asList(notificationPluginTypes.replace("\n", "").replaceAll("\\s", "").split(","));
-    
+    List<String> pluginTypes = Arrays.asList(notificationPluginTypes.replace("\n", "").replaceAll("\\s", "").split(","));
+
     for (String pluginType : pluginTypes) {
       int pageSize = 20;
       int current = 0;

@@ -32,7 +32,7 @@
         <value-param>
           <name>product.group.id</name>
           <description>The groupId of the product</description>
-          <value>org.exoplatform.platform</value>
+          <value>org.exoplatform.portal</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
@@ -47,7 +47,7 @@
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
-          <value>6.2.0</value>
+          <value>6.3.0</value>
         </value-param>
         <value-param>
           <name>plugin.upgrade.async.execution</name>
@@ -55,12 +55,12 @@
           <value>true</value>
         </value-param>
         <value-param>
-          <name>notification.upgrade.settings.plugin</name>
+          <name>notification.upgrade.settings.plugin.types</name>
           <description>Execute this notification plugin Types</description>
           <value>EventAddedNotificationPlugin, EventModifiedNotificationPlugin, EventCanceledNotificationPlugin,
             EventReminderNotificationPlugin, VoteNotificationPlugin, EventReplyNotificationPlugin,
             DatePollNotificationPlugin, ChatMentionNotificationPlugin, PublishNewsNotificationPlugin,
-            MfaAdminRevocationRequestPlugin, MentionInNewsNotificationPlugin
+            MfaAdminRevocationRequestPlugin, MentionInNewsNotificationPlugin, EditWikiNotificationPlugin
           </value>
         </value-param>
       </init-params>
