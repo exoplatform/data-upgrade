@@ -1,5 +1,8 @@
 package org.exoplatform.portal.upgrade.notification;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.exoplatform.commons.api.notification.model.PluginInfo;
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
@@ -14,28 +17,20 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
-  private static final Log LOG = ExoLogger.getLogger(NotificationSettingsUpgradePlugin.class);
+  private static final Log     LOG                 = ExoLogger.getLogger(NotificationSettingsUpgradePlugin.class);
 
-  private static final String EVENT_ADDED_PLUGIN_TYPE = "EventAddedNotificationPlugin";
-  private static final String EVENT_MODIFIED_PLUGIN_TYPE = "EventModifiedNotificationPlugin";
-  private static final String EVENT_CANCELED_PLUGIN_TYPE = "EventCanceledNotificationPlugin";
-  private static final String EVENT_REMINDER_PLUGIN_TYPE = "EventReminderNotificationPlugin";
-  private static final String CHAT_MENTION_PLUGIN_TYPE = "ChatMentionNotificationPlugin";
+  private static final String  NOTIFICATION_PLUGIN = "notification.upgrade.settings.plugin.types";
 
-  private ArrayList<String> pluginTypes = new ArrayList<>(Arrays.asList(EVENT_ADDED_PLUGIN_TYPE, EVENT_MODIFIED_PLUGIN_TYPE, EVENT_CANCELED_PLUGIN_TYPE, EVENT_REMINDER_PLUGIN_TYPE, CHAT_MENTION_PLUGIN_TYPE));
+  private SettingService       settingService;
 
-  private SettingService settingService;
-
-  private UserSettingService userSettingService;
+  private UserSettingService   userSettingService;
 
   private PluginSettingService pluginSettingService;
 
   private EntityManagerService entityManagerService;
+
+  private String               notificationPluginTypes;
 
   public NotificationSettingsUpgradePlugin(SettingService settingService,
                                            UserSettingService userSettingService,
@@ -47,11 +42,15 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
     this.userSettingService = userSettingService;
     this.pluginSettingService = pluginSettingService;
     this.entityManagerService = entityManagerService;
+    if (initParams.containsKey(NOTIFICATION_PLUGIN)) {
+      notificationPluginTypes = initParams.getValueParam(NOTIFICATION_PLUGIN).getValue();
+    }
   }
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
+    List<String> pluginTypes = Arrays.asList(notificationPluginTypes.replace("\n", "").replaceAll("\\s", "").split(","));
 
     for (String pluginType : pluginTypes) {
       int pageSize = 20;
