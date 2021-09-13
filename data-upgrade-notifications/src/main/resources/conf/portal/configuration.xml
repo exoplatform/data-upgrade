@@ -42,17 +42,26 @@
         <value-param>
           <name>plugin.upgrade.execute.once</name>
           <description>Execute this upgrade plugin only once</description>
-          <value>true</value>
+          <value>false</value>
         </value-param>
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
-          <value>6.2.x</value>
+          <value>6.3.0</value>
         </value-param>
         <value-param>
           <name>plugin.upgrade.async.execution</name>
           <description>Execute this upgrade asynchronously</description>
           <value>true</value>
+        </value-param>
+        <value-param>
+          <name>notification.upgrade.settings.plugin.types</name>
+          <description>Execute this notification plugin Types</description>
+          <value>EventAddedNotificationPlugin, EventModifiedNotificationPlugin, EventCanceledNotificationPlugin,
+            EventReminderNotificationPlugin, VoteNotificationPlugin, EventReplyNotificationPlugin,
+            DatePollNotificationPlugin, ChatMentionNotificationPlugin, PublishNewsNotificationPlugin,
+            MfaAdminRevocationRequestPlugin, MentionInNewsNotificationPlugin, EditWikiNotificationPlugin
+          </value>
         </value-param>
       </init-params>
     </component-plugin>
