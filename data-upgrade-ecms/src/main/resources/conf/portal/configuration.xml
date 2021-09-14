@@ -48,40 +48,6 @@
         </value-param>
       </init-params>
     </component-plugin>
-
-    <component-plugin>
-      <name>NodeTypeTemplateUpgradePlugin</name>
-      <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.ecms.upgrade.templates.NodeTypeTemplateUpgradePlugin</type>
-      <description>Upgrade templates for node types</description>
-      <init-params>
-        <value-param>
-          <name>product.group.id</name>
-          <description>The groupId of the product</description>
-          <value>org.exoplatform.ecms</value>
-        </value-param>
-        <value-param>
-          <name>plugin.execution.order</name>
-          <description>The plugin execution order</description>
-          <value>2</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.execute.once</name>
-          <description>Execute this upgrade plugin only once</description>
-          <value>false</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.async.execution</name>
-          <description>Execute this upgrade asynchronously</description>
-          <value>true</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.target.version</name>
-          <description>Target version of the plugin</description>
-          <value>6.2.0</value>
-        </value-param>
-      </init-params>
-    </component-plugin>
     
     <component-plugin>
       <name>WCMTemplateUpgradePlugin</name>
@@ -113,6 +79,41 @@
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
           <value>6.2.0</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+
+
+    <component-plugin>
+      <name>NodeTypeTemplateUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.ecms.upgrade.templates.NodeTypeTemplateUpgradePlugin</type>
+      <description>Upgrade templates for node types</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.ecms</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>2</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>Execute this upgrade plugin only once</description>
+          <value>false</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>Execute this upgrade asynchronously</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>Target version of the plugin</description>
+          <value>6.3.0</value>
         </value-param>
       </init-params>
     </component-plugin>
