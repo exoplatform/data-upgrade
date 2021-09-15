@@ -32,7 +32,7 @@
         <value-param>
           <name>product.group.id</name>
           <description>The groupId of the product</description>
-          <value>org.exoplatform.portal</value>
+          <value>org.exoplatform.platform</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
