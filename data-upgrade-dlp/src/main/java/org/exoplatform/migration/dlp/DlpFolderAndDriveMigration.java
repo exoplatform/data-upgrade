@@ -42,12 +42,10 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
   public DlpFolderAndDriveMigration(InitParams initParams,
                                     SettingService settingService,
                                     RepositoryService repositoryService,
-                                    ManageDriveService manageDriveService,
-                                    SessionProviderService sessionProviderService) {
+                                    ManageDriveService manageDriveService) {
     super(settingService, initParams);
     this.repositoryService = repositoryService;
     this.manageDriveService = manageDriveService;
-    this.sessionProviderService = sessionProviderService;
     if (initParams.containsKey(OLD_NODE_PATH)) {
       oldNodePath = initParams.getValueParam(OLD_NODE_PATH).getValue();
     }
@@ -68,7 +66,7 @@ public class DlpFolderAndDriveMigration extends UpgradeProductPlugin {
     }
     SessionProvider sessionProvider = null;
     try {
-      sessionProvider = sessionProviderService.getSystemSessionProvider(null);
+      sessionProvider = SessionProvider.createSystemProvider();
       Session session = sessionProvider.getSession(WORKSPACE_COLLABORATION, repositoryService.getCurrentRepository());
       if (session.itemExists(oldNodePath)) {
         long startupTime = System.currentTimeMillis();
