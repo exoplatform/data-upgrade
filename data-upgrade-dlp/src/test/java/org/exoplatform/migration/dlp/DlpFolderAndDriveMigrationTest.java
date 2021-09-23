@@ -10,7 +10,6 @@ import org.exoplatform.services.cms.drives.DriveData;
 import org.exoplatform.services.cms.drives.ManageDriveService;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
-import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.junit.Test;
 
@@ -18,6 +17,8 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.jcr.Node;
@@ -26,6 +27,7 @@ import javax.jcr.Session;
 import javax.jcr.Workspace;
 
 @RunWith(PowerMockRunner.class)
+@PrepareForTest(SessionProvider.class)
 public class DlpFolderAndDriveMigrationTest {
 
   @Mock
@@ -33,9 +35,6 @@ public class DlpFolderAndDriveMigrationTest {
 
   @Mock
   ManageDriveService manageDriveService;
-
-  @Mock
-  SessionProviderService       sessionProviderService;
 
   @Mock
   ManageableRepository         repository;
@@ -68,8 +67,10 @@ public class DlpFolderAndDriveMigrationTest {
     DriveData driveQuarantine = mock(DriveData.class);
     DriveData driveSecurity = mock(DriveData.class);
 
+    PowerMockito.mockStatic(SessionProvider.class);
+    when(SessionProvider.createSystemProvider()).thenReturn(sessionProvider);
+
     Workspace workspace = mock(Workspace.class);
-    when(sessionProviderService.getSystemSessionProvider(any())).thenReturn(sessionProvider);
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
     when(sessionProvider.getSession(any(), any())).thenReturn(session);
     when(session.getWorkspace()).thenReturn(workspace);
@@ -90,8 +91,7 @@ public class DlpFolderAndDriveMigrationTest {
     DlpFolderAndDriveMigration dlpFolderAndDriveMigration = new DlpFolderAndDriveMigration(initParams,
                                                                                            settingService,
                                                                                            repositoryService,
-                                                                                           manageDriveService,
-                                                                                           sessionProviderService);
+                                                                                           manageDriveService);
     dlpFolderAndDriveMigration.processUpgrade(null, null);
     assertEquals(2, dlpFolderAndDriveMigration.getNodesMovedCount());
 
