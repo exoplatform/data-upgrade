@@ -90,7 +90,7 @@ public class ElasticsearchMigration extends UpgradeProductPlugin {
   private void deleteAnalyticsIndices() throws ElasticClientException {
     LOG.info("START::Delete wiki index wiki_v2");
     analyticsESClient.sendHttpDeleteRequest("wiki_v2");
-    LOG.info("END::Delete automatically created analytics index wiki_v2 successfully");
+    LOG.info("END::Delete old wiki index wiki_v2 successfully");
   }
 
   private boolean reindexAllNotes() {
