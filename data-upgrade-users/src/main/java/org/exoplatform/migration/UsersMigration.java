@@ -89,7 +89,6 @@ public class UsersMigration extends UpgradeProductPlugin {
                 }while (offset<=totalSize);
             }
         } catch (Exception e) {
-        e.printStackTrace();
         }
         LOG.info("End upgrade of connected user profile. It took {} ms", (System.currentTimeMillis() - startupTime));
     }
