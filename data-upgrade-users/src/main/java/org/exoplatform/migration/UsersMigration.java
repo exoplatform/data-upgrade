@@ -54,17 +54,15 @@ public class UsersMigration extends UpgradeProductPlugin {
     public void processUpgrade(String oldVersion, String newVersion) {
         LOG.info("Start upgrade connected user profile: {}", APPLICATION_CONTENT_ID);
         long startupTime = System.currentTimeMillis();
-        Boolean isDisabled = false;
         int limit=20;
         int offset=0;
         int totalSize = 0;
         ListAccess<User> usersListAccess = null;
         Query query = new Query();
         try {
-            usersListAccess = organizationService.getUserHandler()
-                    .findUsersByQuery(query,
-                            isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
+            usersListAccess = organizationService.getUserHandler().findAllUsers(UserStatus.ENABLED);
             totalSize = usersListAccess.getSize();
+            LOG.warn("#################totalSize"+totalSize);
             int limitToFetch = limit;
             if (totalSize < (offset + limitToFetch)) {
                 limitToFetch = totalSize - offset;
@@ -72,6 +70,7 @@ public class UsersMigration extends UpgradeProductPlugin {
                 UpdateUserProfile( totalSize, limitToFetch, offset,usersListAccess);
 
         } catch (Exception e) {
+            LOG.warn("Error processUpgrade data-upgrade-users", e);
         }
         LOG.info("End upgrade of connected user profile. It took {} ms", (System.currentTimeMillis() - startupTime));
     }
@@ -83,13 +82,16 @@ public class UsersMigration extends UpgradeProductPlugin {
                 Identity identity = identityManager.getOrCreateUserIdentity(user.getUserName());
                 Profile profile = identity.getProfile();
                 if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-                    profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
+                    profile.setProperty(Profile.LAST_LOGIN_TIME,user.getLastLoginTime());
                     identityManager.updateProfile(profile, false);
                     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
                     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
                 }
             }
-            offset++;
+            offset+=limitToFetch;
+            if (totalSize < (offset + limitToFetch)) {
+                limitToFetch = totalSize - offset;
+            }
         }while (offset<=totalSize);
     }
 }
