@@ -33,7 +33,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
 
-import java.util.Calendar;
+
 import java.util.Objects;
 
 public class UsersMigration extends UpgradeProductPlugin {
@@ -58,7 +58,6 @@ public class UsersMigration extends UpgradeProductPlugin {
         int offset=0;
         int totalSize = 0;
         ListAccess<User> usersListAccess = null;
-        Query query = new Query();
         try {
             usersListAccess = organizationService.getUserHandler().findAllUsers(UserStatus.ENABLED);
             totalSize = usersListAccess.getSize();
@@ -67,14 +66,14 @@ public class UsersMigration extends UpgradeProductPlugin {
             if (totalSize < (offset + limitToFetch)) {
                 limitToFetch = totalSize - offset;
             }
-                UpdateUserProfile( totalSize, limitToFetch, offset,usersListAccess);
+                updateUserProfile( totalSize, limitToFetch, offset,usersListAccess);
 
         } catch (Exception e) {
             LOG.warn("Error processUpgrade data-upgrade-users", e);
         }
         LOG.info("End upgrade of connected user profile. It took {} ms", (System.currentTimeMillis() - startupTime));
     }
-    public void UpdateUserProfile(int totalSize,int limitToFetch,int offset,ListAccess<User> usersListAccess) throws Exception {
+    public void updateUserProfile(int totalSize,int limitToFetch,int offset,ListAccess<User> usersListAccess) throws Exception {
         User[] users;
         do {
             users = usersListAccess.load(offset, limitToFetch);
