@@ -58,7 +58,6 @@ public class UsersMigration extends UpgradeProductPlugin {
         int limit=20;
         int offset=0;
         int totalSize = 0;
-        User[] users;
         ListAccess<User> usersListAccess = null;
         Query query = new Query();
         try {
@@ -70,26 +69,27 @@ public class UsersMigration extends UpgradeProductPlugin {
             if (totalSize < (offset + limitToFetch)) {
                 limitToFetch = totalSize - offset;
             }
-            if (limitToFetch <= 0) {
-                users = new User[0];
-            } else {
-                do {
-                    users = usersListAccess.load(offset, limitToFetch);
-                    for (User user : users) {
-                        Identity identity = identityManager.getOrCreateUserIdentity(user.getUserName());
-                        Profile profile = identity.getProfile();
-                        if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-                            profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
-                            identityManager.updateProfile(profile, false);
-                            IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-                            indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
-                        }
-                    }
-                    offset++;
-                }while (offset<=totalSize);
-            }
+                UpdateUserProfile( totalSize, limitToFetch, offset,usersListAccess);
+
         } catch (Exception e) {
         }
         LOG.info("End upgrade of connected user profile. It took {} ms", (System.currentTimeMillis() - startupTime));
+    }
+    public void UpdateUserProfile(int totalSize,int limitToFetch,int offset,ListAccess<User> usersListAccess) throws Exception {
+        User[] users;
+        do {
+            users = usersListAccess.load(offset, limitToFetch);
+            for (User user : users) {
+                Identity identity = identityManager.getOrCreateUserIdentity(user.getUserName());
+                Profile profile = identity.getProfile();
+                if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
+                    profile.setProperty(Profile.LAST_LOGIN_TIME, user != null ? user.getLastLoginTime() : Calendar.getInstance().getTimeInMillis());
+                    identityManager.updateProfile(profile, false);
+                    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+                    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+                }
+            }
+            offset++;
+        }while (offset<=totalSize);
     }
 }
