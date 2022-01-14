@@ -25,7 +25,7 @@
   <artifactId>data-upgrade-users</artifactId>
   <packaging>jar</packaging>
   <name>eXo Add-on:: Data Upgrade Add-on - users</name>
-  <description>A module to migrate users connected on 6.1.x to 6.3.x </description>
+  <description>A module to migrate lastLoginTime field on 6.1.x to 6.3.x </description>
   <properties>
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
