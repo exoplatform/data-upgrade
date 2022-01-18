@@ -46,7 +46,13 @@ public class DeleteNewsTargetsUpgradePlugin extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
     log.info("Start upgrade of news targets");
-    List<NewsTargetingEntity> newsTargets = newsTargetingService.getTargets();
+    // upgrade plugin to be deleted later
+    List<NewsTargetingEntity> newsTargets = null;
+    try {
+       newsTargets = newsTargetingService.getTargets(null);
+    } catch (IllegalAccessException e) {
+        //
+    }
     for (NewsTargetingEntity newsTarget : newsTargets) {
       newsTargetingService.deleteTargetByName(newsTarget.getName());
       newsTargetsCount++;

@@ -46,7 +46,7 @@ public class DeleteNewsTargetsUpgradePluginTest {
     newsTargets.add(newsTarget1);
     newsTargets.add(newsTarget2);
 
-    when(newsTargetingService.getTargets()).thenReturn(newsTargets);
+    when(newsTargetingService.getTargets(null)).thenReturn(newsTargets);
     DeleteNewsTargetsUpgradePlugin deleteNewsTargetsUpgradePlugin = new DeleteNewsTargetsUpgradePlugin(initParams, newsTargetingService);
     deleteNewsTargetsUpgradePlugin.processUpgrade(null, null);
     verify(newsTargetingService, times(2)).deleteTargetByName(any());
