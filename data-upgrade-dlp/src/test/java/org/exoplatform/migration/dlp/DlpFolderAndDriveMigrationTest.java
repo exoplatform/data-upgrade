@@ -18,6 +18,7 @@ import org.exoplatform.container.xml.ValueParam;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -28,6 +29,7 @@ import javax.jcr.Workspace;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SessionProvider.class)
+@PowerMockIgnore({ "javax.management.*", "jdk.internal.reflect.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*" })
 public class DlpFolderAndDriveMigrationTest {
 
   @Mock
