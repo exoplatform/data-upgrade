@@ -16,6 +16,7 @@ import javax.jcr.query.QueryResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.exoplatform.commons.search.index.IndexingService;
@@ -28,6 +29,8 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore({ "javax.management.*", "jdk.internal.reflect.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*" })
+
 public class NewsIndexingUpgradePluginTest {
 
   @Mock
