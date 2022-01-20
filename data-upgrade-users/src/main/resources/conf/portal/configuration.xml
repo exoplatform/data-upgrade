@@ -24,13 +24,13 @@
     <component-plugin>
       <name>UserUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.migration.UsersMigration</type>
-      <description>Migrates user data</description>
+      <type>org.exoplatform.migration.UsersLastLoginTimeMigration</type>
+      <description>Migrate lastLoginTime of users logs in 6.1 to  lastLoginTime in profile in 6.3</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
           <description>The groupId of the product</description>
-          <value>org.exoplatform.platform</value>
+          <value>org.exoplatform.users</value>
         </value-param>
         <value-param>
           <name>plugin.upgrade.target.version</name>
