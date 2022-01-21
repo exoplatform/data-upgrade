@@ -16,6 +16,7 @@ import javax.jcr.query.QueryResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.exoplatform.container.xml.InitParams;
@@ -29,6 +30,7 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
 
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore({ "javax.management.*", "jdk.internal.reflect.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*" })
 public class SharedNewsActivitiesUpgradePluginTest {
 
   @Mock
