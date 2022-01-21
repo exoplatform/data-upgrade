@@ -26,7 +26,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -42,7 +41,6 @@ import java.util.Objects;
 public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     private static final Log LOG                              = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
     private static final String APPLICATION_CONTENT_ID        ="migration-of-users";
-    private static final String CONNECTED              = "connected";
     private OrganizationService organizationService;
     private IdentityManager identityManager;
 
@@ -61,48 +59,48 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         int limit=20;
         int offset=0;
         int totalSize = 0;
-        ListAccess<Identity> ListIdentity = null;
+        ListAccess<Identity> listIdentity = null;
         try {
             ProfileFilter filter = new ProfileFilter();
             filter.setConnected(false);
-            ListIdentity = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
-            LOG.info(" Progression of users  TOTAL_ITEMS_TO_MIGRATE = " + ListIdentity.getSize());
-            totalSize = ListIdentity.getSize();
+            listIdentity = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
+            LOG.info(" Progression of users  TOTAL_ITEMS_TO_MIGRATE = " + listIdentity.getSize());
+            totalSize = listIdentity.getSize();
             int limitToFetch = limit;
             if (totalSize < (offset + limitToFetch)) {
                 limitToFetch = totalSize - offset;
             }
-                updateUserProfile(totalSize, limitToFetch, offset, ListIdentity);
+                updateUserProfile(totalSize, limitToFetch, offset, listIdentity);
         } catch (Exception e) {
             LOG.error("Error processUpgrade data-upgrade-users", e);
         }
         LOG.info("End upgrade of connected user profile. It took {} ms", (System.currentTimeMillis() - startupTime));
     }
-    public void updateUserProfile(int totalSize,int limitToFetch,int offset,ListAccess<Identity> ListIdentity) throws Exception {
+    public void updateUserProfile(int totalSize,int limitToFetch,int offset,ListAccess<Identity> listIdentity) throws Exception {
         List<Identity> identities;
-        int TOTAL_ITEMS_MIGRATED = 0;
-        int ITEMS_MIGRATED_ON_BOUCLE=0;
+        int totalItemsMigrated = 0;
+        int itemsMigratedPerLoop=0;
         do {
-            identities = Arrays.asList(ListIdentity.load(offset, limitToFetch));
+            identities = Arrays.asList(listIdentity.load(offset, limitToFetch));
             for (Identity identity : identities) {
                 String username = identity.getRemoteId();
                 User user = organizationService.getUserHandler().findUserByName(username);
                 Profile profile = identity.getProfile();
                 if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-                    TOTAL_ITEMS_MIGRATED++;
-                    ITEMS_MIGRATED_ON_BOUCLE++;
+                    totalItemsMigrated++;
+                    itemsMigratedPerLoop++;
                     profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
                     identityManager.updateProfile(profile, false);
                     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
                     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
                 }
             }
-            offset =(offset+ limitToFetch)-ITEMS_MIGRATED_ON_BOUCLE;
-            ITEMS_MIGRATED_ON_BOUCLE=0;
+            offset =(offset+ limitToFetch)-itemsMigratedPerLoop;
+            itemsMigratedPerLoop=0;
             if (totalSize < (offset + limitToFetch)) {
                 limitToFetch = totalSize - offset;
             }
         } while (offset < totalSize);
-        LOG.info("ALREDAY_MIGRATED_ITEMS_COUNT = " + TOTAL_ITEMS_MIGRATED);
+        LOG.info("ALREDAY_MIGRATED_ITEMS_COUNT = " + totalItemsMigrated);
     }
 }
