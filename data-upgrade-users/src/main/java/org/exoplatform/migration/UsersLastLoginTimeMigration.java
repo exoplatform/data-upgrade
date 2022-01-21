@@ -81,34 +81,28 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     public void updateUserProfile(int totalSize,int limitToFetch,int offset,ListAccess<Identity> ListIdentity) throws Exception {
         List<Identity> identities;
         int TOTAL_ITEMS_MIGRATED = 0;
-        int TOTAL_ITEMS_MIGRATED2=0;
-        int identityloded=0;
+        int ITEMS_MIGRATED_ON_BOUCLE=0;
         do {
             identities = Arrays.asList(ListIdentity.load(offset, limitToFetch));
-            identityloded += identities.size();
             for (Identity identity : identities) {
                 String username = identity.getRemoteId();
                 User user = organizationService.getUserHandler().findUserByName(username);
                 Profile profile = identity.getProfile();
                 if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
                     TOTAL_ITEMS_MIGRATED++;
-                    TOTAL_ITEMS_MIGRATED2++;
+                    ITEMS_MIGRATED_ON_BOUCLE++;
                     profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
                     identityManager.updateProfile(profile, false);
                     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
                     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
                 }
             }
-            LOG.warn("im between : "+offset+" and : "+limitToFetch
-                       +" AND  identity loaded now = " + identities.size()
-                       +" so item migrated by boucle = " + TOTAL_ITEMS_MIGRATED2);
-            TOTAL_ITEMS_MIGRATED2=0;
-            offset += limitToFetch;
+            offset =(offset+ limitToFetch)-ITEMS_MIGRATED_ON_BOUCLE;
+            ITEMS_MIGRATED_ON_BOUCLE=0;
             if (totalSize < (offset + limitToFetch)) {
                 limitToFetch = totalSize - offset;
             }
         } while (offset < totalSize);
         LOG.info("ALREDAY_MIGRATED_ITEMS_COUNT = " + TOTAL_ITEMS_MIGRATED);
-        LOG.info("total identity loaded = " + identityloded);
     }
 }
