@@ -106,9 +106,9 @@ public class UsersLastLoginTimeMigrationTest {
       PowerMockito.mockStatic(CommonsUtils.class);
       when(CommonsUtils.getService(IndexingService.class)).thenReturn(indexingService);
 
-      when(userHandler.findUserByName(eq("user1"))).thenReturn(user1);
-      when(userHandler.findUserByName(eq("user2"))).thenReturn(user2);
-      when(userHandler.findUserByName(eq("user3"))).thenReturn(user3);
+      when(userHandler.findUserByName("user1")).thenReturn(user1);
+      when(userHandler.findUserByName("user2")).thenReturn(user2);
+      when(userHandler.findUserByName("user3")).thenReturn(user3);
       when(organizationService.getUserHandler()).thenReturn(userHandler);
 
       UsersLastLoginTimeMigration usersLastLoginTimeMigration = new UsersLastLoginTimeMigration(organizationService,
