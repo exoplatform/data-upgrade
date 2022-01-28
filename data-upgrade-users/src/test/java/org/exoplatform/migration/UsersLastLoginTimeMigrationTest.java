@@ -88,7 +88,7 @@ public class UsersLastLoginTimeMigrationTest {
       identity3.setRemoteId("user3");
       identity3.setProfile(profile3);
 
-      ListAccess<Identity> identities = new ListAccess<Identity>() {
+      ListAccess<Identity> listIdentity = new ListAccess<Identity>() {
         @Override
         public Identity[] load(int i, int i1) throws Exception, IllegalArgumentException {
           return new Identity[] { identity1, identity2, identity3 };
@@ -99,6 +99,7 @@ public class UsersLastLoginTimeMigrationTest {
           return 0;
         }
       };
+
       OrganizationService organizationService = Mockito.mock(OrganizationService.class);
       IdentityManager identityManager = Mockito.mock(IdentityManager.class);
       UserHandler userHandler = Mockito.mock(UserHandler.class);
@@ -119,7 +120,9 @@ public class UsersLastLoginTimeMigrationTest {
       assertNotEquals(user2.getLastLoginTime(), identity2.getProfile().getProperty(Profile.LAST_LOGIN_TIME));
       assertNotEquals(user3.getLastLoginTime(), identity3.getProfile().getProperty(Profile.LAST_LOGIN_TIME));
 
-      usersLastLoginTimeMigration.updateUserProfile(identities.getSize(), 3, 0, identities);
+      List<Identity> identities = null;
+      identities = Arrays.asList(listIdentity.load(0, 3));
+      usersLastLoginTimeMigration.updateLastLoginTime(identities);
       verify(indexingService, times(2)).reindex(any(), any());
 
       assertNotEquals(user1.getLastLoginTime(), identity1.getProfile().getProperty(Profile.LAST_LOGIN_TIME));
