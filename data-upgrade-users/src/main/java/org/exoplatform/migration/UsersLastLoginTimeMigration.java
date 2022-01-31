@@ -55,9 +55,10 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     LOG.info("Start upgrade process to add lastLoginTime in user profile");
     long startupTime = System.currentTimeMillis();
-    int limit = 100;
+    int limit = 3;
     int offset = 0;
     int totalSize = 0;
+    int totalItemsChecked = 0;
     ListAccess<Identity> listIdentity = null;
     try {
       ProfileFilter filter = new ProfileFilter();
@@ -72,19 +73,17 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
           limitToFetch = totalSize - offset;
         }
         identities = Arrays.asList(listIdentity.load(offset, limitToFetch));
-        int itemsMigratedPerLoop = updateLastLoginTime(identities);
+        int itemsMigratedPerLoop = updateLastLoginTime(totalSize, totalItemsChecked, identities);
+        totalItemsChecked =totalItemsChecked+identities.size();
         offset = (offset + limitToFetch) - itemsMigratedPerLoop;
       } while (offset < totalSize);
     } catch (Exception e) {
       LOG.error("Error processUpgrade data-upgrade-users", e);
     }
-    LOG.info("End process to add lastLoginTime in user profile. It took {} ms all migration {}",
-             (System.currentTimeMillis() - startupTime));
+    LOG.info("End process to add lastLoginTime in user profile. It took {} ms.", (System.currentTimeMillis() - startupTime));
   }
 
-  public int updateLastLoginTime(List<Identity> identities) throws Exception {
-    int totalSize = identities.size();
-    int totalItemsChecked = 0;
+  public int updateLastLoginTime(int totalSize, int totalItemsChecked, List<Identity> identities) throws Exception {
     int itemsMigratedPerLoop = 0;
     long startupTime = System.currentTimeMillis();
     itemsMigratedPerLoop = 0;
@@ -108,4 +107,5 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
              System.currentTimeMillis() - startupTime);
     return itemsMigratedPerLoop;
   }
+
 }

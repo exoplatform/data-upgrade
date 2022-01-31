@@ -122,7 +122,7 @@ public class UsersLastLoginTimeMigrationTest {
 
       List<Identity> identities = null;
       identities = Arrays.asList(listIdentity.load(0, 3));
-      usersLastLoginTimeMigration.updateLastLoginTime(identities);
+      usersLastLoginTimeMigration.updateLastLoginTime(3,0,identities);
       verify(indexingService, times(2)).reindex(any(), any());
 
       assertNotEquals(user1.getLastLoginTime(), identity1.getProfile().getProperty(Profile.LAST_LOGIN_TIME));
