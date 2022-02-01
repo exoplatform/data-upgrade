@@ -55,27 +55,25 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     LOG.info("Start upgrade process to add lastLoginTime in user profile");
     long startupTime = System.currentTimeMillis();
-    int limit = 3;
-    int offset = 0;
-    int totalSize = 0;
-    int totalItemsChecked = 0;
-    ListAccess<Identity> listIdentity = null;
     try {
+      int limit = 100, offset = 0, totalSize = 0, totalItemsChecked = 0;
+      ListAccess<Identity> listIdentity = null;
       ProfileFilter filter = new ProfileFilter();
       filter.setConnected(false);
       listIdentity = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
-      totalSize = listIdentity.getSize();
-      LOG.info("Number of users to check : " + totalSize);
-      int limitToFetch = limit;
-      List<Identity> identities;
+
       do {
+        totalSize = listIdentity.getSize();
+        LOG.info("Number of users to check : " + totalSize);
+        int limitToFetch = limit;
+        List<Identity> identities;
         if (totalSize < (offset + limitToFetch)) {
           limitToFetch = totalSize - offset;
         }
         identities = Arrays.asList(listIdentity.load(offset, limitToFetch));
-        int itemsMigratedPerLoop = updateLastLoginTime(totalSize, totalItemsChecked, identities);
-        totalItemsChecked =totalItemsChecked+identities.size();
-        offset = (offset + limitToFetch) - itemsMigratedPerLoop;
+        int numberOfModifiedItems = updateLastLoginTime(totalSize, totalItemsChecked, identities);
+        totalItemsChecked = totalItemsChecked + identities.size();
+        offset = (offset + limitToFetch) - numberOfModifiedItems;
       } while (offset < totalSize);
     } catch (Exception e) {
       LOG.error("Error processUpgrade data-upgrade-users", e);
@@ -84,15 +82,14 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   }
 
   public int updateLastLoginTime(int totalSize, int totalItemsChecked, List<Identity> identities) throws Exception {
-    int itemsMigratedPerLoop = 0;
+    int numberOfModifiedItems = 0;
     long startupTime = System.currentTimeMillis();
-    itemsMigratedPerLoop = 0;
     for (Identity identity : identities) {
       String username = identity.getRemoteId();
       User user = organizationService.getUserHandler().findUserByName(username);
       Profile profile = identity.getProfile();
       if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-        itemsMigratedPerLoop++;
+        numberOfModifiedItems++;
         profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
         identityManager.updateProfile(profile, false);
         IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
@@ -103,9 +100,9 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     LOG.info("Progession : {} users checked on {} total users, {} users fixed in this batch. It tooks {}ms",
              totalItemsChecked,
              totalSize,
-             itemsMigratedPerLoop,
+             numberOfModifiedItems,
              System.currentTimeMillis() - startupTime);
-    return itemsMigratedPerLoop;
+    return numberOfModifiedItems;
   }
 
 }
