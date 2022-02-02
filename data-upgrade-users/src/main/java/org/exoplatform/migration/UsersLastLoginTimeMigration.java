@@ -56,15 +56,17 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     LOG.info("Start upgrade process to add lastLoginTime in user profile");
     long startupTime = System.currentTimeMillis();
     try {
-      int limit = 100, offset = 0, totalSize = 0, totalItemsChecked = 0;
+      int limit = 100;
+      int offset = 0;
+      int totalSize = 0;
+      int totalItemsChecked = 0;
       ListAccess<Identity> listIdentity = null;
       ProfileFilter filter = new ProfileFilter();
       filter.setConnected(false);
       listIdentity = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
-
+      totalSize = listIdentity.getSize();
+      LOG.info("Number of users to check : " + totalSize);
       do {
-        totalSize = listIdentity.getSize();
-        LOG.info("Number of users to check : " + totalSize);
         int limitToFetch = limit;
         List<Identity> identities;
         if (totalSize < (offset + limitToFetch)) {
@@ -75,6 +77,11 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         totalItemsChecked = totalItemsChecked + identities.size();
         offset = (offset + limitToFetch) - numberOfModifiedItems;
       } while (offset < totalSize);
+      if (totalSize == totalItemsChecked) {
+        LOG.info(" upgrade of {} / {} proceeded successfully.", totalItemsChecked, totalSize);
+      } else {
+        throw new IllegalStateException("upgrade failed due to previous errors");
+      }
     } catch (Exception e) {
       LOG.error("Error processUpgrade data-upgrade-users", e);
     }
