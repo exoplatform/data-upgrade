@@ -77,13 +77,10 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         totalItemsChecked = totalItemsChecked + identities.size();
         offset = (offset + limitToFetch) - numberOfModifiedItems;
       } while (offset < totalSize);
-      if (totalSize == totalItemsChecked) {
-        LOG.info(" upgrade of {} / {} proceeded successfully.", totalItemsChecked, totalSize);
-      } else {
-        throw new IllegalStateException("upgrade failed due to previous errors");
-      }
+      LOG.info("Upgrade of {} / {} proceeded successfully.", totalItemsChecked, totalSize);
     } catch (Exception e) {
       LOG.error("Error processUpgrade data-upgrade-users", e);
+      throw new IllegalStateException("Upgrade failed when upgrade-users");
     }
     LOG.info("End process to add lastLoginTime in user profile. It took {} ms.", (System.currentTimeMillis() - startupTime));
   }
