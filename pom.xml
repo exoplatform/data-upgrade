@@ -20,6 +20,7 @@
     <tag>HEAD</tag>
   </scm>
   <modules>
+    <module>data-upgrade-users</module>
     <module>data-upgrade-elasticsearch7</module>
     <module>data-upgrade-wiki</module>
     <module>data-upgrade-ecms</module>
