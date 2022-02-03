@@ -1,0 +1,75 @@
+<!--
+
+    Copyright (C) 2022 eXo Platform SAS.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.exoplatform.addons.upgrade</groupId>
+    <artifactId>upgrade</artifactId>
+    <version>6.3.x-maintenance-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>data-upgrade-users</artifactId>
+  <packaging>jar</packaging>
+  <name>eXo Add-on:: Data Upgrade Add-on - users</name>
+  <description>A module to migrate lastLoginTime field on 6.1.x to 6.3.x </description>
+  <properties>
+    <exo.test.coverage.ratio>0.45</exo.test.coverage.ratio>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-upgrade</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-search</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.exoplatform.social</groupId>
+        <artifactId>social-component-core</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-mockito2</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <scope>test</scope>
+    </dependency>
+      <dependency>
+          <groupId>org.exoplatform.social</groupId>
+          <artifactId>social-component-service</artifactId>
+          <scope>test</scope>
+      </dependency>
+  </dependencies>
+</project>
