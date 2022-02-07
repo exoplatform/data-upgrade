@@ -68,6 +68,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-notifications</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-users</artifactId>
+    </dependency>
 
     <!-- Transitive dependencies provided by eXo : set to provided -->
     <dependency>
