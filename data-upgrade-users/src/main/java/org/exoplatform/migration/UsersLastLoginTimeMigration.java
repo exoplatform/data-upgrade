@@ -103,7 +103,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
         indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
       } else {
-        LOG.info("Null user checked");
+        LOG.error("User {} not found. Ignored.",username);
       }
       totalItemsChecked++;
     }
