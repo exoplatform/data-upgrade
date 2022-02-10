@@ -133,4 +133,60 @@ public class UsersLastLoginTimeMigrationTest {
     }
   }
 
+  @Test
+  public void testUserNull() {
+    try {
+      InitParams initParams = new InitParams();
+      ValueParam valueParam = new ValueParam();
+      valueParam.setName("product.group.id");
+      valueParam.setValue("org.exoplatform.users");
+      initParams.addParameter(valueParam);
+
+      Date today = new Date();
+      Date tomorrow = new Date(today.getTime() + (1000 * 60 * 60 * 24));
+
+      Profile profile1 = new Profile();
+      profile1.setId("profile1");
+
+      Identity identity1 = new Identity();
+      identity1.setId("1");
+      identity1.setRemoteId("user1");
+      identity1.setProfile(profile1);
+
+      ListAccess<Identity> listIdentity = new ListAccess<Identity>() {
+        @Override
+        public Identity[] load(int i, int i1) throws Exception, IllegalArgumentException {
+          return new Identity[] { identity1 };
+        }
+
+        @Override
+        public int getSize() throws Exception {
+          return 1;
+        }
+      };
+
+      OrganizationService organizationService = Mockito.mock(OrganizationService.class);
+      IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+      UserHandler userHandler = Mockito.mock(UserHandler.class);
+      IndexingService indexingService = Mockito.mock(IndexingService.class);
+      PowerMockito.mockStatic(CommonsUtils.class);
+      when(CommonsUtils.getService(IndexingService.class)).thenReturn(indexingService);
+
+      when(userHandler.findUserByName("user1")).thenReturn(null);
+      when(organizationService.getUserHandler()).thenReturn(userHandler);
+
+      UsersLastLoginTimeMigration usersLastLoginTimeMigration = new UsersLastLoginTimeMigration(organizationService,
+                                                                                                identityManager,
+                                                                                                initParams);
+
+      List<Identity> identities = null;
+      identities = Arrays.asList(listIdentity.load(0, 3));
+      usersLastLoginTimeMigration.updateLastLoginTime(1, 0, identities);
+      verify(indexingService, times(0)).reindex(any(), any());
+
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+  }
+
 }

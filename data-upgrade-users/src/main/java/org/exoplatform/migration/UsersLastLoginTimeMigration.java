@@ -20,6 +20,8 @@ import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.component.ComponentRequestLifecycle;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -67,6 +69,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       totalSize = listIdentity.getSize();
       LOG.info("Number of users to check : " + totalSize);
       do {
+        RequestLifeCycle.begin((ComponentRequestLifecycle) this.organizationService);
         int limitToFetch = limit;
         List<Identity> identities;
         if (totalSize < (offset + limitToFetch)) {
@@ -76,6 +79,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         int numberOfModifiedItems = updateLastLoginTime(totalSize, totalItemsChecked, identities);
         totalItemsChecked = totalItemsChecked + identities.size();
         offset = (offset + limitToFetch) - numberOfModifiedItems;
+        RequestLifeCycle.end();
       } while (offset < totalSize);
       LOG.info("Upgrade of {} / {} proceeded successfully.", totalItemsChecked, totalSize);
     } catch (Exception e) {
@@ -92,12 +96,16 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       String username = identity.getRemoteId();
       User user = organizationService.getUserHandler().findUserByName(username);
       Profile profile = identity.getProfile();
-      if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-        numberOfModifiedItems++;
-        profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
-        identityManager.updateProfile(profile, false);
-        IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-        indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+      if (user == null) {
+        LOG.error("User {} not found. Ignored.", username);
+      } else {
+        if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
+          numberOfModifiedItems++;
+          profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
+          identityManager.updateProfile(profile, false);
+          IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+          indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+        }
       }
       totalItemsChecked++;
     }
