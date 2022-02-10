@@ -96,14 +96,16 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       String username = identity.getRemoteId();
       User user = organizationService.getUserHandler().findUserByName(username);
       Profile profile = identity.getProfile();
-      if (user != null && profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-        numberOfModifiedItems++;
-        profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
-        identityManager.updateProfile(profile, false);
-        IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-        indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+      if (user == null) {
+        LOG.error("User {} not found. Ignored.", username);
       } else {
-        LOG.error("User {} not found. Ignored.",username);
+        if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
+          numberOfModifiedItems++;
+          profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
+          identityManager.updateProfile(profile, false);
+          IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+          indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+        }
       }
       totalItemsChecked++;
     }
