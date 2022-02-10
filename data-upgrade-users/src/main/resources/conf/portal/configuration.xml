@@ -30,12 +30,13 @@
         <value-param>
           <name>product.group.id</name>
           <description>The groupId of the product</description>
-          <value>org.exoplatform.users</value>
+          <value>org.exoplatform.platform</value>
         </value-param>
         <value-param>
           <name>plugin.upgrade.target.version</name>
-          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.3.0)</description>
-          <value>6.3.0</value>
+          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.3.1)
+          </description>
+          <value>6.3.x-maintenance-SNAPSHOT</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
