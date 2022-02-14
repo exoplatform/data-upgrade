@@ -16,6 +16,7 @@
  */
 package org.exoplatform.migration;
 
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -34,23 +35,95 @@ import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   private static final Log    LOG = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
 
+  private static final int     MAX_RESULT = 200;
+
   private OrganizationService organizationService;
 
-  private IdentityManager     identityManager;
+  private IdentityManager      identityManager;
+
+  private EntityManagerService entityManager;
+
+  // @formatter:off
+  String                      sqlQuery = "SELECT REMOTE_ID FROM SOC_IDENTITIES "
+      + "WHERE IDENTITY_ID in ("
+            //select enabled users
+      + "   SELECT IDENTITY_ID FROM SOC_IDENTITIES si WHERE si.ENABLED=true"
+      + ") "
+      + "AND IDENTITY_ID NOT IN ("
+            //select users which have not field profile.lastLoginTime
+      + "   SELECT si.IDENTITY_ID FROM SOC_IDENTITIES si"
+      + "   INNER JOIN SOC_IDENTITY_PROPERTIES sip ON si.IDENTITY_ID = sip.IDENTITY_ID"
+      + "   WHERE sip.NAME = 'lastLoginTime'"
+      + ") "
+      + "AND REMOTE_ID IN ("
+            //select users for which user.createdDate != user.lastLoginTime
+      + "   SELECT llt.NAME FROM ("
+      + "     SELECT jbid_io.NAME,jbid_io.ID,jbid_io_attr_text_values.ATTR_VALUE from jbid_io"
+      + "     INNER JOIN jbid_io_attr ON jbid_io.ID =  jbid_io_attr.IDENTITY_OBJECT_ID"
+      + "     INNER JOIN jbid_io_attr_text_values ON jbid_io_attr.ATTRIBUTE_ID = jbid_io_attr_text_values.TEXT_ATTR_VALUE_ID"
+      + "     AND jbid_io_attr.name = 'lastLoginTime'"
+      + "   ) llt"
+      + "   INNER JOIN ("
+      + "     SELECT jbid_io.NAME,jbid_io.ID,jbid_io_attr_text_values.ATTR_VALUE from jbid_io"
+      + "     INNER JOIN jbid_io_attr ON jbid_io.ID =  jbid_io_attr.IDENTITY_OBJECT_ID "
+      + "     INNER JOIN jbid_io_attr_text_values ON jbid_io_attr.ATTRIBUTE_ID = jbid_io_attr_text_values.TEXT_ATTR_VALUE_ID"
+      + "     AND jbid_io_attr.name = 'createdDate'"
+      + "   ) AS cdt"
+      + "   ON llt.ID=cdt.ID"
+      + "   WHERE llt.ATTR_VALUE!=cdt.ATTR_VALUE"
+      + ") ";
+
+  String                      countQuery = "SELECT COUNT(REMOTE_ID) FROM SOC_IDENTITIES "
+      + "WHERE IDENTITY_ID in ("
+      //select enabled users
+      + "   SELECT IDENTITY_ID FROM SOC_IDENTITIES si WHERE si.ENABLED=true"
+      + ") "
+      + "AND IDENTITY_ID NOT IN ("
+      //select users which have not field profile.lastLoginTime
+      + "   SELECT si.IDENTITY_ID FROM SOC_IDENTITIES si"
+      + "   INNER JOIN SOC_IDENTITY_PROPERTIES sip ON si.IDENTITY_ID = sip.IDENTITY_ID"
+      + "   WHERE sip.NAME = 'lastLoginTime'"
+      + ") "
+      + "AND REMOTE_ID IN ("
+      //select users for which user.createdDate != user.lastLoginTime
+      + "   SELECT llt.NAME FROM ("
+      + "     SELECT jbid_io.NAME,jbid_io.ID,jbid_io_attr_text_values.ATTR_VALUE from jbid_io"
+      + "     INNER JOIN jbid_io_attr ON jbid_io.ID =  jbid_io_attr.IDENTITY_OBJECT_ID "
+      + "     INNER JOIN jbid_io_attr_text_values ON jbid_io_attr.ATTRIBUTE_ID = jbid_io_attr_text_values.TEXT_ATTR_VALUE_ID"
+      + "     AND jbid_io_attr.name = 'lastLoginTime'"
+      + "   ) llt"
+      + "   INNER JOIN ("
+      + "     SELECT jbid_io.NAME,jbid_io.ID,jbid_io_attr_text_values.ATTR_VALUE from jbid_io"
+      + "     INNER JOIN jbid_io_attr ON jbid_io.ID =  jbid_io_attr.IDENTITY_OBJECT_ID "
+      + "     INNER JOIN jbid_io_attr_text_values ON jbid_io_attr.ATTRIBUTE_ID = jbid_io_attr_text_values.TEXT_ATTR_VALUE_ID"
+      + "     AND jbid_io_attr.name = 'createdDate'"
+      + "   ) AS cdt"
+      + "   ON llt.ID=cdt.ID"
+      + "   WHERE llt.ATTR_VALUE!=cdt.ATTR_VALUE"
+      + ");";
+
+  // @formatter:on
 
   public UsersLastLoginTimeMigration(OrganizationService organizationService,
                                      IdentityManager identityManager,
+                                     EntityManagerService entityManager,
                                      InitParams initParams) {
     super(initParams);
     this.organizationService = organizationService;
     this.identityManager = identityManager;
+    this.entityManager = entityManager;
+
   }
 
   @Override
@@ -58,30 +131,44 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     LOG.info("Start upgrade process to add lastLoginTime in user profile");
     long startupTime = System.currentTimeMillis();
     try {
-      int limit = 100;
+      long totalSize = 0;
+      int totalItemsFixed = 0;
       int offset = 0;
-      int totalSize = 0;
-      int totalItemsChecked = 0;
-      ListAccess<Identity> listIdentity = null;
-      ProfileFilter filter = new ProfileFilter();
-      filter.setConnected(false);
-      listIdentity = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
-      totalSize = listIdentity.getSize();
-      LOG.info("Number of users to check : " + totalSize);
-      do {
-        RequestLifeCycle.begin((ComponentRequestLifecycle) this.organizationService);
-        int limitToFetch = limit;
-        List<Identity> identities;
-        if (totalSize < (offset + limitToFetch)) {
-          limitToFetch = totalSize - offset;
-        }
-        identities = Arrays.asList(listIdentity.load(offset, limitToFetch));
-        int numberOfModifiedItems = updateLastLoginTime(totalSize, totalItemsChecked, identities);
-        totalItemsChecked = totalItemsChecked + identities.size();
-        offset = (offset + limitToFetch) - numberOfModifiedItems;
+
+      // COUNT
+      RequestLifeCycle.begin(this.entityManager);
+      EntityManager entityManager = this.entityManager.getEntityManager();
+      try {
+        Query countNativeQuery = entityManager.createNativeQuery(countQuery);
+        totalSize = ((Number) countNativeQuery.getSingleResult()).intValue();
+      } finally {
         RequestLifeCycle.end();
-      } while (offset < totalSize);
-      LOG.info("Upgrade of {} / {} proceeded successfully.", totalItemsChecked, totalSize);
+      }
+
+      LOG.info("Number of users to fix : " + totalSize);
+      int updatedUsers = 0;
+      do {
+        // SELECT
+        RequestLifeCycle.begin(this.entityManager);
+        List<Object> remoteIds = new ArrayList<>();
+        try {
+          long startTimeForBatch = System.currentTimeMillis();
+          Query sqlNativeQuery = entityManager.createNativeQuery(sqlQuery);
+          sqlNativeQuery.setMaxResults(MAX_RESULT);
+          remoteIds = sqlNativeQuery.getResultList();
+          updatedUsers = updateLastLoginTime(remoteIds);
+          totalItemsFixed = totalItemsFixed + updatedUsers;
+          LOG.info("Progession : {} users fixed on {} total users. It tooks {}ms",
+                   totalItemsFixed,
+                   totalSize,
+                   System.currentTimeMillis() - startTimeForBatch);
+        } finally {
+          RequestLifeCycle.end();
+        }
+
+      } while (updatedUsers < 0);
+
+      LOG.info("Upgrade of {} / {} proceeded successfully.", totalItemsFixed, totalSize);
     } catch (Exception e) {
       LOG.error("Error processUpgrade data-upgrade-users", e);
       throw new IllegalStateException("Upgrade failed when upgrade-users");
@@ -89,31 +176,19 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     LOG.info("End process to add lastLoginTime in user profile. It took {} ms.", (System.currentTimeMillis() - startupTime));
   }
 
-  public int updateLastLoginTime(int totalSize, int totalItemsChecked, List<Identity> identities) throws Exception {
+  public int updateLastLoginTime(List<Object> remoteIds) throws Exception {
     int numberOfModifiedItems = 0;
-    long startupTime = System.currentTimeMillis();
-    for (Identity identity : identities) {
-      String username = identity.getRemoteId();
+    for (Object remoteId : remoteIds) {
+      String username = (String) remoteId;
       User user = organizationService.getUserHandler().findUserByName(username);
+      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
       Profile profile = identity.getProfile();
-      if (user == null) {
-        LOG.error("User {} not found. Ignored.", username);
-      } else {
-        if (profile != null && !Objects.equals(user.getCreatedDate(), user.getLastLoginTime())) {
-          numberOfModifiedItems++;
-          profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
-          identityManager.updateProfile(profile, false);
-          IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-          indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
-        }
-      }
-      totalItemsChecked++;
+      profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
+      identityManager.updateProfile(profile, false);
+      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+      numberOfModifiedItems++;
     }
-    LOG.info("Progession : {} users checked on {} total users, {} users fixed in this batch. It tooks {}ms",
-             totalItemsChecked,
-             totalSize,
-             numberOfModifiedItems,
-             System.currentTimeMillis() - startupTime);
     return numberOfModifiedItems;
   }
 
