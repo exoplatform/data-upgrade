@@ -20,8 +20,6 @@ import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
@@ -33,15 +31,11 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.profile.ProfileFilter;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   private static final Log    LOG = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
@@ -52,7 +46,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
 
   private IdentityManager      identityManager;
 
-  private EntityManagerService entityManager;
+  private EntityManagerService entityManagerService;
 
   // @formatter:off
   String                      sqlQuery = "SELECT REMOTE_ID FROM SOC_IDENTITIES "
@@ -117,12 +111,12 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
 
   public UsersLastLoginTimeMigration(OrganizationService organizationService,
                                      IdentityManager identityManager,
-                                     EntityManagerService entityManager,
+                                     EntityManagerService entityManagerService,
                                      InitParams initParams) {
     super(initParams);
     this.organizationService = organizationService;
     this.identityManager = identityManager;
-    this.entityManager = entityManager;
+    this.entityManagerService = entityManagerService;
 
   }
 
@@ -133,11 +127,10 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     try {
       long totalSize = 0;
       int totalItemsFixed = 0;
-      int offset = 0;
 
       // COUNT
-      RequestLifeCycle.begin(this.entityManager);
-      EntityManager entityManager = this.entityManager.getEntityManager();
+      RequestLifeCycle.begin(this.entityManagerService);
+      EntityManager entityManager = this.entityManagerService.getEntityManager();
       try {
         Query countNativeQuery = entityManager.createNativeQuery(countQuery);
         totalSize = ((Number) countNativeQuery.getSingleResult()).intValue();
@@ -149,7 +142,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       int updatedUsers = 0;
       do {
         // SELECT
-        RequestLifeCycle.begin(this.entityManager);
+        RequestLifeCycle.begin(this.entityManagerService);
         List<Object> remoteIds = new ArrayList<>();
         try {
           long startTimeForBatch = System.currentTimeMillis();
