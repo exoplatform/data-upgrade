@@ -81,8 +81,8 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
             //on tribe, some users exists in jbid_io with name = 'Alex' and name = 'alex'.
             //this create an error when doing orgService.getUserHandler().findUserByName('alex'), because it find more than one
             //result. To prevent that, we don't get theses users
-      + "   SELECT LOWER(NAME) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
-      + ");";
+      + "   SELECT ANY_VALUE(LOWER(NAME)) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
+      + ")";
 
   String                      countQuery = "SELECT COUNT(REMOTE_ID) FROM SOC_IDENTITIES "
       + "WHERE IDENTITY_ID in ("
@@ -116,8 +116,9 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
             //on tribe, some users exists in jbid_io with name = 'Alex' and name = 'alex'.
             //this create an error when doing orgService.getUserHandler().findUserByName('alex'), because it find more than one
             //result. To prevent that, we don't get theses users
-      + "   SELECT LOWER(NAME) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
-      + ");";
+      + "   SELECT ANY_VALUE(LOWER(NAME)) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
+
+      + ")";
 
   // @formatter:on
 
