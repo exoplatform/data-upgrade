@@ -187,17 +187,13 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       try {
         String username = (String) remoteId;
         User user = organizationService.getUserHandler().findUserByName(username);
-        if (user == null) {
-          LOG.error("User {} is null, ignore it", username);
-        } else {
-          Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
-          Profile profile = identity.getProfile();
-          profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
-          identityManager.updateProfile(profile, false);
-          IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-          indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
-          numberOfModifiedItems++;
-        }
+        Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+        Profile profile = identity.getProfile();
+        profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
+        identityManager.updateProfile(profile, false);
+        IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+        indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+        numberOfModifiedItems++;
       } catch (Exception e) {
         LOG.error("Error when updating user {}", remoteId.toString(), e);
         throw e;
