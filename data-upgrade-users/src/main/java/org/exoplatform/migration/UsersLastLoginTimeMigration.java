@@ -76,7 +76,13 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       + "   ) AS cdt"
       + "   ON llt.ID=cdt.ID"
       + "   WHERE llt.ATTR_VALUE!=cdt.ATTR_VALUE"
-      + ") ";
+      + ") "
+      + "AND LOWER(REMOTE_ID) NOT IN ("
+            //on tribe, some users exists in jbid_io with name = 'Alex' and name = 'alex'.
+            //this create an error when doing orgService.getUserHandler().findUserByName('alex'), because it find more than one
+            //result. To prevent that, we don't get theses users
+      + "   SELECT LOWER(NAME) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
+      + ");";
 
   String                      countQuery = "SELECT COUNT(REMOTE_ID) FROM SOC_IDENTITIES "
       + "WHERE IDENTITY_ID in ("
@@ -105,6 +111,12 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       + "   ) AS cdt"
       + "   ON llt.ID=cdt.ID"
       + "   WHERE llt.ATTR_VALUE!=cdt.ATTR_VALUE"
+      + ") "
+      + "AND LOWER(REMOTE_ID) NOT IN ("
+            //on tribe, some users exists in jbid_io with name = 'Alex' and name = 'alex'.
+            //this create an error when doing orgService.getUserHandler().findUserByName('alex'), because it find more than one
+            //result. To prevent that, we don't get theses users
+      + "   SELECT LOWER(NAME) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
       + ");";
 
   // @formatter:on
@@ -172,15 +184,20 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   public int updateLastLoginTime(List<Object> remoteIds) throws Exception {
     int numberOfModifiedItems = 0;
     for (Object remoteId : remoteIds) {
-      String username = (String) remoteId;
-      User user = organizationService.getUserHandler().findUserByName(username);
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
-      Profile profile = identity.getProfile();
-      profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
-      identityManager.updateProfile(profile, false);
-      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
-      numberOfModifiedItems++;
+      try {
+        String username = (String) remoteId;
+        User user = organizationService.getUserHandler().findUserByName(username);
+        Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+        Profile profile = identity.getProfile();
+        profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
+        identityManager.updateProfile(profile, false);
+        IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+        indexingService.reindex(ProfileIndexingServiceConnector.TYPE, identity.getId());
+        numberOfModifiedItems++;
+      } catch (Exception e) {
+        LOG.error("Error when updating user {}", remoteId.toString(), e);
+        throw e;
+      }
     }
     return numberOfModifiedItems;
   }
