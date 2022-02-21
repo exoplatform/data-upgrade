@@ -40,7 +40,7 @@ import java.util.List;
 public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   private static final Log    LOG = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
 
-  private static final int     MAX_RESULT = 200;
+  private static final int     MAX_RESULT = 2;
 
   private OrganizationService organizationService;
 
@@ -76,13 +76,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       + "   ) AS cdt"
       + "   ON llt.ID=cdt.ID"
       + "   WHERE llt.ATTR_VALUE!=cdt.ATTR_VALUE"
-      + ") "
-      + "AND LOWER(REMOTE_ID) NOT IN ("
-            //on tribe, some users exists in jbid_io with name = 'Alex' and name = 'alex'.
-            //this create an error when doing orgService.getUserHandler().findUserByName('alex'), because it find more than one
-            //result. To prevent that, we don't get theses users
-      + "   SELECT ANY_VALUE(LOWER(NAME)) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
-      + ")";
+      + ") ";
 
   String                      countQuery = "SELECT COUNT(REMOTE_ID) FROM SOC_IDENTITIES "
       + "WHERE IDENTITY_ID in ("
@@ -111,14 +105,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       + "   ) AS cdt"
       + "   ON llt.ID=cdt.ID"
       + "   WHERE llt.ATTR_VALUE!=cdt.ATTR_VALUE"
-      + ") "
-      + "AND LOWER(REMOTE_ID) NOT IN ("
-            //on tribe, some users exists in jbid_io with name = 'Alex' and name = 'alex'.
-            //this create an error when doing orgService.getUserHandler().findUserByName('alex'), because it find more than one
-            //result. To prevent that, we don't get theses users
-      + "   SELECT ANY_VALUE(LOWER(NAME)) FROM jbid_io WHERE IDENTITY_TYPE=1 GROUP BY LOWER(NAME) HAVING COUNT(LOWER(NAME)) > 1"
-
-      + ")";
+      + ") ";
 
   // @formatter:on
 
@@ -138,8 +125,9 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
     LOG.info("Start upgrade process to add lastLoginTime in user profile");
     long startupTime = System.currentTimeMillis();
     try {
-      long totalSize = 0;
+      long totalSize;
       int totalItemsFixed = 0;
+      int offset = 0;
 
       // COUNT
       RequestLifeCycle.begin(this.entityManagerService);
@@ -152,7 +140,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       }
 
       LOG.info("Number of users to fix : " + totalSize);
-      int updatedUsers = 0;
+      int updatedUsers;
       do {
         // SELECT
         RequestLifeCycle.begin(this.entityManagerService);
@@ -161,9 +149,14 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
           long startTimeForBatch = System.currentTimeMillis();
           Query sqlNativeQuery = entityManager.createNativeQuery(sqlQuery);
           sqlNativeQuery.setMaxResults(MAX_RESULT);
+          sqlNativeQuery.setFirstResult(offset);
           remoteIds = sqlNativeQuery.getResultList();
           updatedUsers = updateLastLoginTime(remoteIds);
-          totalItemsFixed = totalItemsFixed + updatedUsers;
+
+          // ignore the non treatable users
+          offset = offset + (remoteIds.size() - updatedUsers);
+
+          totalItemsFixed = totalItemsFixed + remoteIds.size();
           LOG.info("Progession : {} users fixed on {} total users. It tooks {}ms",
                    totalItemsFixed,
                    totalSize,
@@ -172,7 +165,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
           RequestLifeCycle.end();
         }
 
-      } while (updatedUsers < 0);
+      } while (totalItemsFixed < totalSize);
 
       LOG.info("Upgrade of {} / {} proceeded successfully.", totalItemsFixed, totalSize);
     } catch (Exception e) {
@@ -188,6 +181,14 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       try {
         String username = (String) remoteId;
         User user = organizationService.getUserHandler().findUserByName(username);
+        if (user == null) {
+          // this case occurs on tribe
+          // some users are present twice in jbid_io with a letter in capital :
+          // for example : "Adam" and "adam"
+          // in this case, orgService is not able to find the related user and return null
+          // so, ignore it
+          continue;
+        }
         Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
         Profile profile = identity.getProfile();
         profile.setProperty(Profile.LAST_LOGIN_TIME, user.getLastLoginTime());
