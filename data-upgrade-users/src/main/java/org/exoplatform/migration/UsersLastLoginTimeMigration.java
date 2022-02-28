@@ -25,9 +25,7 @@ import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
-import org.exoplatform.social.core.manager.IdentityManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
