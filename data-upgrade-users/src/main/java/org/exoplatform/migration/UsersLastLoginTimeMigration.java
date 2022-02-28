@@ -40,10 +40,6 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
 
   private static final int     MAX_RESULT = 200;
 
-  private OrganizationService organizationService;
-
-  private IdentityManager      identityManager;
-
   private EntityManagerService entityManagerService;
 
   // @formatter:off
@@ -195,7 +191,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         Query getIdentityIdQuery = entityManager.createNativeQuery(getIdentityIdQueryString);
         getIdentityIdQuery.setParameter("username", username);
         List<Object> resultListId = getIdentityIdQuery.getResultList();
-        if (resultListId.size() == 0) {
+        if (resultListId.isEmpty()) {
           // the case identity==null occurs on tribe
           // some users are present twice in jbid_io with a letter in capital :
           // for example : "Adam" and "adam"
