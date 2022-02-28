@@ -109,13 +109,9 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
 
   // @formatter:on
 
-  public UsersLastLoginTimeMigration(OrganizationService organizationService,
-                                     IdentityManager identityManager,
-                                     EntityManagerService entityManagerService,
+  public UsersLastLoginTimeMigration(EntityManagerService entityManagerService,
                                      InitParams initParams) {
     super(initParams);
-    this.organizationService = organizationService;
-    this.identityManager = identityManager;
     this.entityManagerService = entityManagerService;
 
   }
