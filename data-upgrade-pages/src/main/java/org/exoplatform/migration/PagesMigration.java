@@ -97,8 +97,8 @@ public class PagesMigration extends UpgradeProductPlugin {
           transactionStarted = true;
         }
 
-        String sqlString = "UPDATE PORTAL_WINDOWS w SET w.CONTENT_ID = '" + newApplicationReference
-            + "' WHERE w.CONTENT_ID = '" + oldApplicationReference + "' AND w.ID > 0;";
+        String sqlString = "UPDATE PORTAL_WINDOWS  SET CONTENT_ID = '" + newApplicationReference
+            + "' WHERE CONTENT_ID = '" + oldApplicationReference + "' AND ID > 0;";
         Query nativeQuery = entityManager.createNativeQuery(sqlString);
         this.pagesUpdatedCount = nativeQuery.executeUpdate();
         LOG.info("End upgrade of '{}' pages with application references '{}' to use application '{}'. It took {} ms",
