@@ -1,6 +1,5 @@
 package org.exoplatform.migration;
 
-import org.exoplatform.commons.serialization.serial.ObjectReader;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -11,13 +10,12 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
 
 import java.util.Arrays;
 
 public class UserSetExternalInGateinPortal extends UpgradeProductPlugin {
-  private static final Log LOG = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
+  private static final Log LOG = ExoLogger.getExoLogger(UserSetExternalInGateinPortal.class);
 
   OrganizationService organizationService;
   public UserSetExternalInGateinPortal(OrganizationService organizationService,InitParams initParams) {
