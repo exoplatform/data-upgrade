@@ -31,7 +31,7 @@ import org.exoplatform.services.organization.UserProfile;
 import java.util.Arrays;
 
 public class UserSetExternalInGateinPortal extends UpgradeProductPlugin {
-  private static final Log LOG = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
+  private static final Log LOG = ExoLogger.getExoLogger(UserSetExternalInGateinPortal.class);
 
   OrganizationService organizationService;
   public UserSetExternalInGateinPortal(OrganizationService organizationService,InitParams initParams) {
