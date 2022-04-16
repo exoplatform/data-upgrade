@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.exoplatform.addons.upgrade</groupId>
     <artifactId>upgrade</artifactId>
-    <version>6.3.x-SNAPSHOT</version>
+    <version>6.4.x-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-upgrade-news</artifactId>
