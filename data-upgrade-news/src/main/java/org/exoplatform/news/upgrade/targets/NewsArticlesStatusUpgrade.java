@@ -22,13 +22,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
-  private static final Log         LOG             = ExoLogger.getLogger(NewsArticlesStatusUpgrade.class.getName());
+  private static final Log         LOG           = ExoLogger.getLogger(NewsArticlesStatusUpgrade.class.getName());
 
-  public static final MetadataType METADATA_TYPE   = new MetadataType(4, "newsTarget");
+  public static final MetadataType METADATA_TYPE = new MetadataType(4, "newsTarget");
 
   private EntityManagerService     entityManagerService;
-
-  private boolean                  databaseUpdated = false;
 
   private NewsService              newsService;
 
@@ -36,7 +34,7 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
 
   private PortalContainer          container;
 
-  private int                      insertedValue   = 0;
+  private int                      insertedValue = 0;
 
   public NewsArticlesStatusUpgrade(InitParams initParams,
                                    EntityManagerService entityManagerService,
@@ -70,16 +68,13 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
       }
       List<Metadata> metadataList = metadataService.getMetadatas(METADATA_TYPE.getName(), 0);
 
-      List<MetadataItemEntity> metadataItems = new ArrayList<>();
       List<MetadataItemEntity> items = new ArrayList<>();
       if (!metadataList.isEmpty()) {
         for (Metadata metadataItem : metadataList) {
           String sqlString = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + metadataItem.getId() + "'";
           Query nativeQuery = entityManager.createNativeQuery(sqlString, MetadataItemEntity.class);
-          metadataItems = nativeQuery.getResultList();
-          metadataItems.forEach(item -> {
-            items.add(item);
-          });
+          List<MetadataItemEntity> metadataItems = nativeQuery.getResultList();
+          metadataItems.forEach(item -> items.add(item));
         }
       }
       News news = null;
@@ -87,7 +82,6 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
       if (items.isEmpty()) {
         LOG.info("Metadata Items properties is empty");
       } else {
-        this.databaseUpdated = true;
         List<MetadataItemEntity> metadataItemsList = items.stream().distinct().collect(Collectors.toList());
         String sqlString2 = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES";
         Query nativeQuery2 = entityManager.createNativeQuery(sqlString2);
@@ -107,7 +101,7 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
             Query nativeQuery1 = entityManager.createNativeQuery(sqlString3);
             nativeQuery1.executeUpdate();
           } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOG.warn("Error while iterate metadata item {}", e);
           }
         }
       }
