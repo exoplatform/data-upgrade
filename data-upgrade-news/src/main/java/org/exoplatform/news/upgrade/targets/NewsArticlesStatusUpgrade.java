@@ -36,6 +36,8 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
 
   private PortalContainer          container;
 
+  private int                      insertedValue   = 0;
+
   public NewsArticlesStatusUpgrade(InitParams initParams,
                                    EntityManagerService entityManagerService,
                                    NewsService newsService,
@@ -46,6 +48,10 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
     this.newsService = newsService;
     this.metadataService = metadataService;
     this.container = container;
+  }
+
+  public int getInsertedValue() {
+    return insertedValue;
   }
 
   @Override
@@ -93,8 +99,10 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
             String sqlString3 = null;
             if (news.isArchived() || StringUtils.equals(news.getPublicationState(), "staged")) {
               sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'false');";
+              insertedValue++;
             } else {
               sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'true');";
+              insertedValue++;
             }
             Query nativeQuery1 = entityManager.createNativeQuery(sqlString3);
             nativeQuery1.executeUpdate();
