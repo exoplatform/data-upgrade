@@ -35,7 +35,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @PowerMockIgnore({ "javax.management.*", "jdk.internal.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*",
     "com.sun.org.apache.*", "org.w3c.*" })
 @PrepareForTest({ExoContainerContext.class, PortalContainer.class, RequestLifeCycle.class})
-public class NewsArticlesStatusUpgradeTest {
+public class PublishedNewsDisplayedPropUpgradeTest {
 
   @Mock
   private EntityManagerService entityManagerService;
@@ -113,8 +113,8 @@ public class NewsArticlesStatusUpgradeTest {
     doNothing().when(transaction).begin();
     PortalContainer container = mock(PortalContainer.class);
     PowerMockito.when(PortalContainer.getInstance()).thenReturn(container);
-    
-    NewsArticlesStatusUpgrade newsArticlesStatusUpgradePlugin = new NewsArticlesStatusUpgrade(initParams,
+
+    PublishedNewsDisplayedPropUpgrade PublishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
                                                                                         entityManagerService,
                                                                                         newsService,
                                                                                         metadataService,
@@ -127,7 +127,7 @@ public class NewsArticlesStatusUpgradeTest {
     when(entityManager.createNativeQuery(sqlString2)).thenReturn(nativeQuery2);
     when(nativeQuery2.executeUpdate()).thenReturn(1);
 
-    newsArticlesStatusUpgradePlugin.processUpgrade(null, null);
-    assertEquals(1, newsArticlesStatusUpgradePlugin.getInsertedValue());
+    PublishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);
+    assertEquals(1, PublishedNewsDisplayedPropUpgradePlugin.getPublishedNewsDisplayedPropCount());
   }
 }

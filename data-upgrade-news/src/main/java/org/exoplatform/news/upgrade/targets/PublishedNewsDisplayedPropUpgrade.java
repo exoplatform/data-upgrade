@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
-  private static final Log         LOG           = ExoLogger.getLogger(NewsArticlesStatusUpgrade.class.getName());
+public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
+  private static final Log         LOG           = ExoLogger.getLogger(PublishedNewsDisplayedPropUpgrade.class.getName());
 
-  public static final MetadataType METADATA_TYPE = new MetadataType(4, "newsTarget");
+  public static final MetadataType NEWS_TARGET_METADATA_TYPE = new MetadataType(4, "newsTarget");
 
   private EntityManagerService     entityManagerService;
 
@@ -34,9 +34,9 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
 
   private PortalContainer          container;
 
-  private int                      insertedValue = 0;
+  private int                      publishedNewsDisplayedPropCount = 0;
 
-  public NewsArticlesStatusUpgrade(InitParams initParams,
+  public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
                                    EntityManagerService entityManagerService,
                                    NewsService newsService,
                                    MetadataService metadataService,
@@ -48,34 +48,31 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
     this.container = container;
   }
 
-  public int getInsertedValue() {
-    return insertedValue;
+  public int getPublishedNewsDisplayedPropCount() {
+    return publishedNewsDisplayedPropCount;
   }
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
-    LOG.info("Start upgrade of property item status of published news");
+    LOG.info("Start upgrade of published news displayed property");
 
     boolean transactionStarted = false;
-    PortalContainer container = PortalContainer.getInstance();
     RequestLifeCycle.begin(container);
-    EntityManager entityManager = this.entityManagerService.getEntityManager();
+    EntityManager entityManager = entityManagerService.getEntityManager();
     try {
       if (!entityManager.getTransaction().isActive()) {
         entityManager.getTransaction().begin();
         transactionStarted = true;
       }
-      List<Metadata> metadataList = metadataService.getMetadatas(METADATA_TYPE.getName(), 0);
+      List<Metadata> newsTargetMetadatas = metadataService.getMetadatas(NEWS_TARGET_METADATA_TYPE.getName(), 0);
 
       List<MetadataItemEntity> items = new ArrayList<>();
-      if (!metadataList.isEmpty()) {
-        for (Metadata metadataItem : metadataList) {
-          String sqlString = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + metadataItem.getId() + "'";
-          Query nativeQuery = entityManager.createNativeQuery(sqlString, MetadataItemEntity.class);
-          List<MetadataItemEntity> metadataItems = nativeQuery.getResultList();
-          metadataItems.forEach(item -> items.add(item));
-        }
+      for (Metadata newsTargetMetadata : newsTargetMetadatas) {
+        String newsTargetsMetadataItemsQueryString = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + newsTargetMetadata.getId() + "'";
+        Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryString, MetadataItemEntity.class);
+        List<MetadataItemEntity> newsTargetsMetadataItems = newsTargetsMetadataItemsQuery.getResultList();
+        newsTargetsMetadataItems.forEach(item -> items.add(item));
       }
       News news = null;
 
@@ -93,10 +90,10 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
             String sqlString3 = null;
             if (news.isArchived() || StringUtils.equals(news.getPublicationState(), "staged")) {
               sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'false');";
-              insertedValue++;
+              publishedNewsDisplayedPropCount++;
             } else {
               sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'true');";
-              insertedValue++;
+              publishedNewsDisplayedPropCount++;
             }
             Query nativeQuery1 = entityManager.createNativeQuery(sqlString3);
             nativeQuery1.executeUpdate();
@@ -116,6 +113,6 @@ public class NewsArticlesStatusUpgrade extends UpgradeProductPlugin {
     } finally {
       RequestLifeCycle.end();
     }
-    LOG.info("End upgrade of property item status of published news. It took {} ms", (System.currentTimeMillis() - startupTime));
+    LOG.info("End upgrade of published news displayed property. It took {} ms", (System.currentTimeMillis() - startupTime));
   }
 }

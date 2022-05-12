@@ -152,9 +152,9 @@
       </init-params>
     </component-plugin>
     <component-plugin profiles="news">
-      <name>NewsArticlesStatusUpgrade</name>
+      <name>PublishedNewsDisplayedPropUpgrade</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.news.upgrade.targets.NewsArticlesStatusUpgrade</type>
+      <type>org.exoplatform.news.upgrade.targets.PublishedNewsDisplayedPropUpgrade</type>
       <description>Fix states metadata property</description>
       <init-params>
         <value-param>
