@@ -1,6 +1,13 @@
 package org.exoplatform.news.upgrade.targets;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.PortalContainer;
@@ -8,22 +15,16 @@ import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.news.model.News;
 import org.exoplatform.news.service.NewsService;
+import org.exoplatform.news.service.NewsTargetingService;
+import org.exoplatform.news.utils.NewsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
-import org.exoplatform.social.metadata.model.MetadataType;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   private static final Log         LOG           = ExoLogger.getLogger(PublishedNewsDisplayedPropUpgrade.class.getName());
-
-  public static final MetadataType NEWS_TARGET_METADATA_TYPE = new MetadataType(4, "newsTarget");
 
   private EntityManagerService     entityManagerService;
 
@@ -64,39 +65,29 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
         entityManager.getTransaction().begin();
         transactionStarted = true;
       }
-      List<Metadata> newsTargetMetadatas = metadataService.getMetadatas(NEWS_TARGET_METADATA_TYPE.getName(), 0);
+      List<Metadata> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0);
 
-      List<MetadataItemEntity> items = new ArrayList<>();
+      List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
       for (Metadata newsTargetMetadata : newsTargetMetadatas) {
         String newsTargetsMetadataItemsQueryString = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + newsTargetMetadata.getId() + "'";
         Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryString, MetadataItemEntity.class);
-        List<MetadataItemEntity> newsTargetsMetadataItems = newsTargetsMetadataItemsQuery.getResultList();
-        newsTargetsMetadataItems.forEach(item -> items.add(item));
+        newsTargetsMetadataItems.addAll(newsTargetsMetadataItemsQuery.getResultList());
       }
       News news = null;
 
-      if (items.isEmpty()) {
-        LOG.info("Metadata Items properties is empty");
-      } else {
-        for (MetadataItemEntity metadataItem : items) {
-          try {
-            String deleteNewsTargetsMetadataItemsPropsQueryString = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '" + metadataItem.getId() + "' AND (NAME = 'staged' OR NAME = 'displayed')";
-            Query deleteNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(deleteNewsTargetsMetadataItemsPropsQueryString);
-            deleteNewsTargetsMetadataItemsPropsQuery.executeUpdate();
-            news = newsService.getNewsById(metadataItem.getObjectId(), false);
-            String insertNewsTargetsMetadataItemsPropsQueryString = null;
-            if (news.isArchived() || StringUtils.equals(news.getPublicationState(), "staged")) {
-              insertNewsTargetsMetadataItemsPropsQueryString = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'false');";
-              publishedNewsDisplayedPropCount++;
-            } else {
-              insertNewsTargetsMetadataItemsPropsQueryString = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'true');";
-              publishedNewsDisplayedPropCount++;
-            }
-            Query insertNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropsQueryString);
-            insertNewsTargetsMetadataItemsPropsQuery.executeUpdate();
-          } catch (Exception e) {
-            LOG.warn("Error while iterate metadata item {}", e);
-          }
+      for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
+        try {
+          String deleteNewsTargetsMetadataItemsPropsQueryString = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '" + newsTargetsMetadataItem.getId() + "' AND (NAME = 'staged' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')";
+          Query deleteNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(deleteNewsTargetsMetadataItemsPropsQueryString);
+          deleteNewsTargetsMetadataItemsPropsQuery.executeUpdate();
+          news = newsService.getNewsById(newsTargetsMetadataItem.getObjectId(), false);
+          String displayed = String.valueOf(news.isArchived() || StringUtils.equals(news.getPublicationState(), "staged"));
+          String insertNewsTargetsMetadataItemsPropsQueryString = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+ newsTargetsMetadataItem.getId() + "', 'displayed', '" + displayed + "');";
+          publishedNewsDisplayedPropCount++;
+          Query insertNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropsQueryString);
+          insertNewsTargetsMetadataItemsPropsQuery.executeUpdate();
+        } catch (Exception e) {
+          LOG.warn("Error while iterate metadata item {}", e);
         }
       }
       if (transactionStarted && entityManager.getTransaction().isActive()) {
