@@ -19,7 +19,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   private static final Log         LOG           = ExoLogger.getLogger(PublishedNewsDisplayedPropUpgrade.class.getName());
@@ -79,24 +78,22 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
       if (items.isEmpty()) {
         LOG.info("Metadata Items properties is empty");
       } else {
-        List<MetadataItemEntity> metadataItemsList = items.stream().distinct().collect(Collectors.toList());
-        String sqlString2 = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES";
-        Query nativeQuery2 = entityManager.createNativeQuery(sqlString2);
-        nativeQuery2.executeUpdate();
-        for (MetadataItemEntity metadataItem : metadataItemsList) {
+        for (MetadataItemEntity metadataItem : items) {
           try {
-
+            String deleteNewsTargetsMetadataItemsPropsQueryString = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '" + metadataItem.getId() + "' AND (NAME = 'staged' OR NAME = 'displayed')";
+            Query deleteNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(deleteNewsTargetsMetadataItemsPropsQueryString);
+            deleteNewsTargetsMetadataItemsPropsQuery.executeUpdate();
             news = newsService.getNewsById(metadataItem.getObjectId(), false);
-            String sqlString3 = null;
+            String insertNewsTargetsMetadataItemsPropsQueryString = null;
             if (news.isArchived() || StringUtils.equals(news.getPublicationState(), "staged")) {
-              sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'false');";
+              insertNewsTargetsMetadataItemsPropsQueryString = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'false');";
               publishedNewsDisplayedPropCount++;
             } else {
-              sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'true');";
+              insertNewsTargetsMetadataItemsPropsQueryString = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+metadataItem.getId()+"', 'displayed', 'true');";
               publishedNewsDisplayedPropCount++;
             }
-            Query nativeQuery1 = entityManager.createNativeQuery(sqlString3);
-            nativeQuery1.executeUpdate();
+            Query insertNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropsQueryString);
+            insertNewsTargetsMetadataItemsPropsQuery.executeUpdate();
           } catch (Exception e) {
             LOG.warn("Error while iterate metadata item {}", e);
           }
