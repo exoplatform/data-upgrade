@@ -1,19 +1,19 @@
 package org.exoplatform.news.upgrade.targets;
 
-import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
-import org.exoplatform.news.model.News;
-import org.exoplatform.news.service.NewsService;
-import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
-import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
-import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.Metadata;
-import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataType;
+import static org.jgroups.util.Util.assertEquals;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +24,21 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import java.util.*;
-
-import static org.jgroups.util.Util.assertEquals;
-import static org.powermock.api.mockito.PowerMockito.*;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.news.model.News;
+import org.exoplatform.news.service.NewsService;
+import org.exoplatform.news.utils.NewsUtils;
+import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
+import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
+import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataType;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "javax.management.*", "jdk.internal.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*",
@@ -58,10 +67,10 @@ public class PublishedNewsDisplayedPropUpgradeTest {
 
   @Test
   public void processUpgrade() throws Exception {
-    Date date = new Date(2020, 11, 21);
-    Query nativeQuery = mock(Query.class);
+    Query nativeQuery1 = mock(Query.class);
     Query nativeQuery2 = mock(Query.class);
-
+    Query nativeQuery3 = mock(Query.class);
+    
     Transaction transaction = mock(Transaction.class);
     InitParams initParams = new InitParams();
 
@@ -89,13 +98,11 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     metadataItems.add(metadataItem);
 
     MetadataEntity metadataEntity = new MetadataEntity();
-    metadataEntity.setCreatedDate(date);
     metadataEntity.setCreatorId(1);
     metadataEntity.setId(1l);
     metadataEntity.setProperties(sliderNewsProperties);
     metadataEntity.setAudienceId(0);
     MetadataItemEntity metadataItemEntity = new MetadataItemEntity();
-    metadataItemEntity.setCreatedDate(date);
     metadataItemEntity.setCreatorId(1);
     metadataItemEntity.setId(1l);
     metadataItemEntity.setObjectId("1");
@@ -105,6 +112,7 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     News news = new News();
     news.setId("1");
     news.setArchived(false);
+    news.setPublicationState("published");
     when(metadataService.getMetadatas(metadataType.getName(), 0)).thenReturn(newsTargets);
     when(newsService.getNewsById("1", false)).thenReturn(news);
     when(entityManagerService.getEntityManager()).thenReturn(entityManager);
@@ -114,20 +122,25 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     PortalContainer container = mock(PortalContainer.class);
     PowerMockito.when(PortalContainer.getInstance()).thenReturn(container);
 
-    PublishedNewsDisplayedPropUpgrade PublishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
+    PublishedNewsDisplayedPropUpgrade publishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
                                                                                         entityManagerService,
                                                                                         newsService,
                                                                                         metadataService,
                                                                                         container);
-    String sqlString = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + metadataItem.getId() + "'";
-    when(entityManager.createNativeQuery(sqlString,MetadataItemEntity.class)).thenReturn(nativeQuery);
-    when(nativeQuery.getResultList()).thenReturn(metadataItemEntities);
+    String sqlString1 = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + metadataItem.getId() + "'";
+    when(entityManager.createNativeQuery(sqlString1, MetadataItemEntity.class)).thenReturn(nativeQuery1);
+    when(nativeQuery1.getResultList()).thenReturn(metadataItemEntities);
 
-    String sqlString2 = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES";
-    when(entityManager.createNativeQuery(sqlString2)).thenReturn(nativeQuery2);
+    String sqlString2 = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '" + metadataItemEntity.getId() + "' AND (NAME = '" + PublishedNewsDisplayedPropUpgrade.STAGED_STATUS + "' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')";
+    when(entityManager.createNativeQuery(sqlString2, MetadataItemEntity.class)).thenReturn(nativeQuery2);
     when(nativeQuery2.executeUpdate()).thenReturn(1);
+    
+    boolean displayed = !news.isArchived() && !StringUtils.equals(news.getPublicationState(), PublishedNewsDisplayedPropUpgrade.STAGED_STATUS);
+    String sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('" + metadataItemEntity.getId() + "', '" + NewsUtils.DISPLAYED_STATUS + "', '" + displayed + "')";
+    when(entityManager.createNativeQuery(sqlString3, MetadataItemEntity.class)).thenReturn(nativeQuery3);
+    when(nativeQuery3.executeUpdate()).thenReturn(1);
 
-    PublishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);
-    assertEquals(1, PublishedNewsDisplayedPropUpgradePlugin.getPublishedNewsDisplayedPropCount());
+    publishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);
+    assertEquals(1, publishedNewsDisplayedPropUpgradePlugin.getPublishedNewsDisplayedPropCount());
   }
 }
