@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2022 eXo Platform SAS.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.exoplatform.news.upgrade.targets;
 
 import java.util.ArrayList;
@@ -24,9 +40,10 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
-  private static final Log         LOG           = ExoLogger.getLogger(PublishedNewsDisplayedPropUpgrade.class.getName());
 
-  private static final String      STAGED_STATUS = "staged";
+  public static final String       STAGED_STATUS = "staged";
+
+  private static final Log         LOG           = ExoLogger.getLogger(PublishedNewsDisplayedPropUpgrade.class.getName());
 
   private EntityManagerService     entityManagerService;
 
@@ -39,10 +56,10 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   private int                      publishedNewsDisplayedPropCount = 0;
 
   public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
-                                   EntityManagerService entityManagerService,
-                                   NewsService newsService,
-                                   MetadataService metadataService,
-                                   PortalContainer container) {
+                                           EntityManagerService entityManagerService,
+                                           NewsService newsService,
+                                           MetadataService metadataService,
+                                           PortalContainer container) {
     super(initParams);
     this.entityManagerService = entityManagerService;
     this.newsService = newsService;
@@ -71,26 +88,28 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
       List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
       for (Metadata newsTargetMetadata : newsTargetMetadatas) {
-        String newsTargetsMetadataItemsQueryString = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + newsTargetMetadata.getId() + "'";
-        Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryString, MetadataItemEntity.class);
+        StringBuilder newsTargetsMetadataItemsQueryStringBuilder = new StringBuilder("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '");
+        newsTargetsMetadataItemsQueryStringBuilder.append(newsTargetMetadata.getId() + "'");
+        Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryStringBuilder.toString(), MetadataItemEntity.class);
         newsTargetsMetadataItems.addAll(newsTargetsMetadataItemsQuery.getResultList());
       }
-      News news = null;
 
       for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
-        try {
-          String deleteNewsTargetsMetadataItemsPropsQueryString = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '" + newsTargetsMetadataItem.getId() + "' AND (NAME = '" + STAGED_STATUS + "' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')";
-          Query deleteNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(deleteNewsTargetsMetadataItemsPropsQueryString);
-          deleteNewsTargetsMetadataItemsPropsQuery.executeUpdate();
-          news = newsService.getNewsById(newsTargetsMetadataItem.getObjectId(), false);
-          boolean displayed = !(news.isArchived() || StringUtils.equals(news.getPublicationState(), STAGED_STATUS));
-          String insertNewsTargetsMetadataItemsPropsQueryString = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('"+ newsTargetsMetadataItem.getId() + "', '" + NewsUtils.DISPLAYED_STATUS + "', '" + displayed + "');";
-          publishedNewsDisplayedPropCount++;
-          Query insertNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropsQueryString);
-          insertNewsTargetsMetadataItemsPropsQuery.executeUpdate();
-        } catch (Exception e) {
-          LOG.warn("Error while iterate metadata item {}", e);
-        }
+        StringBuilder deleteNewsTargetsMetadataItemsPropsQueryStringBuilder = new StringBuilder("DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '");
+        deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "'");
+        deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.append(" AND (NAME = '" + STAGED_STATUS + "' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')");
+        Query deleteNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.toString(), MetadataItemEntity.class);
+        deleteNewsTargetsMetadataItemsPropsQuery.executeUpdate();
+
+        News news = newsService.getNewsById(newsTargetsMetadataItem.getObjectId(), false);
+        boolean displayed = !news.isArchived() && !StringUtils.equals(news.getPublicationState(), STAGED_STATUS);
+        StringBuilder insertNewsTargetsMetadataItemsPropsQueryStringBuilder = new StringBuilder("INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('");
+        insertNewsTargetsMetadataItemsPropsQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "', '");
+        insertNewsTargetsMetadataItemsPropsQueryStringBuilder.append(NewsUtils.DISPLAYED_STATUS + "', '");
+        insertNewsTargetsMetadataItemsPropsQueryStringBuilder.append(displayed + "')");
+        Query insertNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropsQueryStringBuilder.toString(), MetadataItemEntity.class);
+        insertNewsTargetsMetadataItemsPropsQuery.executeUpdate();
+        publishedNewsDisplayedPropCount++;
       }
       if (transactionStarted && entityManager.getTransaction().isActive()) {
         entityManager.getTransaction().commit();
