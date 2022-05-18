@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2022 eXo Platform SAS.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.exoplatform.news.upgrade.targets;
 
 import java.util.ArrayList;
@@ -24,9 +40,9 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
-  
-  public static final String      STAGED_STATUS = "staged";
-  
+
+  public static final String       STAGED_STATUS = "staged";
+
   private static final Log         LOG           = ExoLogger.getLogger(PublishedNewsDisplayedPropUpgrade.class.getName());
 
   private EntityManagerService     entityManagerService;
@@ -40,10 +56,10 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   private int                      publishedNewsDisplayedPropCount = 0;
 
   public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
-                                   EntityManagerService entityManagerService,
-                                   NewsService newsService,
-                                   MetadataService metadataService,
-                                   PortalContainer container) {
+                                           EntityManagerService entityManagerService,
+                                           NewsService newsService,
+                                           MetadataService metadataService,
+                                           PortalContainer container) {
     super(initParams);
     this.entityManagerService = entityManagerService;
     this.newsService = newsService;
@@ -59,7 +75,6 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
     LOG.info("Start upgrade of published news displayed property");
-
     boolean transactionStarted = false;
     RequestLifeCycle.begin(container);
     EntityManager entityManager = entityManagerService.getEntityManager();
@@ -68,7 +83,6 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
       transactionStarted = true;
     }
     List<Metadata> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0);
-      
     List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
     for (Metadata newsTargetMetadata : newsTargetMetadatas) {
       StringBuilder newsTargetsMetadataItemsQueryStringBuilder = new StringBuilder("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '");

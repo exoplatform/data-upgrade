@@ -57,7 +57,6 @@ public class PublishedNewsDisplayedPropUpgradeTest {
   @Mock
   private EntityManager entityManager;
 
-
   @Before
   public void setUp() throws Exception {
     PowerMockito.mockStatic(ExoContainerContext.class);
