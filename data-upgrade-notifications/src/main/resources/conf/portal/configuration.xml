@@ -60,11 +60,10 @@
           <value>EventAddedNotificationPlugin, EventModifiedNotificationPlugin, EventCanceledNotificationPlugin,
             EventReminderNotificationPlugin, VoteNotificationPlugin, EventReplyNotificationPlugin,
             DatePollNotificationPlugin, ChatMentionNotificationPlugin, PublishNewsNotificationPlugin,
-            MfaAdminRevocationRequestPlugin, MentionInNewsNotificationPlugin, EditWikiNotificationPlugin
+            MfaAdminRevocationRequestPlugin, MentionInNewsNotificationPlugin, EditWikiNotificationPlugin, ChatMessageNotificationPlugin
           </value>
         </value-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
 </configuration>
-
