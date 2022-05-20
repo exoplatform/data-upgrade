@@ -122,6 +122,6 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
     } finally {
       RequestLifeCycle.end();
     }
-    LOG.info("End upgrade of published news displayed property. It took {} ms", (System.currentTimeMillis() - startupTime));
+    LOG.info("End upgrade of {} published news displayed property. It took {} ms", publishedNewsDisplayedPropCount, (System.currentTimeMillis() - startupTime));
   }
 }
