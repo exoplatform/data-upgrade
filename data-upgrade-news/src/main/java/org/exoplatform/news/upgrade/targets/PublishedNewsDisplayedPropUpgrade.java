@@ -18,14 +18,18 @@ package org.exoplatform.news.upgrade.targets;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
@@ -37,7 +41,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.Metadata;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
@@ -53,7 +56,9 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
   private PortalContainer          container;
 
-  private int                      publishedNewsDisplayedPropCount = 0;
+  private int                      migratedPublishedNewsCount = 0;
+  
+  private int                      notMigratedPublishedNewsCount = 0;
 
   public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
                                            EntityManagerService entityManagerService,
@@ -67,34 +72,47 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
     this.container = container;
   }
 
-  public int getPublishedNewsDisplayedPropCount() {
-    return publishedNewsDisplayedPropCount;
+  public int getMigratedPublishedNewsCount() {
+    return migratedPublishedNewsCount;
   }
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
     LOG.info("Start upgrade of published news displayed property");
-
-    boolean transactionStarted = false;
-    RequestLifeCycle.begin(container);
+    ExoContainerContext.setCurrentContainer(container);
+    List<String> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0).stream()
+        .map(newsTargetMetadata -> String.valueOf(newsTargetMetadata.getId()))
+        .collect(Collectors.toList());
+    List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
+    RequestLifeCycle.begin(entityManagerService);
     EntityManager entityManager = entityManagerService.getEntityManager();
     try {
-      if (!entityManager.getTransaction().isActive()) {
-        entityManager.getTransaction().begin();
-        transactionStarted = true;
+      StringBuilder newsTargetsMetadataItemsQueryStringBuilder = new StringBuilder("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID IN ");
+      newsTargetsMetadataItemsQueryStringBuilder.append("(" + String.join(",", newsTargetMetadatas) + ")");
+      Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryStringBuilder.toString(), MetadataItemEntity.class);
+      newsTargetsMetadataItems = newsTargetsMetadataItemsQuery.getResultList();
+    } catch (Exception e) {
+      if (entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
+        entityManager.getTransaction().rollback();
       }
-      List<Metadata> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0);
-
-      List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
-      for (Metadata newsTargetMetadata : newsTargetMetadatas) {
-        StringBuilder newsTargetsMetadataItemsQueryStringBuilder = new StringBuilder("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '");
-        newsTargetsMetadataItemsQueryStringBuilder.append(newsTargetMetadata.getId() + "'");
-        Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryStringBuilder.toString(), MetadataItemEntity.class);
-        newsTargetsMetadataItems.addAll(newsTargetsMetadataItemsQuery.getResultList());
-      }
-
-      for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
+    } finally {
+      RequestLifeCycle.end();
+    }
+    LOG.info("Total number of published news to be migrated: {}", newsTargetsMetadataItems.size());
+    for (List<MetadataItemEntity> newsTargetsMetadataItemsChunk : ListUtils.partition(newsTargetsMetadataItems, 10)) {
+      manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk, newsTargetsMetadataItems.size(), notMigratedPublishedNewsCount);
+    }
+    LOG.info("End upgrade of published news displayed property, it tooks {} ms. Success: {}, Error: {}, Total: {}", (System.currentTimeMillis() - startupTime), migratedPublishedNewsCount, notMigratedPublishedNewsCount, newsTargetsMetadataItems.size());
+  }
+  
+  @ExoTransactional
+  public void manageNewsTargetsMetadataItemsProps (List<MetadataItemEntity> newsTargetsMetadataItems, int totalPublishedNewsToMigrate) {
+    int migratedPublishedNewsCountByTransaction = 0;
+    for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
+      RequestLifeCycle.begin(entityManagerService);
+      EntityManager entityManager = entityManagerService.getEntityManager();
+      try {
         StringBuilder deleteNewsTargetsMetadataItemsPropsQueryStringBuilder = new StringBuilder("DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '");
         deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "'");
         deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.append(" AND (NAME = '" + STAGED_STATUS + "' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')");
@@ -103,25 +121,27 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
         News news = newsService.getNewsById(newsTargetsMetadataItem.getObjectId(), false);
         boolean displayed = !news.isArchived() && !StringUtils.equals(news.getPublicationState(), STAGED_STATUS);
-        StringBuilder insertNewsTargetsMetadataItemsPropsQueryStringBuilder = new StringBuilder("INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('");
-        insertNewsTargetsMetadataItemsPropsQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "', '");
-        insertNewsTargetsMetadataItemsPropsQueryStringBuilder.append(NewsUtils.DISPLAYED_STATUS + "', '");
-        insertNewsTargetsMetadataItemsPropsQueryStringBuilder.append(displayed + "')");
-        Query insertNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropsQueryStringBuilder.toString(), MetadataItemEntity.class);
-        insertNewsTargetsMetadataItemsPropsQuery.executeUpdate();
-        publishedNewsDisplayedPropCount++;
+        StringBuilder insertNewsTargetsMetadataItemsPropQueryStringBuilder = new StringBuilder("INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('");
+        insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "', '");
+        insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(NewsUtils.DISPLAYED_STATUS + "', '");
+        insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(displayed + "')");
+        Query insertNewsTargetsMetadataItemsPropQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropQueryStringBuilder.toString(), MetadataItemEntity.class);
+        insertNewsTargetsMetadataItemsPropQuery.executeUpdate();
+        migratedPublishedNewsCountByTransaction++;
+        if (migratedPublishedNewsCountByTransaction == newsTargetsMetadataItems.size() && entityManager.getTransaction().isActive()) {
+          entityManager.getTransaction().commit();
+          entityManager.clear();
+        }
+        migratedPublishedNewsCount++;
+        LOG.info("{}/{} published news migrated", migratedPublishedNewsCount, totalPublishedNewsToMigrate);
+      } catch (Exception e) {
+        if (entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
+          entityManager.getTransaction().rollback();
+        }
+        notMigratedPublishedNewsCount++;
+      } finally {
+        RequestLifeCycle.end();
       }
-      if (transactionStarted && entityManager.getTransaction().isActive()) {
-        entityManager.getTransaction().commit();
-        entityManager.flush();
-      }
-    } catch (Exception e) {
-      if (transactionStarted && entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
-        entityManager.getTransaction().rollback();
-      }
-    } finally {
-      RequestLifeCycle.end();
     }
-    LOG.info("End upgrade of {} published news displayed property. It took {} ms", publishedNewsDisplayedPropCount, (System.currentTimeMillis() - startupTime));
   }
 }

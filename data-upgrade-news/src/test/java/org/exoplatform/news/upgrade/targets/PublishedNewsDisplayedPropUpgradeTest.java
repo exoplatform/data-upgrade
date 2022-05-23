@@ -140,6 +140,6 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     when(nativeQuery3.executeUpdate()).thenReturn(1);
 
     publishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);
-    assertEquals(1, publishedNewsDisplayedPropUpgradePlugin.getPublishedNewsDisplayedPropCount());
+    assertEquals(1, publishedNewsDisplayedPropUpgradePlugin.getMigratedPublishedNewsCount());
   }
 }
