@@ -5,13 +5,13 @@ import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Transaction;
@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -126,17 +127,13 @@ public class PublishedNewsDisplayedPropUpgradeTest {
                                                                                         newsService,
                                                                                         metadataService,
                                                                                         container);
-    String sqlString1 = "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID = '" + metadataItem.getId() + "'";
-    when(entityManager.createNativeQuery(sqlString1, MetadataItemEntity.class)).thenReturn(nativeQuery1);
+    when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery1);
     when(nativeQuery1.getResultList()).thenReturn(metadataItemEntities);
 
-    String sqlString2 = "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '" + metadataItemEntity.getId() + "' AND (NAME = '" + PublishedNewsDisplayedPropUpgrade.STAGED_STATUS + "' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')";
-    when(entityManager.createNativeQuery(sqlString2, MetadataItemEntity.class)).thenReturn(nativeQuery2);
+    when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery2);
     when(nativeQuery2.executeUpdate()).thenReturn(1);
     
-    boolean displayed = !news.isArchived() && !StringUtils.equals(news.getPublicationState(), PublishedNewsDisplayedPropUpgrade.STAGED_STATUS);
-    String sqlString3 = "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('" + metadataItemEntity.getId() + "', '" + NewsUtils.DISPLAYED_STATUS + "', '" + displayed + "')";
-    when(entityManager.createNativeQuery(sqlString3, MetadataItemEntity.class)).thenReturn(nativeQuery3);
+    when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery3);
     when(nativeQuery3.executeUpdate()).thenReturn(1);
 
     publishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.apache.commons.collections4.ListUtils;
@@ -58,8 +59,6 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
   private int                      migratedPublishedNewsCount = 0;
   
-  private int                      notMigratedPublishedNewsCount = 0;
-
   public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
                                            EntityManagerService entityManagerService,
                                            NewsService newsService,
@@ -93,22 +92,26 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
       Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryStringBuilder.toString(), MetadataItemEntity.class);
       newsTargetsMetadataItems = newsTargetsMetadataItemsQuery.getResultList();
     } catch (Exception e) {
-      if (entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
-        entityManager.getTransaction().rollback();
-      }
+      throw new PersistenceException("Error when getting news target metadata items", e);
     } finally {
       RequestLifeCycle.end();
     }
     LOG.info("Total number of published news to be migrated: {}", newsTargetsMetadataItems.size());
+    int notMigratedPublishedNewsCount = 0;
     for (List<MetadataItemEntity> newsTargetsMetadataItemsChunk : ListUtils.partition(newsTargetsMetadataItems, 10)) {
-      manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk, newsTargetsMetadataItems.size(), notMigratedPublishedNewsCount);
+      try {
+        int notMigratedPublishedNewsCountByTransaction = manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk, newsTargetsMetadataItems.size());
+        notMigratedPublishedNewsCount += notMigratedPublishedNewsCountByTransaction;
+      } catch (Exception e) {
+        throw new PersistenceException("Error when managing news target metadata items props", e);
+      }
     }
     LOG.info("End upgrade of published news displayed property, it tooks {} ms. Success: {}, Error: {}, Total: {}", (System.currentTimeMillis() - startupTime), migratedPublishedNewsCount, notMigratedPublishedNewsCount, newsTargetsMetadataItems.size());
   }
   
   @ExoTransactional
-  public void manageNewsTargetsMetadataItemsProps (List<MetadataItemEntity> newsTargetsMetadataItems, int totalPublishedNewsToMigrate) {
-    int migratedPublishedNewsCountByTransaction = 0;
+  public int manageNewsTargetsMetadataItemsProps(List<MetadataItemEntity> newsTargetsMetadataItems, int totalPublishedNewsToMigrate) throws Exception {
+    int notMigratedPublishedNewsCount = 0;
     for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
       RequestLifeCycle.begin(entityManagerService);
       EntityManager entityManager = entityManagerService.getEntityManager();
@@ -127,21 +130,16 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
         insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(displayed + "')");
         Query insertNewsTargetsMetadataItemsPropQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropQueryStringBuilder.toString(), MetadataItemEntity.class);
         insertNewsTargetsMetadataItemsPropQuery.executeUpdate();
-        migratedPublishedNewsCountByTransaction++;
-        if (migratedPublishedNewsCountByTransaction == newsTargetsMetadataItems.size() && entityManager.getTransaction().isActive()) {
-          entityManager.getTransaction().commit();
-          entityManager.clear();
-        }
         migratedPublishedNewsCount++;
         LOG.info("{}/{} published news migrated", migratedPublishedNewsCount, totalPublishedNewsToMigrate);
       } catch (Exception e) {
-        if (entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
-          entityManager.getTransaction().rollback();
-        }
         notMigratedPublishedNewsCount++;
+        throw new PersistenceException("Error when managing news target metadata items props", e);
       } finally {
         RequestLifeCycle.end();
       }
     }
+    //LOG.info("End upgrade of published news displayed property. Success: {}, Error: {}, Total: {}", migratedPublishedNewsCount, notMigratedPublishedNewsCount, newsTargetsMetadataItems.size());
+    return notMigratedPublishedNewsCount;
   }
 }
