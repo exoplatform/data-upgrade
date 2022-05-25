@@ -105,11 +105,11 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
         ExoContainerContext.setCurrentContainer(null);
       }
     }
-    LOG.info("End published news migration: total={} succeeded={} error={}. It tooks {} ms.", (System.currentTimeMillis() - startupTime), totalPublishedNewsCount, migratedPublishedNewsCount, notMigratedPublishedNewsCount);
+    LOG.info("End published news migration: total={} succeeded={} error={}. It tooks {} ms.", totalPublishedNewsCount, migratedPublishedNewsCount, notMigratedPublishedNewsCount, (System.currentTimeMillis() - startupTime));
   }
   
   @ExoTransactional
-  public List<MetadataItemEntity> getNewsTargetMetadataItems() throws Exception {
+  public List<MetadataItemEntity> getNewsTargetMetadataItems() throws IllegalStateException {
     List<String> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0).stream()
         .map(newsTargetMetadata -> String.valueOf(newsTargetMetadata.getId()))
         .collect(Collectors.toList());
@@ -126,7 +126,7 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   }
   
   @ExoTransactional
-  public int manageNewsTargetsMetadataItemsProps(List<MetadataItemEntity> newsTargetsMetadataItems) throws Exception {
+  public int manageNewsTargetsMetadataItemsProps(List<MetadataItemEntity> newsTargetsMetadataItems) throws IllegalStateException {
     int notMigratedPublishedNewsCount = 0;
     for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
       EntityManager entityManager = entityManagerService.getEntityManager();
