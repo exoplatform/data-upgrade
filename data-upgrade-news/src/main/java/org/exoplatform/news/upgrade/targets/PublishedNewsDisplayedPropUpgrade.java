@@ -90,8 +90,8 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
     LOG.info("Total number of published news to be migrated: {}", totalPublishedNewsCount);
     int notMigratedPublishedNewsCount = 0;
     int processedPublishedNewsCount = 0;
+    ExoContainerContext.setCurrentContainer(container);
     for (List<MetadataItemEntity> newsTargetsMetadataItemsChunk : ListUtils.partition(newsTargetsMetadataItems, 10)) {
-      ExoContainerContext.setCurrentContainer(container);
       try {
         int notMigratedPublishedNewsCountByTransaction = manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk);
         int processedPublishedNewsCountByTransaction = newsTargetsMetadataItemsChunk.size();
@@ -101,8 +101,6 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
         LOG.info("Published news migration progress: processed={}/{} succeeded={} error={}", processedPublishedNewsCountByTransaction, processedPublishedNewsCount, migratedPublishedNewsCount, notMigratedPublishedNewsCount);
       } catch (Exception e) {
         throw new IllegalStateException ("Error when managing news target metadata items props", e);
-      } finally {
-        ExoContainerContext.setCurrentContainer(null);
       }
     }
     LOG.info("End published news migration: total={} succeeded={} error={}. It tooks {} ms.", totalPublishedNewsCount, migratedPublishedNewsCount, notMigratedPublishedNewsCount, (System.currentTimeMillis() - startupTime));
