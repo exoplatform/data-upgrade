@@ -11,9 +11,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,12 +31,10 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.news.model.News;
 import org.exoplatform.news.service.NewsService;
-import org.exoplatform.news.utils.NewsUtils;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
-import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataType;
 
 @RunWith(PowerMockRunner.class)
@@ -49,6 +45,7 @@ public class PublishedNewsDisplayedPropUpgradeTest {
 
   @Mock
   private EntityManagerService entityManagerService;
+  
   @Mock
   private NewsService          newsService;
 
@@ -67,13 +64,7 @@ public class PublishedNewsDisplayedPropUpgradeTest {
 
   @Test
   public void processUpgrade() throws Exception {
-    Query nativeQuery1 = mock(Query.class);
-    Query nativeQuery2 = mock(Query.class);
-    Query nativeQuery3 = mock(Query.class);
-    
-    Transaction transaction = mock(Transaction.class);
     InitParams initParams = new InitParams();
-
     ValueParam valueParam = new ValueParam();
     valueParam.setName("product.group.id");
     valueParam.setValue("org.exoplatform.platform");
@@ -88,15 +79,6 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     sliderNews.setProperties(sliderNewsProperties);
     sliderNews.setId(1);
     newsTargets.add(sliderNews);
-    List<MetadataItem> metadataItems = new LinkedList<>();
-    MetadataItem metadataItem = new MetadataItem();
-    metadataItem.setCreatedDate(100);
-    metadataItem.setCreatorId(1);
-    metadataItem.setId(1);
-    metadataItem.setObjectId("1");
-    metadataItem.setMetadata(sliderNews);
-    metadataItems.add(metadataItem);
-
     MetadataEntity metadataEntity = new MetadataEntity();
     metadataEntity.setCreatorId(1);
     metadataEntity.setId(1l);
@@ -113,20 +95,24 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     news.setId("1");
     news.setArchived(false);
     news.setPublicationState("published");
-    when(metadataService.getMetadatas(metadataType.getName(), 0)).thenReturn(newsTargets);
-    when(newsService.getNewsById("1", false)).thenReturn(news);
+    
+    Transaction transaction = mock(Transaction.class);
+    PortalContainer container = mock(PortalContainer.class);
+    
+    Query nativeQuery1 = mock(Query.class);
+    Query nativeQuery2 = mock(Query.class);
+    Query nativeQuery3 = mock(Query.class);
+    
+    when(ExoContainerContext.getCurrentContainer()).thenReturn(container);
+    when(container.getComponentInstanceOfType(EntityManagerService.class)).thenReturn(entityManagerService);
     when(entityManagerService.getEntityManager()).thenReturn(entityManager);
     when(entityManager.getTransaction()).thenReturn(transaction);
-    when(entityManager.getTransaction().isActive()).thenReturn(true);
+    when(transaction.isActive()).thenReturn(true);
     doNothing().when(transaction).begin();
-    PortalContainer container = mock(PortalContainer.class);
-    PowerMockito.when(PortalContainer.getInstance()).thenReturn(container);
+    
+    when(metadataService.getMetadatas(metadataType.getName(), 0)).thenReturn(newsTargets);
+    when(newsService.getNewsById("1", false)).thenReturn(news);
 
-    PublishedNewsDisplayedPropUpgrade publishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
-                                                                                        entityManagerService,
-                                                                                        newsService,
-                                                                                        metadataService,
-                                                                                        container);
     when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery1);
     when(nativeQuery1.getResultList()).thenReturn(metadataItemEntities);
 
@@ -135,6 +121,12 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     
     when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery3);
     when(nativeQuery3.executeUpdate()).thenReturn(1);
+    
+    PublishedNewsDisplayedPropUpgrade publishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
+                                                                                                                      entityManagerService,
+                                                                                                                      newsService,
+                                                                                                                      metadataService,
+                                                                                                                      container);
 
     publishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);
     assertEquals(1, publishedNewsDisplayedPropUpgradePlugin.getMigratedPublishedNewsCount());
