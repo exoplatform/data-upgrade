@@ -87,10 +87,9 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
     RequestLifeCycle.begin(entityManagerService);
     EntityManager entityManager = entityManagerService.getEntityManager();
     try {
-      StringBuilder newsTargetsMetadataItemsQueryStringBuilder = new StringBuilder("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID IN ");
-      newsTargetsMetadataItemsQueryStringBuilder.append("(" + String.join(",", newsTargetMetadatas) + ")");
-      Query newsTargetsMetadataItemsQuery = entityManager.createNativeQuery(newsTargetsMetadataItemsQueryStringBuilder.toString(), MetadataItemEntity.class);
-      newsTargetsMetadataItems = newsTargetsMetadataItemsQuery.getResultList();
+      Query getNewsTargetMetadataItemsQuery = entityManager.createNativeQuery("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID IN :newsTargetMetadatas", MetadataItemEntity.class);
+      getNewsTargetMetadataItemsQuery.setParameter("newsTargetMetadatas", newsTargetMetadatas);
+      newsTargetsMetadataItems = getNewsTargetMetadataItemsQuery.getResultList();
     } catch (Exception e) {
       throw new PersistenceException("Error when getting news target metadata items", e);
     } finally {
@@ -100,7 +99,8 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
     int notMigratedPublishedNewsCount = 0;
     for (List<MetadataItemEntity> newsTargetsMetadataItemsChunk : ListUtils.partition(newsTargetsMetadataItems, 10)) {
       try {
-        int notMigratedPublishedNewsCountByTransaction = manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk, newsTargetsMetadataItems.size());
+        int notMigratedPublishedNewsCountByTransaction = manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk);
+        LOG.info("{}/{} published news migrated", migratedPublishedNewsCount, newsTargetsMetadataItems.size());
         notMigratedPublishedNewsCount += notMigratedPublishedNewsCountByTransaction;
       } catch (Exception e) {
         throw new PersistenceException("Error when managing news target metadata items props", e);
@@ -110,36 +110,30 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   }
   
   @ExoTransactional
-  public int manageNewsTargetsMetadataItemsProps(List<MetadataItemEntity> newsTargetsMetadataItems, int totalPublishedNewsToMigrate) throws Exception {
+  public int manageNewsTargetsMetadataItemsProps(List<MetadataItemEntity> newsTargetsMetadataItems) throws Exception {
     int notMigratedPublishedNewsCount = 0;
     for (MetadataItemEntity newsTargetsMetadataItem : newsTargetsMetadataItems) {
-      RequestLifeCycle.begin(entityManagerService);
       EntityManager entityManager = entityManagerService.getEntityManager();
       try {
-        StringBuilder deleteNewsTargetsMetadataItemsPropsQueryStringBuilder = new StringBuilder("DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = '");
-        deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "'");
-        deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.append(" AND (NAME = '" + STAGED_STATUS + "' OR NAME = '" + NewsUtils.DISPLAYED_STATUS + "')");
-        Query deleteNewsTargetsMetadataItemsPropsQuery = entityManager.createNativeQuery(deleteNewsTargetsMetadataItemsPropsQueryStringBuilder.toString(), MetadataItemEntity.class);
-        deleteNewsTargetsMetadataItemsPropsQuery.executeUpdate();
+        Query deleteNewsTargetMetadataItemsPropsQuery = entityManager.createNativeQuery("DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = :newsTargetsMetadataItemId AND (NAME = :stagedStatus OR NAME = :displayedStatus)", MetadataItemEntity.class);
+        deleteNewsTargetMetadataItemsPropsQuery.setParameter("newsTargetsMetadataItemId", newsTargetsMetadataItem.getId());
+        deleteNewsTargetMetadataItemsPropsQuery.setParameter("stagedStatus", STAGED_STATUS);
+        deleteNewsTargetMetadataItemsPropsQuery.setParameter("displayedStatus", NewsUtils.DISPLAYED_STATUS);
+        deleteNewsTargetMetadataItemsPropsQuery.executeUpdate();
 
         News news = newsService.getNewsById(newsTargetsMetadataItem.getObjectId(), false);
         boolean displayed = !news.isArchived() && !StringUtils.equals(news.getPublicationState(), STAGED_STATUS);
-        StringBuilder insertNewsTargetsMetadataItemsPropQueryStringBuilder = new StringBuilder("INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES('");
-        insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(newsTargetsMetadataItem.getId() + "', '");
-        insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(NewsUtils.DISPLAYED_STATUS + "', '");
-        insertNewsTargetsMetadataItemsPropQueryStringBuilder.append(displayed + "')");
-        Query insertNewsTargetsMetadataItemsPropQuery = entityManager.createNativeQuery(insertNewsTargetsMetadataItemsPropQueryStringBuilder.toString(), MetadataItemEntity.class);
-        insertNewsTargetsMetadataItemsPropQuery.executeUpdate();
+        Query insertNewsTargetMetadataItemsPropQuery = entityManager.createNativeQuery("INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES(:newsTargetsMetadataItemId, :displayedStatus, :displayed)", MetadataItemEntity.class);
+        insertNewsTargetMetadataItemsPropQuery.setParameter("newsTargetsMetadataItemId", newsTargetsMetadataItem.getId());
+        insertNewsTargetMetadataItemsPropQuery.setParameter("displayedStatus", NewsUtils.DISPLAYED_STATUS);
+        insertNewsTargetMetadataItemsPropQuery.setParameter("displayed", String.valueOf(displayed));
+        insertNewsTargetMetadataItemsPropQuery.executeUpdate();
         migratedPublishedNewsCount++;
-        LOG.info("{}/{} published news migrated", migratedPublishedNewsCount, totalPublishedNewsToMigrate);
       } catch (Exception e) {
         notMigratedPublishedNewsCount++;
         throw new PersistenceException("Error when managing news target metadata items props", e);
-      } finally {
-        RequestLifeCycle.end();
       }
     }
-    //LOG.info("End upgrade of published news displayed property. Success: {}, Error: {}, Total: {}", migratedPublishedNewsCount, notMigratedPublishedNewsCount, newsTargetsMetadataItems.size());
     return notMigratedPublishedNewsCount;
   }
 }
