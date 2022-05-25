@@ -111,6 +111,7 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
                migratedPublishedNewsCount,
                notMigratedPublishedNewsCount,
                (System.currentTimeMillis() - startupTime));
+      throw new IllegalStateException("Some news items wasn't executed successfully. It will be re-attempted next startup");
     }
   }
 
