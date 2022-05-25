@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.apache.commons.collections4.ListUtils;
@@ -32,7 +31,6 @@ import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.news.model.News;
 import org.exoplatform.news.service.NewsService;
@@ -57,7 +55,7 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
   private PortalContainer          container;
 
-  private int                      migratedPublishedNewsCount = 0;
+  private int                      migratedPublishedNewsCount = 0;//Accessible by the test classes
   
   public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
                                            EntityManagerService entityManagerService,
@@ -78,35 +76,53 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
-    LOG.info("Start upgrade of published news displayed property");
+    LOG.info("Start published news migration");
+    List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
     ExoContainerContext.setCurrentContainer(container);
+    try {
+      newsTargetsMetadataItems = getNewsTargetMetadataItems();
+    } catch (Exception e) {
+      throw new IllegalStateException ("Error when getting news target metadata items", e);
+    } finally {
+      ExoContainerContext.setCurrentContainer(null);
+    }
+    int totalPublishedNewsCount = newsTargetsMetadataItems.size();
+    LOG.info("Total number of published news to be migrated: {}", totalPublishedNewsCount);
+    int notMigratedPublishedNewsCount = 0;
+    int processedPublishedNewsCount = 0;
+    for (List<MetadataItemEntity> newsTargetsMetadataItemsChunk : ListUtils.partition(newsTargetsMetadataItems, 10)) {
+      ExoContainerContext.setCurrentContainer(container);
+      try {
+        int notMigratedPublishedNewsCountByTransaction = manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk);
+        int processedPublishedNewsCountByTransaction = newsTargetsMetadataItemsChunk.size();
+        processedPublishedNewsCount += processedPublishedNewsCountByTransaction;
+        migratedPublishedNewsCount += processedPublishedNewsCountByTransaction - notMigratedPublishedNewsCountByTransaction;
+        notMigratedPublishedNewsCount += notMigratedPublishedNewsCountByTransaction; 
+        LOG.info("Published news migration progress: processed={}/{} succeeded={} error={}", processedPublishedNewsCountByTransaction, processedPublishedNewsCount, migratedPublishedNewsCount, notMigratedPublishedNewsCount);
+      } catch (Exception e) {
+        throw new IllegalStateException ("Error when managing news target metadata items props", e);
+      } finally {
+        ExoContainerContext.setCurrentContainer(null);
+      }
+    }
+    LOG.info("End published news migration: total={} succeeded={} error={}. It tooks {} ms.", (System.currentTimeMillis() - startupTime), totalPublishedNewsCount, migratedPublishedNewsCount, notMigratedPublishedNewsCount);
+  }
+  
+  @ExoTransactional
+  public List<MetadataItemEntity> getNewsTargetMetadataItems() throws Exception {
     List<String> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0).stream()
         .map(newsTargetMetadata -> String.valueOf(newsTargetMetadata.getId()))
         .collect(Collectors.toList());
     List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
-    RequestLifeCycle.begin(entityManagerService);
     EntityManager entityManager = entityManagerService.getEntityManager();
     try {
       Query getNewsTargetMetadataItemsQuery = entityManager.createNativeQuery("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID IN :newsTargetMetadatas", MetadataItemEntity.class);
       getNewsTargetMetadataItemsQuery.setParameter("newsTargetMetadatas", newsTargetMetadatas);
       newsTargetsMetadataItems = getNewsTargetMetadataItemsQuery.getResultList();
     } catch (Exception e) {
-      throw new PersistenceException("Error when getting news target metadata items", e);
-    } finally {
-      RequestLifeCycle.end();
+      throw new IllegalStateException("Error when getting news target metadata items", e);
     }
-    LOG.info("Total number of published news to be migrated: {}", newsTargetsMetadataItems.size());
-    int notMigratedPublishedNewsCount = 0;
-    for (List<MetadataItemEntity> newsTargetsMetadataItemsChunk : ListUtils.partition(newsTargetsMetadataItems, 10)) {
-      try {
-        int notMigratedPublishedNewsCountByTransaction = manageNewsTargetsMetadataItemsProps(newsTargetsMetadataItemsChunk);
-        LOG.info("{}/{} published news migrated", migratedPublishedNewsCount, newsTargetsMetadataItems.size());
-        notMigratedPublishedNewsCount += notMigratedPublishedNewsCountByTransaction;
-      } catch (Exception e) {
-        throw new PersistenceException("Error when managing news target metadata items props", e);
-      }
-    }
-    LOG.info("End upgrade of published news displayed property, it tooks {} ms. Success: {}, Error: {}, Total: {}", (System.currentTimeMillis() - startupTime), migratedPublishedNewsCount, notMigratedPublishedNewsCount, newsTargetsMetadataItems.size());
+    return newsTargetsMetadataItems;
   }
   
   @ExoTransactional
@@ -128,10 +144,9 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
         insertNewsTargetMetadataItemsPropQuery.setParameter("displayedStatus", NewsUtils.DISPLAYED_STATUS);
         insertNewsTargetMetadataItemsPropQuery.setParameter("displayed", String.valueOf(displayed));
         insertNewsTargetMetadataItemsPropQuery.executeUpdate();
-        migratedPublishedNewsCount++;
       } catch (Exception e) {
         notMigratedPublishedNewsCount++;
-        throw new PersistenceException("Error when managing news target metadata items props", e);
+        throw new IllegalStateException ("Error when managing news target metadata items props", e);
       }
     }
     return notMigratedPublishedNewsCount;
