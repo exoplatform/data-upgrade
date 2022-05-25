@@ -77,7 +77,7 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();
     LOG.info("Start published news migration");
-    List<MetadataItemEntity> newsTargetsMetadataItems = new ArrayList<>();
+    List<MetadataItemEntity> newsTargetsMetadataItems = null;
     ExoContainerContext.setCurrentContainer(container);
     try {
       newsTargetsMetadataItems = getNewsTargetMetadataItems();
