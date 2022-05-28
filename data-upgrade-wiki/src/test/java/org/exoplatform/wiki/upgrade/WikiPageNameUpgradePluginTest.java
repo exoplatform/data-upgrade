@@ -11,13 +11,13 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
-import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.wiki.WikiException;
-import org.exoplatform.wiki.mow.api.Page;
-import org.exoplatform.wiki.mow.api.Wiki;
+import org.exoplatform.wiki.model.Page;
+import org.exoplatform.wiki.model.Wiki;
 import org.exoplatform.wiki.service.DataStorage;
+import org.exoplatform.wiki.service.NoteService;
 import org.exoplatform.wiki.service.WikiService;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +28,8 @@ public class WikiPageNameUpgradePluginTest {
   protected PortalContainer         container;
 
   protected WikiService             wikiService;
+
+  protected NoteService             noteService;
 
   protected DataStorage             dataStorage;
 
@@ -47,6 +49,7 @@ public class WikiPageNameUpgradePluginTest {
   public void setUp() {
     container = PortalContainer.getInstance();
     wikiService = CommonsUtils.getService(WikiService.class);
+    noteService = CommonsUtils.getService(NoteService.class);
     dataStorage = CommonsUtils.getService(DataStorage.class);
     entityManagerService = CommonsUtils.getService(EntityManagerService.class);
     begin();
@@ -81,19 +84,20 @@ public class WikiPageNameUpgradePluginTest {
     valueParam.setValue(newTitle);
     initParams.addParameter(valueParam);
 
-    String globalPortal = CommonsUtils.getService(UserPortalConfigService.class).getGlobalPortal();
     Identity identity = new Identity(currentUser);
     ConversationState.setCurrent(new ConversationState(identity));
     Wiki gWiki = wikiService.createWiki(wikiType,currentUser);
 
-    List<Page> pages = wikiService.getPagesOfWiki(wikiType,currentUser);
+    List<Page> pages = noteService.getNotesOfWiki(wikiType,currentUser);
     int initialWikiPages = pages.size();
     assertTrue(initialWikiPages > 0);
     Page page = new Page();
     page.setTitle(oldNoteName);
     page.setName(oldNoteName);
 
-    wikiService.createPage(gWiki,pages.get(0).getName(),page);
+    Page parentPage = noteService.getNoteOfNoteBookByName(wikiType, currentUser, pages.get(0).getName());
+    assertNotNull(parentPage);
+    noteService.createNote(gWiki, parentPage, page);
 
     page = wikiService.getPageOfWikiByName(wikiType,currentUser,oldNoteName);
     assertNotNull(page);
