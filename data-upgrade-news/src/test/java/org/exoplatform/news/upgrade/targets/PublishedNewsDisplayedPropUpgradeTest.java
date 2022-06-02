@@ -125,8 +125,7 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     PublishedNewsDisplayedPropUpgrade publishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
                                                                                                                       entityManagerService,
                                                                                                                       newsService,
-                                                                                                                      metadataService,
-                                                                                                                      container);
+                                                                                                                      metadataService);
 
     publishedNewsDisplayedPropUpgradePlugin.processUpgrade(null, null);
     assertEquals(1, publishedNewsDisplayedPropUpgradePlugin.getMigratedPublishedNewsCount());
