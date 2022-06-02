@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.news.model.News;
 import org.exoplatform.news.service.NewsService;
@@ -38,6 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.model.Metadata;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
@@ -52,8 +52,6 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
   private MetadataService      metadataService;
 
-  private PortalContainer      container;
-
   private int                  migratedPublishedNewsCount = 0;                                            // Accessible
                                                                                                           // by
                                                                                                           // the
@@ -63,13 +61,11 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   public PublishedNewsDisplayedPropUpgrade(InitParams initParams,
                                            EntityManagerService entityManagerService,
                                            NewsService newsService,
-                                           MetadataService metadataService,
-                                           PortalContainer container) {
+                                           MetadataService metadataService) {
     super(initParams);
     this.entityManagerService = entityManagerService;
     this.newsService = newsService;
     this.metadataService = metadataService;
-    this.container = container;
   }
 
   public int getMigratedPublishedNewsCount() {
@@ -118,9 +114,9 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   @SuppressWarnings("unchecked")
   @ExoTransactional
   public List<MetadataItemEntity> getNewsTargetMetadataItems() {
-    List<String> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0)
+    List<Long> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0)
                                                       .stream()
-                                                      .map(newsTargetMetadata -> String.valueOf(newsTargetMetadata.getId()))
+                                                      .map(Metadata::getId)
                                                       .collect(Collectors.toList());
     EntityManager entityManager = entityManagerService.getEntityManager();
     Query getNewsTargetMetadataItemsQuery =
