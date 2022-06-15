@@ -15,4 +15,7 @@
   -  https://github.com/exoplatform/data-upgrade/pull/96
   -  https://github.com/Meeds-io/commons/pull/304
   -  https://github.com/Meeds-io/core/pull/54
+  
+  * 2022-05-26: Patch-6.2.5:3, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
 
+  -  https://github.com/exoplatform/data-upgrade/commit/9df4f36a92a994a563ce7ef1e93f404560e4d1ee
