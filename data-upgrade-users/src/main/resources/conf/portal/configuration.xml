@@ -36,7 +36,7 @@
           <name>plugin.upgrade.target.version</name>
           <description>The plugin target version (will not be executed if previous version is equal or higher than 6.3.1)
           </description>
-          <value>6..2.6</value>
+          <value>6.2.5</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
