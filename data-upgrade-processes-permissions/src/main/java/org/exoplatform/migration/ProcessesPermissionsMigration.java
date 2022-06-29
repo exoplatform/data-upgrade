@@ -42,6 +42,8 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
 
   private final PortalContainer container;
 
+  private final IdentityManager identityManager;
+
   private final WorkFlowDAO     workFlowDAO;
 
   private final SpaceService    spaceService;
@@ -49,12 +51,14 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
   private final ProjectService  projectService;
 
   public ProcessesPermissionsMigration(PortalContainer container,
+                                       IdentityManager identityManager,
                                        WorkFlowDAO workFlowDAO,
                                        ProjectService projectService,
                                        SpaceService spaceService,
                                        InitParams initParams) {
     super(initParams);
     this.container = container;
+    this.identityManager = identityManager;
     this.workFlowDAO = workFlowDAO;
     this.projectService = projectService;
     this.spaceService = spaceService;
@@ -77,8 +81,9 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
     boolean upgraded = false;
     List<WorkFlowEntity> updatedWorkflows = new ArrayList();
     for (WorkFlowEntity workflowEntity : workFlowDAO.findAll()) {
-      if (workflowEntity.getManager() == null || workflowEntity.getManager().isEmpty()
-          || workflowEntity.getParticipator() == null || workflowEntity.getParticipator().isEmpty()) {
+
+      if (workflowEntity.getManager() == null || workflowEntity.getManager().size() == 0
+          || workflowEntity.getParticipator() == null || workflowEntity.getParticipator().size() == 0) {
         Space space = getProjectParentSpace(workflowEntity.getProjectId());
         if (space != null) {
           List<String> memberships = new LinkedList();
@@ -93,12 +98,13 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
         }
       }
     }
-    if (!updatedWorkflows.isEmpty()) {
+
+    if (updatedWorkflows.size() > 0) {
       workFlowDAO.updateAll(updatedWorkflows);
       upgraded = true;
     }
     if (upgraded) {
-      log.info("Processes permissions upgrade proceeded successfully. It took {} ms", (System.currentTimeMillis() - startupTime));
+      log.info("Processes permissions upgrade proceeded successfully");
     } else {
       throw new IllegalStateException("Documents favorites upgrade failed due to previous errors");
     }
