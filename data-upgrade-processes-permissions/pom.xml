@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.exoplatform.addons.upgrade</groupId>
     <artifactId>upgrade</artifactId>
-    <version>6.4.x-experience-SNAPSHOT</version>
+    <version>6.4.x-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-upgrade-processes-permissions</artifactId>
@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.exoplatform.processes</groupId>
       <artifactId>processes-services</artifactId>
-      <version>1.1.x-experience-SNAPSHOT</version>
+      <version>1.1.x-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
