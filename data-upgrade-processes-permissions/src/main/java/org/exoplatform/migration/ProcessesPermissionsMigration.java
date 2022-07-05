@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2023 eXo Platform SAS
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <gnu.org/licenses>.
+ */
+
 package org.exoplatform.migration;
 
 import java.util.*;
@@ -25,8 +42,6 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
 
   private final PortalContainer container;
 
-  private final IdentityManager identityManager;
-
   private final WorkFlowDAO     workFlowDAO;
 
   private final SpaceService    spaceService;
@@ -34,14 +49,12 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
   private final ProjectService  projectService;
 
   public ProcessesPermissionsMigration(PortalContainer container,
-                                       IdentityManager identityManager,
                                        WorkFlowDAO workFlowDAO,
                                        ProjectService projectService,
                                        SpaceService spaceService,
                                        InitParams initParams) {
     super(initParams);
     this.container = container;
-    this.identityManager = identityManager;
     this.workFlowDAO = workFlowDAO;
     this.projectService = projectService;
     this.spaceService = spaceService;
@@ -64,8 +77,8 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
     boolean upgraded = false;
     List<WorkFlowEntity> updatedWorkflows = new ArrayList();
     for (WorkFlowEntity workflowEntity : workFlowDAO.findAll()) {
-      if (workflowEntity.getManager() == null || workflowEntity.getManager().size() == 0
-          || workflowEntity.getParticipator() == null || workflowEntity.getParticipator().size() == 0) {
+      if (workflowEntity.getManager() == null || workflowEntity.getManager().isEmpty()
+          || workflowEntity.getParticipator() == null || workflowEntity.getParticipator().isEmpty()) {
         Space space = getProjectParentSpace(workflowEntity.getProjectId());
         if (space != null) {
           List<String> memberships = new LinkedList();
@@ -80,7 +93,7 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
         }
       }
     }
-    if (updatedWorkflows.size() > 0) {
+    if (!updatedWorkflows.isEmpty()) {
       workFlowDAO.updateAll(updatedWorkflows);
       upgraded = true;
     }
