@@ -30,6 +30,7 @@
     <module>data-upgrade-app-registry</module>
     <module>data-upgrade-dlp</module>
     <module>data-upgrade-notifications</module>
+    <module>data-upgrade-processes-permissions</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
@@ -40,8 +41,10 @@
     <addon.exo.notes.version>1.2.x-SNAPSHOT</addon.exo.notes.version>
     <addon.exo.jcr.version>6.4.x-SNAPSHOT</addon.exo.jcr.version>
     <addon.exo.news.version>2.4.x-SNAPSHOT</addon.exo.news.version>
+    <addon.exo.processes.version>1.1.x-SNAPSHOT</addon.exo.processes.version>
+    <addon.exo.tasks.version>3.4.x-SNAPSHOT</addon.exo.tasks.version>
     <addon.exo.analytics.version>1.3.x-SNAPSHOT</addon.exo.analytics.version>
-  
+
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
   </properties>
@@ -89,6 +92,23 @@
         <groupId>org.exoplatform.addons.news</groupId>
         <artifactId>news</artifactId>
         <version>${addon.exo.news.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- Processes dependencies -->
+      <dependency>
+        <groupId>org.exoplatform.processes</groupId>
+        <artifactId>processes-parent</artifactId>
+        <version>${addon.exo.processes.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.exoplatform.addons.task</groupId>
+        <artifactId>task-management-parent</artifactId>
+        <version>${addon.exo.tasks.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -150,6 +170,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-users</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-processes-permissions</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
