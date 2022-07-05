@@ -85,7 +85,7 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
       upgraded = true;
     }
     if (upgraded) {
-      log.info("Processes permissions upgrade proceeded successfully");
+      log.info("Processes permissions upgrade proceeded successfully. It took {} ms", (System.currentTimeMillis() - startupTime));
     } else {
       throw new IllegalStateException("Documents favorites upgrade failed due to previous errors");
     }
