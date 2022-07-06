@@ -55,6 +55,7 @@
     <dependency>
       <groupId>org.exoplatform.addons.task</groupId>
       <artifactId>task-management-services</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.gatein.portal</groupId>
