@@ -56,7 +56,7 @@ public class PopularSpacesRemovePreferences extends UpgradeProductPlugin {
                 entityManager.getTransaction().begin();
                 transactionStarted = true;
             }
-            String sqlString = "UPDATE PORTAL_WINDOWS w SET w.CUSTOMIZATION = NULL WHERE w.CONTENT_ID = '" + APPLICATION_CONTENT_ID + "'";
+            String sqlString = "UPDATE PORTAL_WINDOWS SET CUSTOMIZATION = NULL WHERE CONTENT_ID = '" + APPLICATION_CONTENT_ID + "'";
             Query nativeQuery = entityManager.createNativeQuery(sqlString);
             int update = nativeQuery.executeUpdate();
             if (update != 0) {

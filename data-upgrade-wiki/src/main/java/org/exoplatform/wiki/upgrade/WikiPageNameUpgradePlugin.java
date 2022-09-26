@@ -83,8 +83,8 @@ public class WikiPageNameUpgradePlugin extends UpgradeProductPlugin {
           transactionStarted = true;
         }
 
-        String sqlString = "UPDATE WIKI_PAGES w SET w.NAME = '" + newNoteName
-                + "' , w.TITLE = '"+ newTitle +"' WHERE w.NAME = '" + oldNoteName + "' AND w.PAGE_ID > 0;";
+        String sqlString = "UPDATE WIKI_PAGES SET NAME = '" + newNoteName
+                + "' , TITLE = '"+ newTitle +"' WHERE NAME = '" + oldNoteName + "' AND PAGE_ID > 0;";
         Query nativeQuery = entityManager.createNativeQuery(sqlString);
         this.pagesUpdatedCount = nativeQuery.executeUpdate();
         LOG.info("End upgrade of '{}' notes with name '{}' to use name '{}'. It took {} ms",

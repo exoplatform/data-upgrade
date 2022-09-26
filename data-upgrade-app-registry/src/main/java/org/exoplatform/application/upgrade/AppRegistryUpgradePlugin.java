@@ -101,7 +101,7 @@ public class AppRegistryUpgradePlugin extends UpgradeProductPlugin {
           transactionStarted = true;
         }
 
-        String sqlString = "UPDATE PORTAL_APPLICATIONS w SET w.DISPLAY_NAME = '"+newDisplayName+"' , w.DESCRIPTION = '"+newDescription+"' , w.APP_NAME = '"+newAppName+"', w.CONTENT_ID = '"+newContentId+"' WHERE w.CONTENT_ID = '"+oldContentId+"'  AND w.ID > 0;";
+        String sqlString = "UPDATE PORTAL_APPLICATIONS SET DISPLAY_NAME = '"+newDisplayName+"' , DESCRIPTION = '"+newDescription+"' , APP_NAME = '"+newAppName+"', CONTENT_ID = '"+newContentId+"' WHERE CONTENT_ID = '"+oldContentId+"'  AND ID > 0;";
         Query nativeQuery = entityManager.createNativeQuery(sqlString);
         this.pagesUpdatedCount = nativeQuery.executeUpdate();
         LOG.info("End upgrade of '{}' apps with content id {} in registry to use {}. It took {} ms",

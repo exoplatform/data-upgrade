@@ -95,9 +95,9 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
           transactionStarted = true;
         }
 
-        String sqlString = "UPDATE PORTAL_NAVIGATION_NODES w SET w.NAME = '" + newNavName
-            + "' , w.LABEL = '" + newNavLabel
-            + "' WHERE w.NAME = '" + oldNavName + "' AND w.NODE_ID > 0;";
+        String sqlString = "UPDATE PORTAL_NAVIGATION_NODES SET NAME = '" + newNavName
+            + "' ,LABEL = '" + newNavLabel
+            + "' WHERE NAME = '" + oldNavName + "' AND NODE_ID > 0;";
         Query nativeQuery = entityManager.createNativeQuery(sqlString);
         this.pagesNodesCount = nativeQuery.executeUpdate();
 
