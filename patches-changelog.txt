@@ -19,3 +19,7 @@
   * 2022-05-26: Patch-6.2.5:3, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
 
   -  https://github.com/exoplatform/data-upgrade/commit/9df4f36a92a994a563ce7ef1e93f404560e4d1ee
+
+  * 2022-09-27: Patch-6.2.5:6, Author: Jihed Chabbeh<jchabbeh@exoplatform.com>
+
+  -  https://github.com/exoplatform/data-upgrade/commit/30d0a11555478f9e8d954786437e964f1a668dd3
