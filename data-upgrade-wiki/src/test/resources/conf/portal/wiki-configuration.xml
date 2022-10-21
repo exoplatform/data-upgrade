@@ -39,6 +39,11 @@
     <key>org.exoplatform.wiki.rendering.RenderingService</key>
     <type>org.exoplatform.wiki.rendering.impl.RenderingServiceImpl</type>
   </component>
+  
+  <component>
+    <key>org.exoplatform.social.common.service.HTMLUploadImageProcessor </key>
+    <type>org.exoplatform.social.common.service.impl.HTMLUploadImageProcessorImpl</type>
+  </component>
 
   <component>
     <key>org.exoplatform.wiki.service.WikiService</key>
