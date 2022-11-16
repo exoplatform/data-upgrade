@@ -9,7 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>data-upgrade-Analytics-chart-Titles</artifactId>
+    <artifactId>data-upgrade-Analytics-chart</artifactId>
+    <packaging>jar</packaging>
+    <name>eXo Add-on:: Data Upgrade Add-on - Analytics - Chart - Upgrade</name>
     <properties>
         <exo.test.coverage.ratio>0.41</exo.test.coverage.ratio>
     </properties>

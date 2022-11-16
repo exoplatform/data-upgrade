@@ -1,6 +1,6 @@
 package org.exoplatform.analytics.upgrade;
 
-import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
@@ -21,7 +21,7 @@ public class AnalyticsChartTitlesUpgradePlugin extends UpgradeProductPlugin {
   private static final Log     LOG                        = ExoLogger.getExoLogger(AnalyticsChartTitlesUpgradePlugin.class);
   private final PortalContainer      container;
   private final EntityManagerService entityManagerService;
-  private int                  pagesUpdatedCount;
+  private static int                  ChartUpdatedCount;
   private Map<String , String> chartTitles = new HashMap<String ,String>();
   public AnalyticsChartTitlesUpgradePlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams){
     super(initParams);
@@ -38,7 +38,7 @@ public class AnalyticsChartTitlesUpgradePlugin extends UpgradeProductPlugin {
                                         String previousGroupVersion,
                                         UpgradePluginExecutionContext previousUpgradePluginExecution) {
     int executionCount = previousUpgradePluginExecution == null ? 0 : previousUpgradePluginExecution.getExecutionCount();
-    return true;
+    return !isExecuteOnlyOnce() || executionCount == 0;
   }
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
@@ -71,9 +71,9 @@ public class AnalyticsChartTitlesUpgradePlugin extends UpgradeProductPlugin {
               byte[] custmByte = custstring.getBytes();
               String query = "UPDATE PORTAL_WINDOWS SET CUSTOMIZATION = :custmByte WHERE ID = :pageId ;";
               Query nativeQuery = entityManager.createNativeQuery(query).setParameter("custmByte",custmByte).setParameter("pageId",page.getId());
-              this.pagesUpdatedCount = nativeQuery.executeUpdate();
+              this.ChartUpdatedCount += nativeQuery.executeUpdate();
               LOG.info("End upgrade of '{}' chart with title '{}' to use title '{}'. It took {} ms",
-                       pagesUpdatedCount,
+                       ChartUpdatedCount,
                        entry.getKey(),
                        entry.getValue(),
                        (System.currentTimeMillis() - startupTime));
@@ -96,7 +96,7 @@ public class AnalyticsChartTitlesUpgradePlugin extends UpgradeProductPlugin {
       RequestLifeCycle.end();
     }
   }
-  public int getPagesUpdatedCount() {
-    return pagesUpdatedCount;
+  public int getChartUpdatedCount() {
+    return ChartUpdatedCount;
   }
 }

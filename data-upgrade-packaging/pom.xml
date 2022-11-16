@@ -76,6 +76,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-processes-permissions</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-Analytics-chart</artifactId>
+    </dependency>
 
     <!-- Transitive dependencies provided by eXo : set to provided -->
     <dependency>
