@@ -54,41 +54,6 @@
                     <description>The plugin will replace this chart title by the new one</description>
                     <value>Spaces count</value>
                 </value-param>
-                <value-param>
-                    <name>new.chart.SpacesCount.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>analytics.spacesCount</value>
-                </value-param>
-                <value-param>
-                    <name>old.chart.UsersCount.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>Users count</value>
-                </value-param>
-                <value-param>
-                    <name>new.chart.UsersCount.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>analytics.usersCount</value>
-                </value-param>
-                <value-param>
-                    <name>old.chart.ActivitiesCount.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>Activities</value>
-                </value-param>
-                <value-param>
-                    <name>new.chart.ActivitiesCount.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>analytics.activitiesCount</value>
-                </value-param>
-                <value-param>
-                    <name>old.chart.DistinctLogins.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>Distinct logins</value>
-                </value-param>
-                <value-param>
-                    <name>new.chart.DistinctLogins.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>analytics.distinctLogins</value>
-                </value-param>
             </init-params>
         </component-plugin>
     </external-component-plugins>
