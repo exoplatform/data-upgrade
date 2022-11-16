@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+    Copyright (C) 2003-2021 eXo Platform SAS.
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 3 of
+    the License, or (at your option) any later version.
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
+
+    <external-component-plugins>
+        <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
+        <component-plugin  profiles="analytics">
+            <name>AnalyticsChartTitlesUpgradePlugin</name>
+            <set-method>addUpgradePlugin</set-method>
+            <type>org.exoplatform.analytics.upgrade.AnalyticsChartTitlesUpgradePlugin</type>
+            <description>Fix analytics chat titles</description>
+            <init-params>
+                <value-param>
+                    <name>product.group.id</name>
+                    <description>The groupId of the product</description>
+                    <value>org.exoplatform.platform</value>
+                </value-param>
+                <value-param>
+                    <name>plugin.upgrade.target.version</name>
+                    <description>The plugin target version of selected groupId</description>
+                    <value>6.1.0</value>
+                </value-param>
+                <value-param>
+                    <name>plugin.execution.order</name>
+                    <description>The plugin execution order</description>
+                    <value>10</value>
+                </value-param>
+                <value-param>
+                    <name>plugin.upgrade.execute.once</name>
+                    <description>The plugin must be executed only once</description>
+                    <value>true</value>
+                </value-param>
+                <value-param>
+                    <name>plugin.upgrade.async.execution</name>
+                    <description>The plugin will be executed in an asynchronous mode</description>
+                    <value>true</value>
+                </value-param>
+                <value-param>
+                    <name>old.chart.SpacesCount.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>Spaces count</value>
+                </value-param>
+                <value-param>
+                    <name>new.chart.SpacesCount.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>analytics.spacesCount</value>
+                </value-param>
+                <value-param>
+                    <name>old.chart.UsersCount.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>Users count</value>
+                </value-param>
+                <value-param>
+                    <name>new.chart.UsersCount.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>analytics.usersCount</value>
+                </value-param>
+                <value-param>
+                    <name>old.chart.ActivitiesCount.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>Activities</value>
+                </value-param>
+                <value-param>
+                    <name>new.chart.ActivitiesCount.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>analytics.activitiesCount</value>
+                </value-param>
+                <value-param>
+                    <name>old.chart.DistinctLogins.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>Distinct logins</value>
+                </value-param>
+                <value-param>
+                    <name>new.chart.DistinctLogins.title</name>
+                    <description>The plugin will replace this chart title by the new one</description>
+                    <value>analytics.distinctLogins</value>
+                </value-param>
+            </init-params>
+        </component-plugin>
+    </external-component-plugins>
+</configuration>
