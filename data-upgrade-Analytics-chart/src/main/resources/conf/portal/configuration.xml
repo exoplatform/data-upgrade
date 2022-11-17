@@ -32,7 +32,7 @@
                 <value-param>
                     <name>plugin.upgrade.target.version</name>
                     <description>The plugin target version of selected groupId</description>
-                    <value>6.1.0</value>
+                    <value>6.4.0</value>
                 </value-param>
                 <value-param>
                     <name>plugin.execution.order</name>
@@ -48,11 +48,6 @@
                     <name>plugin.upgrade.async.execution</name>
                     <description>The plugin will be executed in an asynchronous mode</description>
                     <value>true</value>
-                </value-param>
-                <value-param>
-                    <name>old.chart.SpacesCount.title</name>
-                    <description>The plugin will replace this chart title by the new one</description>
-                    <value>Spaces count</value>
                 </value-param>
             </init-params>
         </component-plugin>
