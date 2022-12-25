@@ -112,7 +112,7 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
 
   private void updateSetting(UserSetting userSetting, PluginInfo config) {
     for (String defaultConf : config.getDefaultConfig()) {
-      for (String channelId : config.getAllChannelActive()) {
+      for (String channelId : userSetting.getChannelActives()) {
         if (UserSetting.FREQUENCY.getFrequecy(defaultConf) == UserSetting.FREQUENCY.INSTANTLY) {
           userSetting.addChannelPlugin(channelId, config.getType());
         } else {
