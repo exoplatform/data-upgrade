@@ -1,8 +1,6 @@
 package org.exoplatform.application.upgrade;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.application.registry.Application;
-import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
@@ -29,7 +27,7 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
 
   private static final String  CATEGORY_NAME = "app.category.name";
 
-  private static int           AppUpdatedCount ;
+  private  int                 appUpdatedCount ;
 
   private  String              appName;
   private  String              catName;
@@ -68,7 +66,7 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
     ExoContainerContext.setCurrentContainer(container);
     boolean transactionStarted = false;
 
-    LOG.info("Start remove of app with name  {} inside category ", appName, catName);
+    LOG.info("Start remove of app with name  {} inside category {} ", appName, catName);
     RequestLifeCycle.begin(this.entityManagerService);
     EntityManager entityManager = this.entityManagerService.getEntityManager();
     try {
@@ -80,7 +78,7 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
       BigInteger catId = (BigInteger) entityManager.createNativeQuery(sqlString).getSingleResult();
       String query = "DELETE FROM PORTAL_APPLICATIONS WHERE APP_NAME = :appName AND CATEGORY_ID = :catId ;";
       Query nativeQuery = entityManager.createNativeQuery(query).setParameter("appName", appName).setParameter("catId", catId);
-      this.AppUpdatedCount += nativeQuery.executeUpdate();
+      this.appUpdatedCount += nativeQuery.executeUpdate();
       LOG.info("End upgrade of '{}'  category with title '{}' . It took {} ms",
               getAppUpdatedCount(),
               catName,
@@ -99,6 +97,6 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
     }
   }
   public int getAppUpdatedCount() {
-      return AppUpdatedCount;
+      return appUpdatedCount;
     }
   }

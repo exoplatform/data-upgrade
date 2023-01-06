@@ -1,4 +1,4 @@
-package org.exoplatform.wiki.upgrade;
+package org.exoplatform.tools.upgrade;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
