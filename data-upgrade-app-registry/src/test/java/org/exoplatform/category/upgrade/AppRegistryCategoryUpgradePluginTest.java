@@ -1,10 +1,11 @@
-package org.exoplatform.tools.upgrade;
+package org.exoplatform.category.upgrade;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.exoplatform.application.upgrade.AppRegistryCategoryUpgradePlugin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +13,6 @@ import org.junit.Test;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
-import org.exoplatform.application.upgrade.AppRegistryUpgradeToolsCategoryPlugin;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
@@ -24,7 +24,7 @@ import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.wiki.WikiException;
 import org.exoplatform.wiki.service.DataStorage;
 
-public class AppRegistryUpgradeToolsCategoryPluginTest {
+public class AppRegistryCategoryUpgradePluginTest {
 
   protected PortalContainer            container;
 
@@ -49,7 +49,7 @@ public class AppRegistryUpgradeToolsCategoryPluginTest {
   }
 
   @Test
-  public void testAppsMigration() throws WikiException {
+  public void testCategoryClean() throws WikiException {
     InitParams initParams = new InitParams();
 
     ValueParam valueParam = new ValueParam();
@@ -57,37 +57,37 @@ public class AppRegistryUpgradeToolsCategoryPluginTest {
     valueParam.setValue("org.exoplatform.platform");
     initParams.addParameter(valueParam);
 
-    valueParam = new ValueParam();
-    valueParam.setName("app.name");
-    valueParam.setValue("IFramePortlet");
-    initParams.addParameter(valueParam);
-
-    valueParam = new ValueParam();
-    valueParam.setName("app.category.name");
-    valueParam.setValue("Tools");
-    initParams.addParameter(valueParam);
-
     String toolCategoryName = "Tools";
+    String analyticsCategoryName = "Analytics";
     ApplicationCategory toolsCategory = createAppCategory(toolCategoryName, "None");
+    ApplicationCategory analytics = createAppCategory(analyticsCategoryName, "None");
     applicationRegistryService.save(toolsCategory);
-    Application IFramePortletApp = createApplication();
-    applicationRegistryService.save(toolsCategory,IFramePortletApp );
+    applicationRegistryService.save(analytics);
+    Application IFramePortletApp = createApplication("IFramePortlet", "web/IFramePortlet");
+    Application AnalyticsPortletApp = createApplication("AnalyticsPortlet", "analytics/AnalyticsPortlet");
+    applicationRegistryService.save(toolsCategory, IFramePortletApp);
+    applicationRegistryService.save(analytics, AnalyticsPortletApp);
 
     try {
-      List<Application> apps = applicationRegistryService.getApplications(toolsCategory);
-      assertEquals(apps.size(), 1);
+      List<Application> apps = applicationRegistryService.getAllApplications();
+      List<ApplicationCategory> cats = applicationRegistryService.getApplicationCategories();
+      assertEquals(cats.size(), 2);
+      assertEquals(apps.size(), 2);
       assertEquals(apps.get(0).getApplicationName(), "IFramePortlet");
+      assertEquals(apps.get(1).getApplicationName(), "AnalyticsPortlet");
     } catch (Exception e) {
       fail();
     }
 
-    AppRegistryUpgradeToolsCategoryPlugin appRegistryUpgradeToolsCategoryPlugin  = new AppRegistryUpgradeToolsCategoryPlugin(container,
-                                                                                         entityManagerService,
-                                                                                         initParams);
-      appRegistryUpgradeToolsCategoryPlugin.processUpgrade(null, null);
+    AppRegistryCategoryUpgradePlugin appRegistryCategoryUpgradePlugin = new AppRegistryCategoryUpgradePlugin(container,
+                                                                                                             entityManagerService,
+                                                                                                             initParams);
+    appRegistryCategoryUpgradePlugin.processUpgrade(null, null);
     try {
-      List<Application> apps = applicationRegistryService.getApplications(toolsCategory);
-      assertEquals(apps.size(),0);
+      List<Application> apps = applicationRegistryService.getAllApplications();
+      assertEquals(apps.size(), 0);
+      List<ApplicationCategory> cats = applicationRegistryService.getApplicationCategories();
+      assertEquals(cats.size(), 0);
     } catch (Exception e) {
       fail();
     }
@@ -111,11 +111,11 @@ public class AppRegistryUpgradeToolsCategoryPluginTest {
     return category;
   }
 
-  private Application createApplication() {
+  private Application createApplication(String appName, String contentId) {
     Application app = new Application();
-    app.setContentId("web/IFramePortlet");
-    app.setApplicationName("IFramePortlet");
-    app.setDisplayName("IFramePortlet");
+    app.setContentId(contentId);
+    app.setApplicationName(appName);
+    app.setDisplayName(appName);
     app.setType(ApplicationType.PORTLET);
     return app;
   }

@@ -82,9 +82,9 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>ToolsCategoryPlugin</name>
+      <name>upgradeApplicationRegistryCategoryPlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.application.upgrade.AppRegistryUpgradeToolsCategoryPlugin</type>
+      <type>org.exoplatform.application.upgrade.AppRegistryCategoryUpgradePlugin</type>
       <description>Upgrade App registry cats</description>
       <init-params>
         <value-param>
@@ -111,16 +111,6 @@
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
           <value>6.4.0</value>
-        </value-param>
-        <value-param>
-          <name>app.category.name</name>
-          <description>application category name</description>
-          <value>Tools</value>
-        </value-param>
-        <value-param>
-          <name>app.name</name>
-          <description>application name</description>
-          <value>IFramePortlet</value>
         </value-param>
       </init-params>
     </component-plugin>

@@ -33,35 +33,22 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin {
+public class AppRegistryCategoryUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log     LOG                        = ExoLogger.getExoLogger(AppRegistryUpgradeToolsCategoryPlugin.class);
+  private static final Log           LOG = ExoLogger.getExoLogger(AppRegistryCategoryUpgradePlugin.class);
 
   private final PortalContainer      container;
 
   private final EntityManagerService entityManagerService;
 
-  private static final String  APPLICATION_NAME = "app.name";
+  private int                        CatCleanedCount;
 
-  private static final String  CATEGORY_NAME = "app.category.name";
-
-  private  int                 appUpdatedCount ;
-
-  private  String              appName;
-  private  String              catName;
-
-
-  public AppRegistryUpgradeToolsCategoryPlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
+  public AppRegistryCategoryUpgradePlugin(PortalContainer container,
+                                          EntityManagerService entityManagerService,
+                                          InitParams initParams) {
     super(initParams);
     this.container = container;
     this.entityManagerService = entityManagerService;
-
-    if (initParams.containsKey(APPLICATION_NAME)) {
-      appName = initParams.getValueParam(APPLICATION_NAME).getValue();
-    }
-    if (initParams.containsKey(CATEGORY_NAME)) {
-      catName = initParams.getValueParam(CATEGORY_NAME).getValue();
-    }
   }
 
   @Override
@@ -75,16 +62,12 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
 
-    if (StringUtils.isEmpty(appName) || StringUtils.isEmpty(catName)) {
-      LOG.error("Couldn't process upgrade, all parameters are mandatory");
-      return;
-    }
     long startupTime = System.currentTimeMillis();
 
     ExoContainerContext.setCurrentContainer(container);
     boolean transactionStarted = false;
 
-    LOG.info("Start remove of app with name  {} inside category {} ", appName, catName);
+    LOG.info("Start clean application registry category");
     RequestLifeCycle.begin(this.entityManagerService);
     EntityManager entityManager = this.entityManagerService.getEntityManager();
     try {
@@ -92,15 +75,9 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
         entityManager.getTransaction().begin();
         transactionStarted = true;
       }
-      String sqlString = "SELECT ID FROM PORTAL_APP_CATEGORIES c WHERE c.NAME = 'Tools';";
-      BigInteger catId = (BigInteger) entityManager.createNativeQuery(sqlString).getSingleResult();
-      String query = "DELETE FROM PORTAL_APPLICATIONS WHERE APP_NAME = :appName AND CATEGORY_ID = :catId ;";
-      Query nativeQuery = entityManager.createNativeQuery(query).setParameter("appName", appName).setParameter("catId", catId);
-      this.appUpdatedCount += nativeQuery.executeUpdate();
-      LOG.info("End upgrade of '{}'  category with title '{}' . It took {} ms",
-              getAppUpdatedCount(),
-              catName,
-              (System.currentTimeMillis() - startupTime));
+      Query nativeQuery = entityManager.createNativeQuery("DELETE FROM PORTAL_APP_CATEGORIES");
+      this.CatCleanedCount += nativeQuery.executeUpdate();
+      LOG.info("End clean of '{}' category", getCategoryRemovedCount(), (System.currentTimeMillis() - startupTime));
       if (transactionStarted && entityManager.getTransaction().isActive()) {
         entityManager.getTransaction().commit();
         entityManager.clear();
@@ -114,7 +91,8 @@ public class AppRegistryUpgradeToolsCategoryPlugin extends UpgradeProductPlugin 
       RequestLifeCycle.end();
     }
   }
-  public int getAppUpdatedCount() {
-      return appUpdatedCount;
-    }
+
+  public int getCategoryRemovedCount() {
+    return CatCleanedCount;
   }
+}
