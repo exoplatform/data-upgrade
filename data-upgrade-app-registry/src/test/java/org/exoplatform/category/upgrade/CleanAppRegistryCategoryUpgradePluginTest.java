@@ -1,8 +1,12 @@
 package org.exoplatform.category.upgrade;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.List;
 
-import org.exoplatform.application.upgrade.AppRegistryCategoryUpgradePlugin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +14,8 @@ import org.junit.Test;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.application.upgrade.CleanAppRegistryCategoryUpgradePlugin;
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
@@ -18,17 +24,12 @@ import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.ApplicationType;
-import org.exoplatform.wiki.service.DataStorage;
 
-import static org.junit.Assert.*;
-
-public class AppRegistryCategoryUpgradePluginTest {
+public class CleanAppRegistryCategoryUpgradePluginTest {
 
   protected PortalContainer            container;
 
   protected ApplicationRegistryService applicationRegistryService;
-
-  protected DataStorage                dataStorage;
 
   protected EntityManagerService       entityManagerService;
 
@@ -36,7 +37,6 @@ public class AppRegistryCategoryUpgradePluginTest {
   public void setUp() {
     container = PortalContainer.getInstance();
     applicationRegistryService = CommonsUtils.getService(ApplicationRegistryService.class);
-    dataStorage = CommonsUtils.getService(DataStorage.class);
     entityManagerService = CommonsUtils.getService(EntityManagerService.class);
     begin();
   }
@@ -47,6 +47,7 @@ public class AppRegistryCategoryUpgradePluginTest {
   }
 
   @Test
+  @ExoTransactional
   public void appRegistryCategoryUpgradePlugin() throws Exception {
     InitParams initParams = new InitParams();
 
@@ -75,19 +76,20 @@ public class AppRegistryCategoryUpgradePluginTest {
       fail();
     }
 
-    AppRegistryCategoryUpgradePlugin appRegistryCategoryUpgradePlugin = new AppRegistryCategoryUpgradePlugin(container,
-                                                                                                             entityManagerService,
-                                                                                                             initParams);
+    CleanAppRegistryCategoryUpgradePlugin appRegistryCategoryUpgradePlugin =
+                                                                           new CleanAppRegistryCategoryUpgradePlugin(container,
+                                                                                                                     entityManagerService,
+                                                                                                                     initParams);
     appRegistryCategoryUpgradePlugin.processUpgrade(null, null);
     try {
       List<Application> apps = applicationRegistryService.getAllApplications();
       assertTrue(apps.isEmpty());
       List<ApplicationCategory> cats = applicationRegistryService.getApplicationCategories();
-      assertTrue(cats.size() == 0);
+      assertTrue(cats.isEmpty());
+      assertEquals(2, appRegistryCategoryUpgradePlugin.getCleanedCategoriesCount());
     } catch (Exception e) {
       fail();
     }
-
   }
 
   protected void begin() {

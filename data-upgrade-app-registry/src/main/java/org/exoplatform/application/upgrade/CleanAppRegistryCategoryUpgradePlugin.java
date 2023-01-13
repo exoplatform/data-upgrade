@@ -20,7 +20,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -29,41 +28,30 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class AppRegistryCategoryUpgradePlugin extends UpgradeProductPlugin {
+public class CleanAppRegistryCategoryUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log           LOG = ExoLogger.getExoLogger(AppRegistryCategoryUpgradePlugin.class);
-
-  private final PortalContainer      container;
+  private static final Log           LOG = ExoLogger.getExoLogger(CleanAppRegistryCategoryUpgradePlugin.class);
 
   private final EntityManagerService entityManagerService;
+  
+  private final PortalContainer      container;
 
-  private int                        CatCleanedCount;
+  private int                        cleanedCategoriesCount;
 
-  public AppRegistryCategoryUpgradePlugin(PortalContainer container,
-                                          EntityManagerService entityManagerService,
-                                          InitParams initParams) {
+  public CleanAppRegistryCategoryUpgradePlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
     this.container = container;
     this.entityManagerService = entityManagerService;
   }
 
   @Override
-  public boolean shouldProceedToUpgrade(String newVersion,
-                                        String previousGroupVersion,
-                                        UpgradePluginExecutionContext previousUpgradePluginExecution) {
-    int executionCount = previousUpgradePluginExecution == null ? 0 : previousUpgradePluginExecution.getExecutionCount();
-    return !isExecuteOnlyOnce() || executionCount == 0;
-  }
-
-  @Override
   public void processUpgrade(String oldVersion, String newVersion) {
-
     long startupTime = System.currentTimeMillis();
 
     ExoContainerContext.setCurrentContainer(container);
     boolean transactionStarted = false;
 
-    LOG.info("Start clean application registry category");
+    LOG.info("Start clean application registry categories migration");
     RequestLifeCycle.begin(this.entityManagerService);
     EntityManager entityManager = this.entityManagerService.getEntityManager();
     try {
@@ -72,8 +60,10 @@ public class AppRegistryCategoryUpgradePlugin extends UpgradeProductPlugin {
         transactionStarted = true;
       }
       Query nativeQuery = entityManager.createNativeQuery("DELETE FROM PORTAL_APP_CATEGORIES");
-      this.CatCleanedCount += nativeQuery.executeUpdate();
-      LOG.info("End clean of '{}' category", getCategoryRemovedCount(), (System.currentTimeMillis() - startupTime));
+      this.cleanedCategoriesCount += nativeQuery.executeUpdate();
+      LOG.info("End clean of '{}' application registry categories successful migration. It tooks {} ms.",
+               this.cleanedCategoriesCount,
+               (System.currentTimeMillis() - startupTime));
       if (transactionStarted && entityManager.getTransaction().isActive()) {
         entityManager.getTransaction().commit();
         entityManager.clear();
@@ -88,7 +78,7 @@ public class AppRegistryCategoryUpgradePlugin extends UpgradeProductPlugin {
     }
   }
 
-  public int getCategoryRemovedCount() {
-    return CatCleanedCount;
+  public int getCleanedCategoriesCount() {
+    return cleanedCategoriesCount;
   }
 }

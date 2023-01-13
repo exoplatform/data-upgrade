@@ -27,7 +27,7 @@
       <name>WikiAppRegistryUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.application.upgrade.AppRegistryUpgradePlugin</type>
-      <description>Upgrade App registry cats</description>
+      <description>Upgrade App registry application</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
@@ -84,8 +84,8 @@
     <component-plugin>
       <name>upgradeApplicationRegistryCategoryPlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.application.upgrade.AppRegistryCategoryUpgradePlugin</type>
-      <description>Upgrade App registry cats</description>
+      <type>org.exoplatform.application.upgrade.CleanAppRegistryCategoryUpgradePlugin</type>
+      <description>Clean App registry categories</description>
       <init-params>
         <value-param>
           <name>product.group.id</name>
