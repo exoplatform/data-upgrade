@@ -473,4 +473,66 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
+    <component-plugin>
+      <name>ReloadPortalConfigurationMigration</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.migration.ReloadPortalConfigurationMigration</type>
+      <description>Reload the portal configuration</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>The plugin target version of selected groupId</description>
+          <value>6.4.0</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>10</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>The plugin must be executed only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>false</value>
+        </value-param>
+        <value-param>
+          <name>ownerType</name>
+          <description>The portalConfig ownerType to reload</description>
+          <value>portal</value>
+        </value-param>
+        <value-param>
+          <name>predefinedOwner</name>
+          <description>The portalConfig predefinerOwner to reload</description>
+          <value>global</value>
+        </value-param>
+        <value-param>
+          <name>location</name>
+          <description>The portalConfig location to reload</description>
+          <value>war:/conf/social-extension/portal/profile-page</value>
+        </value-param>
+        <value-param>
+          <name>importMode</name>
+          <description>The importMode to use</description>
+          <value>merge</value>
+        </value-param>
+        <value-param>
+          <name>overrideMode</name>
+          <description>The overrideMode to use</description>
+          <value>true</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 </configuration>
