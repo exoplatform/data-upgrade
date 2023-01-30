@@ -11,11 +11,11 @@ public class ReloadPortalConfigurationMigration extends UpgradeProductPlugin {
 
   private UserPortalConfigService userPortalConfigService;
 
-  String OWNER_TYPE = "ownerType";
-  String PREDEFINED_OWNER = "predefinedOwner";
-  String LOCATION = "location";
-  String IMPORT_MODE = "importMode";
-  String OVERRIDE_MODE = "overrideMode";
+  private static final String OWNER_TYPE = "ownerType";
+  private static final String PREDEFINED_OWNER   = "predefinedOwner";
+  private static final String LOCATION_PARAMETER = "location";
+  private static final String IMPORT_MODE        = "importMode";
+  private static final String OVERRIDE_MODE = "overrideMode";
 
   String ownerType;
   String predefinedOwner;
@@ -31,8 +31,8 @@ public class ReloadPortalConfigurationMigration extends UpgradeProductPlugin {
     if (initParams.containsKey(PREDEFINED_OWNER) && !initParams.getValueParam(PREDEFINED_OWNER).getValue().isBlank()) {
       predefinedOwner=initParams.getValueParam(PREDEFINED_OWNER).getValue();
     }
-    if (initParams.containsKey(LOCATION) && !initParams.getValueParam(LOCATION).getValue().isBlank()) {
-      location=initParams.getValueParam(LOCATION).getValue();
+    if (initParams.containsKey(LOCATION_PARAMETER) && !initParams.getValueParam(LOCATION_PARAMETER).getValue().isBlank()) {
+      location=initParams.getValueParam(LOCATION_PARAMETER).getValue();
     }
     if (initParams.containsKey(IMPORT_MODE) && !initParams.getValueParam(IMPORT_MODE).getValue().isBlank()) {
       importMode=initParams.getValueParam(IMPORT_MODE).getValue();
