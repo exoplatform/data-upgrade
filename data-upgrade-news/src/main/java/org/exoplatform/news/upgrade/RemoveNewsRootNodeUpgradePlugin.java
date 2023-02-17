@@ -19,7 +19,6 @@ package org.exoplatform.news.upgrade;
 
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.news.upgrade.es.NewsIndexingUpgradePlugin;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -31,7 +30,7 @@ import javax.jcr.Session;
 
 public class RemoveNewsRootNodeUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log        log                   = ExoLogger.getLogger(NewsIndexingUpgradePlugin.class.getName());
+  private static final Log       log                   = ExoLogger.getLogger(RemoveNewsRootNodeUpgradePlugin.class.getName());
 
   private RepositoryService repositoryService;
 
