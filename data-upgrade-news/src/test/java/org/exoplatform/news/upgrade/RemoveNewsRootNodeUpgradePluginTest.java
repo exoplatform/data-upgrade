@@ -51,15 +51,18 @@ public class RemoveNewsRootNodeUpgradePluginTest {
 
   @Mock
   Session                        session;
-  @Mock
-  ManageableRepository   repository;
 
   @Mock
-  RepositoryEntry repositoryEntry;
+  ManageableRepository           repository;
 
-  public static final String     APPLICATION_DATA_PATH = "/Application Data";
+  @Mock
+  RepositoryEntry                repositoryEntry;
 
-  public static final String     NEWS_NODES_FOLDER     = "News";
+  public static final String     APPLICATION_DATA_PATH       = "/Application Data";
+
+  public static final String     NEWS_NODES_FOLDER           = "News";
+
+  public static final String     PUBLISHED_NEWS_NODES_FOLDER = "Pinned";
 
   @Test
   public void testRemoveNewsRootNode() throws RepositoryException {
@@ -73,16 +76,18 @@ public class RemoveNewsRootNodeUpgradePluginTest {
                                                                                                           sessionProviderService);
     Node applicationDataNode = mock(Node.class);
     Node newsRootNode = mock(Node.class);
+    Node newsPinnedNode = mock(Node.class);
     when(sessionProviderService.getSystemSessionProvider(any())).thenReturn(sessionProvider);
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
     when(repository.getConfiguration()).thenReturn(repositoryEntry);
     when(repositoryEntry.getDefaultWorkspaceName()).thenReturn("collaboration");
     when(sessionProvider.getSession(any(), any())).thenReturn(session);
-    when((Node)session.getItem(APPLICATION_DATA_PATH)).thenReturn(applicationDataNode);
+    when((Node) session.getItem(APPLICATION_DATA_PATH)).thenReturn(applicationDataNode);
 
     when(applicationDataNode.hasNode(NEWS_NODES_FOLDER)).thenReturn(false);
-    doNothing().when(newsRootNode).remove();
+    doNothing().when(newsRootNode).save();
     doNothing().when(applicationDataNode).save();
+    doNothing().when(newsPinnedNode).remove();
 
     removeNewsRootNodeUpgradePlugin.processUpgrade("v1", "v2");
     verify(applicationDataNode, times(0)).getNode(anyString());
@@ -91,9 +96,17 @@ public class RemoveNewsRootNodeUpgradePluginTest {
 
     when(applicationDataNode.hasNode(NEWS_NODES_FOLDER)).thenReturn(true);
     when(applicationDataNode.getNode(NEWS_NODES_FOLDER)).thenReturn(newsRootNode);
+    when(newsRootNode.hasNode(PUBLISHED_NEWS_NODES_FOLDER)).thenReturn(false);
+
     removeNewsRootNodeUpgradePlugin.processUpgrade("v1", "v2");
-    verify(applicationDataNode, times(1)).getNode(anyString());
+    verify(applicationDataNode, times(0)).save();
+    verify(newsRootNode, times(0)).save();
+
+    when(newsRootNode.hasNode(PUBLISHED_NEWS_NODES_FOLDER)).thenReturn(true);
+    when(newsRootNode.getNode(PUBLISHED_NEWS_NODES_FOLDER)).thenReturn(newsPinnedNode);
+    removeNewsRootNodeUpgradePlugin.processUpgrade("v1", "v2");
     verify(applicationDataNode, times(1)).save();
-    verify(newsRootNode, times(1)).remove();
+    verify(newsRootNode, times(1)).save();
+    verify(newsPinnedNode, times(1)).remove();
   }
 }

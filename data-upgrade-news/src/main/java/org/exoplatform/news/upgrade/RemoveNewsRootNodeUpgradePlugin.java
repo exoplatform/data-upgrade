@@ -30,15 +30,17 @@ import javax.jcr.Session;
 
 public class RemoveNewsRootNodeUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log       log                   = ExoLogger.getLogger(RemoveNewsRootNodeUpgradePlugin.class.getName());
+  private static final Log       LOG                         = ExoLogger.getLogger(RemoveNewsRootNodeUpgradePlugin.class);
 
-  private RepositoryService repositoryService;
+  private RepositoryService      repositoryService;
 
-  private SessionProviderService  sessionProviderService;
+  private SessionProviderService sessionProviderService;
 
-  public static final String      APPLICATION_DATA_PATH = "/Application Data";
+  public static final String     APPLICATION_DATA_PATH       = "/Application Data";
 
-  public static final String      NEWS_NODES_FOLDER     = "News";
+  public static final String     NEWS_NODES_FOLDER           = "News";
+
+  public static final String     PUBLISHED_NEWS_NODES_FOLDER = "Pinned";
 
   public RemoveNewsRootNodeUpgradePlugin(InitParams initParams,
                                          RepositoryService repositoryService,
@@ -51,24 +53,30 @@ public class RemoveNewsRootNodeUpgradePlugin extends UpgradeProductPlugin {
   @Override
   public void processUpgrade(String s, String s1) {
     long startupTime = System.currentTimeMillis();
-    log.info("Start removing news root node");
+    LOG.info("Start removing news root node");
     SessionProvider sessionProvider = sessionProviderService.getSystemSessionProvider(null);
     try {
-      Session session = sessionProvider.getSession(repositoryService.getCurrentRepository().getConfiguration().getDefaultWorkspaceName(),
-                                           repositoryService.getCurrentRepository());
+      Session session = sessionProvider.getSession(
+                                                   repositoryService.getCurrentRepository()
+                                                                    .getConfiguration()
+                                                                    .getDefaultWorkspaceName(),
+                                                   repositoryService.getCurrentRepository());
 
       Node applicationDataNode = (Node) session.getItem(APPLICATION_DATA_PATH);
       Node newsRootNode;
       if (applicationDataNode.hasNode(NEWS_NODES_FOLDER)) {
         newsRootNode = applicationDataNode.getNode(NEWS_NODES_FOLDER);
-        newsRootNode.remove();
-        applicationDataNode.save();
+        if (newsRootNode.hasNode(PUBLISHED_NEWS_NODES_FOLDER)) {
+          Node newsPinnedNode = newsRootNode.getNode(PUBLISHED_NEWS_NODES_FOLDER);
+          newsPinnedNode.remove();
+          newsRootNode.save();
+          applicationDataNode.save();
+        }
       }
-      log.info("End removing news root node", (System.currentTimeMillis() - startupTime));
-
+      LOG.info("End removing news root node", (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
-      if (log.isErrorEnabled()) {
-        log.error("An unexpected error occurs when removing news root node ", e);
+      if (LOG.isErrorEnabled()) {
+        LOG.error("An unexpected error occurs when removing news root node ", e);
       }
     } finally {
       if (sessionProvider != null) {
