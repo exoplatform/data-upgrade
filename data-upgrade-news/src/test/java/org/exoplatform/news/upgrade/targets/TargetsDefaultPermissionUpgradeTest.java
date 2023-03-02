@@ -2,22 +2,21 @@ package org.exoplatform.news.upgrade.targets;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -30,17 +29,27 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataType;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "javax.management.*", "jdk.internal.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*",
-    "com.sun.org.apache.*", "org.w3c.*" })
-@PrepareForTest({ ExoContainerContext.class, PortalContainer.class, RequestLifeCycle.class })
+@RunWith(MockitoJUnitRunner.class)
 public class TargetsDefaultPermissionUpgradeTest {
+
+  private static final MockedStatic<ExoContainerContext> EXO_CONTAINER_CONTEXT = mockStatic(ExoContainerContext.class);
+
+  private static final MockedStatic<PortalContainer>     PORTAL_CONTAINER      = mockStatic(PortalContainer.class);
+
+  private static final MockedStatic<RequestLifeCycle>    REQUEST_LIFECYCLE     = mockStatic(RequestLifeCycle.class);
 
   @Mock
   private MetadataService metadataService;
 
   @Mock
   private MetadataStorage metadataStorage;
+
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    EXO_CONTAINER_CONTEXT.close();
+    PORTAL_CONTAINER.close();
+    REQUEST_LIFECYCLE.close();
+  }
 
   @Test
   public void processUpgrade() throws Exception {

@@ -1,9 +1,5 @@
 package org.exoplatform.category.upgrade;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.List;
 
 import org.junit.After;
@@ -17,6 +13,10 @@ import org.exoplatform.application.upgrade.CleanAppRegistryCategoryUpgradePlugin
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.component.test.AbstractKernelTest;
+import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -24,7 +24,11 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.ApplicationType;
 
-public class CleanAppRegistryCategoryUpgradePluginTest {
+@ConfiguredBy({
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.application-registry-configuration-local.xml"),
+})
+public class CleanAppRegistryCategoryUpgradePluginTest extends AbstractKernelTest {
 
   protected PortalContainer            container;
 
@@ -47,7 +51,7 @@ public class CleanAppRegistryCategoryUpgradePluginTest {
 
   @Test
   @ExoTransactional
-  public void appRegistryCategoryUpgradePlugin() throws Exception {
+  public void testAppRegistryCategoryUpgradePlugin() throws Exception {
     InitParams initParams = new InitParams();
 
     ValueParam valueParam = new ValueParam();

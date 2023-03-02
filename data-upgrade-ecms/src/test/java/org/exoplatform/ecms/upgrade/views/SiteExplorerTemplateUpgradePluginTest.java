@@ -18,6 +18,7 @@ package org.exoplatform.ecms.upgrade.views;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,16 +30,19 @@ import java.util.Set;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.cms.BasePath;
 import org.exoplatform.services.cms.impl.DMSConfiguration;
 import org.exoplatform.services.cms.impl.DMSRepositoryConfiguration;
+import org.exoplatform.services.cms.impl.Utils;
 import org.exoplatform.services.cms.views.ManageViewService;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -48,8 +52,10 @@ import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SiteExplorerTemplateUpgradePluginTest {
+
+  private static final MockedStatic<Utils>            UTILS             = mockStatic(Utils.class);
 
   @Mock
   NodeHierarchyCreator       nodeHierarchyCreator;
@@ -83,6 +89,11 @@ public class SiteExplorerTemplateUpgradePluginTest {
 
   @Mock
   NodeIterator               nodeIterator;
+
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    UTILS.close();
+  }
 
   @Test
   public void testSiteExplorerTemplateMigration() throws Exception {

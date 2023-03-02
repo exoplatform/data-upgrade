@@ -3,10 +3,6 @@
                xmlns="http://www.exoplaform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
-    <type>org.exoplatform.wiki.jpa.mock.DummyDependantComponent</type>
-  </component>
-
-  <component>
     <key>org.exoplatform.wiki.service.DataStorage</key>
     <type>org.exoplatform.wiki.jpa.JPADataStorage</type>
   </component>
@@ -36,11 +32,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.wiki.rendering.RenderingService</key>
-    <type>org.exoplatform.wiki.rendering.impl.RenderingServiceImpl</type>
-  </component>
-
-  <component>
     <key>org.exoplatform.wiki.service.WikiService</key>
     <type>org.exoplatform.wiki.service.impl.WikiServiceImpl</type>
     <init-params>
@@ -56,22 +47,6 @@
       <properties-param>
         <name>preferences</name>
         <property name="defaultSyntax" value="xhtml/1.0"/>
-      </properties-param>
-    </init-params>
-  </component>
-  <component>
-    <type>org.exoplatform.wiki.jpa.search.WikiElasticUnifiedSearchServiceConnector</type>
-    <init-params>
-      <properties-param>
-        <name>constructor.params</name>
-        <property name="searchType" value="wiki"/>
-        <property name="displayName" value="Wiki"/>
-        <property name="index" value="wiki_alias"/>
-        <property name="type" value="wiki-page,wiki-attachment"/>
-        <property name="enable" value="${exo.unified-search.connector.wiki.enable:true}"/>
-        <property name="titleField" value="title"/>
-        <property name="updatedDateField" value="updatedDate"/>
-        <property name="searchFields" value="name,title,content,comment,attachment.content"/>
       </properties-param>
     </init-params>
   </component>

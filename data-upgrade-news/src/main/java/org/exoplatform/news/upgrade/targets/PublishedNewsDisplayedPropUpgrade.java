@@ -41,6 +41,15 @@ import org.exoplatform.social.metadata.model.Metadata;
 
 public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
 
+  public static final String   INSERT_NEWS_TARGETS_METADATA_ITEMS_PROPS =
+                                                                        "INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES(:newsTargetsMetadataItemId, :displayedStatus, :displayed)";
+
+  public static final String   DELETE_NEWS_TARGETS_METADATA_ITEMS_PROPS =
+                                                                        "DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = :newsTargetsMetadataItemId AND (NAME = :stagedStatus OR NAME = :displayedStatus)";
+
+  public static final String   GET_NEWS_TARGET_METADATA_ITEMS           =
+                                                              "SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID IN :newsTargetMetadatas";
+
   public static final String   STAGED_STATUS              = "staged";
 
   private static final Log     LOG                        =
@@ -115,12 +124,12 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
   @ExoTransactional
   public List<MetadataItemEntity> getNewsTargetMetadataItems() {
     List<Long> newsTargetMetadatas = metadataService.getMetadatas(NewsTargetingService.METADATA_TYPE.getName(), 0)
-                                                      .stream()
-                                                      .map(Metadata::getId)
-                                                      .collect(Collectors.toList());
+                                                    .stream()
+                                                    .map(Metadata::getId)
+                                                    .toList();
     EntityManager entityManager = entityManagerService.getEntityManager();
     Query getNewsTargetMetadataItemsQuery =
-                                          entityManager.createNativeQuery("SELECT * FROM SOC_METADATA_ITEMS WHERE METADATA_ID IN :newsTargetMetadatas",
+                                          entityManager.createNativeQuery(GET_NEWS_TARGET_METADATA_ITEMS,
                                                                           MetadataItemEntity.class);
     getNewsTargetMetadataItemsQuery.setParameter("newsTargetMetadatas", newsTargetMetadatas);
     return getNewsTargetMetadataItemsQuery.getResultList();
@@ -133,7 +142,7 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
       EntityManager entityManager = entityManagerService.getEntityManager();
       try {
         Query deleteNewsTargetMetadataItemsPropsQuery =
-                                                      entityManager.createNativeQuery("DELETE FROM SOC_METADATA_ITEMS_PROPERTIES WHERE METADATA_ITEM_ID = :newsTargetsMetadataItemId AND (NAME = :stagedStatus OR NAME = :displayedStatus)",
+                                                      entityManager.createNativeQuery(DELETE_NEWS_TARGETS_METADATA_ITEMS_PROPS,
                                                                                       MetadataItemEntity.class);
         deleteNewsTargetMetadataItemsPropsQuery.setParameter("newsTargetsMetadataItemId", newsTargetsMetadataItem.getId());
         deleteNewsTargetMetadataItemsPropsQuery.setParameter("stagedStatus", STAGED_STATUS);
@@ -143,7 +152,7 @@ public class PublishedNewsDisplayedPropUpgrade extends UpgradeProductPlugin {
         News news = newsService.getNewsById(newsTargetsMetadataItem.getObjectId(), false);
         boolean displayed = !news.isArchived() && !StringUtils.equals(news.getPublicationState(), STAGED_STATUS);
         Query insertNewsTargetMetadataItemsPropQuery =
-                                                     entityManager.createNativeQuery("INSERT INTO SOC_METADATA_ITEMS_PROPERTIES(METADATA_ITEM_ID, NAME, VALUE) VALUES(:newsTargetsMetadataItemId, :displayedStatus, :displayed)",
+                                                     entityManager.createNativeQuery(INSERT_NEWS_TARGETS_METADATA_ITEMS_PROPS,
                                                                                      MetadataItemEntity.class);
         insertNewsTargetMetadataItemsPropQuery.setParameter("newsTargetsMetadataItemId", newsTargetsMetadataItem.getId());
         insertNewsTargetMetadataItemsPropQuery.setParameter("displayedStatus", NewsUtils.DISPLAYED_STATUS);
