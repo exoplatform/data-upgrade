@@ -1,5 +1,6 @@
 package org.exoplatform.migration;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -15,6 +16,10 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.portal.mop.storage.cache.CacheLayoutStorage;
+import org.exoplatform.portal.mop.storage.cache.CachePageStorage;
+import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -32,14 +37,20 @@ public class PagesMigration extends UpgradeProductPlugin {
 
   private EntityManagerService entityManagerService;
 
+  private CacheService         cacheService;
+
   private Map<String, String>  applicationReferences      = new HashMap<>();
 
   private int                  pagesUpdatedCount;
 
-  public PagesMigration(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
+  public PagesMigration(PortalContainer container,
+                        EntityManagerService entityManagerService,
+                        CacheService cacheService,
+                        InitParams initParams) {
     super(initParams);
     this.container = container;
     this.entityManagerService = entityManagerService;
+    this.cacheService = cacheService;
 
     if (initParams.containsKey(OLD_APPLICATION_CONTENT_ID)) {
       String oldApplicationReference = initParams.getValueParam(OLD_APPLICATION_CONTENT_ID).getValue();
@@ -71,7 +82,7 @@ public class PagesMigration extends UpgradeProductPlugin {
   }
 
   @Override
-  public void processUpgrade(String oldVersion, String newVersion) {
+  public void processUpgrade(String oldVersion, String newVersion) { // NOSONAR
     if (applicationReferences.isEmpty()) {
       LOG.error("Couldn't process upgrade, the parameter '{}' is mandatory", OLD_APPLICATION_CONTENT_ID);
       return;
@@ -118,9 +129,31 @@ public class PagesMigration extends UpgradeProductPlugin {
         RequestLifeCycle.end();
       }
     }
+    clearPagesCache();
   }
 
   public int getPagesUpdatedCount() {
     return pagesUpdatedCount;
+  }
+
+  private void clearPagesCache() {
+    if (pagesUpdatedCount > 0) {
+      ExoCache<? extends Serializable, ?> pagesCache = this.cacheService.getAllCacheInstances()
+                                                                        .stream()
+                                                                        .filter(cache -> CachePageStorage.PAGE_CACHE_NAME.equals(cache.getName()))
+                                                                        .findFirst()
+                                                                        .orElse(null);
+      if (pagesCache != null) {
+        pagesCache.clearCache();
+      }
+      ExoCache<? extends Serializable, ?> preferencesCache = this.cacheService.getAllCacheInstances()
+                                                                              .stream()
+                                                                              .filter(cache -> CacheLayoutStorage.PORTLET_PREFERENCES_CACHE_NAME.equals(cache.getName()))
+                                                                              .findFirst()
+                                                                              .orElse(null);
+      if (preferencesCache != null) {
+        preferencesCache.clearCache();
+      }
+    }
   }
 }

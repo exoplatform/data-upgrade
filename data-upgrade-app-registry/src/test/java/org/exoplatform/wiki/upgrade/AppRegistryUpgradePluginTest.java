@@ -1,9 +1,10 @@
 package org.exoplatform.wiki.upgrade;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
@@ -11,6 +12,10 @@ import org.exoplatform.application.registry.ApplicationRegistryService;
 import org.exoplatform.application.upgrade.AppRegistryUpgradePlugin;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.component.test.AbstractKernelTest;
+import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -19,11 +24,12 @@ import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.wiki.WikiException;
 import org.exoplatform.wiki.service.DataStorage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
-public class AppRegistryUpgradePluginTest {
+@ConfiguredBy({
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.application-registry-configuration-local.xml"),
+})
+public class AppRegistryUpgradePluginTest extends AbstractKernelTest {
 
   protected PortalContainer         container;
 

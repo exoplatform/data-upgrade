@@ -1,16 +1,14 @@
 package org.exoplatform.migration;
 
-import java.util.HashMap;
+import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
@@ -20,7 +18,11 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.jdbc.entity.NodeEntity;
-import org.exoplatform.portal.mop.jdbc.dao.NodeDAO;
+import org.exoplatform.portal.mop.dao.NodeDAO;
+import org.exoplatform.portal.mop.storage.cache.CacheDescriptionStorage;
+import org.exoplatform.portal.mop.storage.cache.CacheNavigationStorage;
+import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -39,6 +41,7 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
 
   private final EntityManagerService entityManagerService;
 
+  private CacheService         cacheService;
 
   private int                  pagesNodesCount;
 
@@ -46,10 +49,14 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
   private  String              newNavName;
   private  String              newNavLabel;
 
-  public NavigationNotesMigration(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
+  public NavigationNotesMigration(PortalContainer container,
+                                  EntityManagerService entityManagerService,
+                                  CacheService cacheService,
+                                  InitParams initParams) {
     super(initParams);
     this.container = container;
     this.entityManagerService = entityManagerService;
+    this.cacheService = cacheService;
 
     if (initParams.containsKey(OLD_NAVIGATION_NODE_NAME)) {
       oldNavName = initParams.getValueParam(OLD_NAVIGATION_NODE_NAME).getValue();
@@ -140,10 +147,31 @@ public class NavigationNotesMigration extends UpgradeProductPlugin {
       } finally {
         RequestLifeCycle.end();
       }
-
+      clearNavigationCache();
   }
 
   public int getNodesUpdatedCount() {
     return pagesNodesCount;
+  }
+
+  private void clearNavigationCache() {
+    if (pagesNodesCount > 0) {
+      ExoCache<? extends Serializable, ?> navigationCache = this.cacheService.getAllCacheInstances()
+                                                                             .stream()
+                                                                             .filter(cache -> CacheNavigationStorage.NAVIGATION_CACHE_NAME.equals(cache.getName()))
+                                                                             .findFirst()
+                                                                             .orElse(null);
+      if (navigationCache != null) {
+        navigationCache.clearCache();
+      }
+      ExoCache<? extends Serializable, ?> descriptionCache = this.cacheService.getAllCacheInstances()
+                                                                              .stream()
+                                                                              .filter(cache -> CacheDescriptionStorage.DESCRIPTION_CACHE_NAME.equals(cache.getName()))
+                                                                              .findFirst()
+                                                                              .orElse(null);
+      if (descriptionCache != null) {
+        descriptionCache.clearCache();
+      }
+    }
   }
 }

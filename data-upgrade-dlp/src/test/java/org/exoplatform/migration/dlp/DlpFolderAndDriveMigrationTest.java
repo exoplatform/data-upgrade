@@ -2,35 +2,36 @@ package org.exoplatform.migration.dlp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.services.cms.drives.DriveData;
-import org.exoplatform.services.cms.drives.ManageDriveService;
-import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.core.ManageableRepository;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.junit.Test;
-
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SessionProvider.class)
-@PowerMockIgnore({ "javax.management.*", "jdk.internal.reflect.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*" })
+import org.junit.AfterClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.services.cms.drives.DriveData;
+import org.exoplatform.services.cms.drives.ManageDriveService;
+import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+
+@RunWith(MockitoJUnitRunner.class)
 public class DlpFolderAndDriveMigrationTest {
+
+  private static final MockedStatic<SessionProvider> SESSION_PROVIDER = mockStatic(SessionProvider.class);
 
   @Mock
   RepositoryService  repositoryService;
@@ -53,6 +54,11 @@ public class DlpFolderAndDriveMigrationTest {
   @Mock
   SettingService               settingService;
 
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    SESSION_PROVIDER.close();
+  }
+
   @Test
   public void testDlpFolderAndDriveMigration() throws Exception {
 
@@ -69,8 +75,7 @@ public class DlpFolderAndDriveMigrationTest {
     DriveData driveQuarantine = mock(DriveData.class);
     DriveData driveSecurity = mock(DriveData.class);
 
-    PowerMockito.mockStatic(SessionProvider.class);
-    when(SessionProvider.createSystemProvider()).thenReturn(sessionProvider);
+    SESSION_PROVIDER.when(() -> SessionProvider.createSystemProvider()).thenReturn(sessionProvider);
 
     Workspace workspace = mock(Workspace.class);
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
@@ -79,14 +84,12 @@ public class DlpFolderAndDriveMigrationTest {
     when(session.itemExists(any())).thenReturn(true);
     Node securityNode = mock(Node.class);
     when((Node) session.getItem("/Security")).thenReturn(securityNode);
-    when(securityNode.hasNodes()).thenReturn(true);
     when(securityNode.getNodes()).thenReturn(nodeIterator);
     when(nodeIterator.hasNext()).thenReturn(true, true, false);
     Node childSecurityNode = mock(Node.class);
     when(nodeIterator.nextNode()).thenReturn(childSecurityNode);
 
     when(manageDriveService.getDriveByName("Quarantine")).thenReturn(driveQuarantine);
-    when(manageDriveService.getDriveByName("Security")).thenReturn(driveSecurity);
 
     assertNotNull(manageDriveService.getDriveByName("Quarantine"));
 

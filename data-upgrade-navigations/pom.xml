@@ -29,7 +29,7 @@
 
   <artifactId>data-upgrade-navigations</artifactId>
   <packaging>jar</packaging>
-  <name>eXo Add-on:: Data Upgrade Add-on - Pages</name>
+  <name>eXo Add-on:: Data Upgrade Add-on - Navigations</name>
   <description>A module to migrate old navigation</description>
   <properties>
     <exo.test.coverage.ratio>0.74</exo.test.coverage.ratio>
