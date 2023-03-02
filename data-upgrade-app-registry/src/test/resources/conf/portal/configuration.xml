@@ -23,14 +23,56 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
         xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
-  <import>jar:/conf/exo.portal.component.identity-configuration.xml</import>
-  <import>jar:/conf/exo.portal.component.portal-configuration.xml</import>
-  <import>jar:/conf/exo.portal.component.application-registry-configuration.xml</import>
-  <import>jar:/conf/exo.commons.component.core-configuration.xml</import>
-  <import>jar:/conf/exo.social.component.core-configuration.xml</import>
 
-  <import>jar:/conf/portal/wiki-configuration.xml</import>
+  <component>
+    <key>org.exoplatform.wiki.service.DataStorage</key>
+    <type>org.exoplatform.wiki.jpa.JPADataStorage</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.WikiDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.PageDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.PageAttachmentDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.DraftPageAttachmentDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.PageVersionDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.PageMoveDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.TemplateDAO</type>
+  </component>
+  <component>
+    <type>org.exoplatform.wiki.jpa.dao.EmotionIconDAO</type>
+  </component>
 
-  <remove-configuration>org.exoplatform.commons.search.service.UnifiedSearchService</remove-configuration>
-  <remove-configuration>org.exoplatform.commons.api.persistence.DataInitializer</remove-configuration>
+  <component>
+    <key>org.exoplatform.wiki.service.WikiService</key>
+    <type>org.exoplatform.wiki.service.impl.WikiServiceImpl</type>
+    <init-params>
+      <value-param>
+        <name>wiki.editPage.livingTime</name>
+        <value>${wiki.editPage.livingTime:1800000}</value>
+        <!-- 30m * 60s * 1000ms -->
+      </value-param>
+      <value-param>
+        <name>attachment.upload.limit</name>
+        <value>10</value>
+      </value-param>
+      <properties-param>
+        <name>preferences</name>
+        <property name="defaultSyntax" value="xhtml/1.0"/>
+      </properties-param>
+    </init-params>
+  </component>
+
+  <remove-configuration>org.exoplatform.wiki.service.NotesExportService</remove-configuration>
+  <remove-configuration>org.exoplatform.wiki.service.rest.NotesRestService</remove-configuration>
 </configuration>

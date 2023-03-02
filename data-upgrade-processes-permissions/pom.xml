@@ -32,16 +32,10 @@
   <name>eXo Add-on:: Data Upgrade Add-on - workflows permissions</name>
   <description>A module to add workflows permissions</description>
   <properties>
-    <exo.test.coverage.ratio>0.0</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
 
   <dependencies>
-
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-component-upgrade</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-core</artifactId>
@@ -57,25 +51,5 @@
       <artifactId>task-management-services</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.identity</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-            <exo.profiles>hsqldb</exo.profiles>
-            <exo.files.storage.dir>target/exo-files</exo.files.storage.dir>
-          </systemPropertyVariables>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

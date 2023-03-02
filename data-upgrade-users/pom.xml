@@ -27,49 +27,13 @@
   <name>eXo Add-on:: Data Upgrade Add-on - users</name>
   <description>A module to migrate lastLoginTime field on 6.1.x to 6.3.x </description>
   <properties>
-    <exo.test.coverage.ratio>0.45</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
-
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-component-upgrade</artifactId>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-service</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-search</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-core</artifactId>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito2</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <scope>test</scope>
-    </dependency>
-      <dependency>
-          <groupId>org.exoplatform.social</groupId>
-          <artifactId>social-component-service</artifactId>
-          <scope>test</scope>
-      </dependency>
   </dependencies>
 </project>

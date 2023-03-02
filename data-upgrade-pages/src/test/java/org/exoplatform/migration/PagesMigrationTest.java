@@ -1,28 +1,41 @@
 package org.exoplatform.migration;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
+import org.exoplatform.component.test.AbstractKernelTest;
+import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
-import org.exoplatform.portal.config.DataStorage;
-import org.exoplatform.portal.config.model.*;
+import org.exoplatform.portal.config.model.Application;
+import org.exoplatform.portal.config.model.ModelObject;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.config.model.TransientApplicationState;
 import org.exoplatform.portal.mop.Utils;
-import org.exoplatform.portal.mop.page.*;
-import org.exoplatform.portal.pom.data.ApplicationData;
-import org.exoplatform.portal.pom.data.ModelDataStorage;
-import org.exoplatform.portal.pom.data.PageData;
-import org.exoplatform.portal.pom.data.PageKey;
+import org.exoplatform.portal.mop.page.PageContext;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.page.PageState;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.cache.CacheService;
 
-public class PagesMigrationTest {
+@ConfiguredBy({
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration-local.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml"),
+})
+public class PagesMigrationTest extends AbstractKernelTest {
 
   private static final String    SITE_TYPE           = PortalConfig.PORTAL_TYPE;
 
@@ -34,13 +47,11 @@ public class PagesMigrationTest {
 
   protected PortalContainer      container;
 
-  protected PageService          pageService;
-
-  protected ModelDataStorage     modelDataStorage;
-
-  protected DataStorage          dataStorage;
+  protected LayoutService        layoutService;
 
   protected EntityManagerService entityManagerService;
+
+  protected CacheService         cacheService;
 
   protected Page                 changeThisPage;
 
@@ -52,15 +63,16 @@ public class PagesMigrationTest {
 
   @Before
   public void setUp() throws Exception {
-    container = PortalContainer.getInstance();
+    super.setUp();
+    container = getContainer();
 
-    pageService = container.getComponentInstanceOfType(PageService.class);
-    modelDataStorage = container.getComponentInstanceOfType(ModelDataStorage.class);
-    dataStorage = container.getComponentInstanceOfType(DataStorage.class);
+    layoutService = container.getComponentInstanceOfType(LayoutService.class);
     entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
+    cacheService = container.getComponentInstanceOfType(CacheService.class);
 
     begin();
     injectData();
+    restartTransaction();
   }
 
   @After
@@ -88,52 +100,52 @@ public class PagesMigrationTest {
     valueParam.setValue(newContent);
     initParams.addParameter(valueParam);
 
-    PageData pageData = modelDataStorage.getPage(new PageKey(SITE_TYPE,
-                                                             SITE_NAME,
-                                                             PAGE_TO_CHANGE_NAME));
-    assertNotNull(pageData);
-    assertEquals(1, pageData.getChildren().size());
-    ApplicationData<?> componentData = (ApplicationData<?>) pageData.getChildren().get(0);
-    String contentId = dataStorage.getId(componentData.getState());
+    Page page = layoutService.getPage(new PageKey(SITE_TYPE,
+                                                  SITE_NAME,
+                                                  PAGE_TO_CHANGE_NAME));
+    assertNotNull(page);
+    assertEquals(1, page.getChildren().size());
+    page.getChildren().get(0);
+    Application<?> componentData = (Application<?>) page.getChildren().get(0);
+    String contentId = layoutService.getId(componentData.getState());
     assertEquals(oldContent, contentId);
 
-    pageData = modelDataStorage.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_KEEP_NAME));
-    assertNotNull(pageData);
-    assertEquals(1, pageData.getChildren().size());
-    componentData = (ApplicationData<?>) pageData.getChildren().get(0);
-    contentId = dataStorage.getId(componentData.getState());
+    page = layoutService.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_KEEP_NAME));
+    assertNotNull(page);
+    assertEquals(1, page.getChildren().size());
+    componentData = (Application<?>) page.getChildren().get(0);
+    contentId = layoutService.getId(componentData.getState());
     assertEquals(newContent, contentId);
 
-    PagesMigration pagesMigration = new PagesMigration(container, entityManagerService, initParams);
+    PagesMigration pagesMigration = new PagesMigration(container, entityManagerService, cacheService, initParams);
     assertEquals(0, pagesMigration.getPagesUpdatedCount());
     pagesMigration.processUpgrade(null, null);
     assertEquals(1, pagesMigration.getPagesUpdatedCount());
 
     assertTrue(pagesMigration.shouldProceedToUpgrade("v1", "v1", new UpgradePluginExecutionContext("v1;0")));
 
-    end();
-    begin();
+    restartTransaction();
 
-    pageData = modelDataStorage.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_CHANGE_NAME));
-    assertNotNull(pageData);
-    assertEquals(1, pageData.getChildren().size());
-    componentData = (ApplicationData<?>) pageData.getChildren().get(0);
-    contentId = dataStorage.getId(componentData.getState());
+    page = layoutService.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_CHANGE_NAME));
+    assertNotNull(page);
+    assertEquals(1, page.getChildren().size());
+    componentData = (Application<?>) page.getChildren().get(0);
+    contentId = layoutService.getId(componentData.getState());
     assertEquals(newContent, contentId);
 
-    pageData = modelDataStorage.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_KEEP_NAME));
-    assertNotNull(pageData);
-    assertEquals(1, pageData.getChildren().size());
-    componentData = (ApplicationData<?>) pageData.getChildren().get(0);
-    contentId = dataStorage.getId(componentData.getState());
+    page = layoutService.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_KEEP_NAME));
+    assertNotNull(page);
+    assertEquals(1, page.getChildren().size());
+    componentData = (Application<?>) page.getChildren().get(0);
+    contentId = layoutService.getId(componentData.getState());
     assertEquals(newContent, contentId);
   }
 
   protected void injectData() throws Exception {
-    PortalConfig portalConfig = dataStorage.getPortalConfig(SITE_TYPE, SITE_NAME);
+    PortalConfig portalConfig = layoutService.getPortalConfig(SITE_TYPE, SITE_NAME);
     if (portalConfig == null) {
       portalConfig = new PortalConfig(SITE_TYPE, SITE_NAME);
-      dataStorage.create(portalConfig);
+      layoutService.create(portalConfig);
     }
 
     changeThisPage = createPage(PAGE_TO_CHANGE_NAME, oldContent);
@@ -141,8 +153,8 @@ public class PagesMigrationTest {
   }
 
   protected void purgeData() {
-    pageService.destroyPage(changeThisPage.getPageKey());
-    pageService.destroyPage(keepThisPage.getPageKey());
+    layoutService.remove(changeThisPage.getPageKey());
+    layoutService.remove(keepThisPage.getPageKey());
   }
 
   protected void begin() {
@@ -168,9 +180,7 @@ public class PagesMigrationTest {
     app.setAccessPermissions(new String[] { "Everyone" });
 
     PageState pageState = Utils.toPageState(page);
-    pageService.savePage(new PageContext(page.getPageKey(), pageState));
-    dataStorage.save(page);
-
+    layoutService.save(new PageContext(page.getPageKey(), pageState), page);
     return page;
   }
 }

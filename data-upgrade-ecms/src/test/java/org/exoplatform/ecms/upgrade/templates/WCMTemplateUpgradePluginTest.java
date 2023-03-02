@@ -3,6 +3,7 @@ package org.exoplatform.ecms.upgrade.templates;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,11 +18,12 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.info.ProductInformations;
 import org.exoplatform.container.xml.InitParams;
@@ -30,9 +32,10 @@ import org.exoplatform.services.cms.impl.Utils;
 import org.exoplatform.services.cms.views.impl.ApplicationTemplateManagerServiceImpl;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Utils.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WCMTemplateUpgradePluginTest {
+
+  private static final MockedStatic<Utils>            UTILS             = mockStatic(Utils.class);
 
   @Mock
   ApplicationTemplateManagerServiceImpl applicationTemplateManagerService;
@@ -48,6 +51,11 @@ public class WCMTemplateUpgradePluginTest {
 
   @Mock
   QueryManager                          queryManager;
+
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    UTILS.close();
+  }
 
   @Test
   public void testWCMTemplateMigration() throws Exception {

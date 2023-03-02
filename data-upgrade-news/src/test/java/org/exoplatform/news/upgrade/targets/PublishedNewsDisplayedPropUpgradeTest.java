@@ -1,9 +1,10 @@
 package org.exoplatform.news.upgrade.targets;
 
 import static org.jgroups.util.Util.assertEquals;
-import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,15 +14,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.hibernate.Transaction;
-import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.container.ExoContainerContext;
@@ -37,29 +35,32 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataType;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "javax.management.*", "jdk.internal.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*",
-    "com.sun.org.apache.*", "org.w3c.*" })
-@PrepareForTest({ExoContainerContext.class, PortalContainer.class, RequestLifeCycle.class})
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class PublishedNewsDisplayedPropUpgradeTest {
 
-  @Mock
-  private EntityManagerService entityManagerService;
-  
-  @Mock
-  private NewsService          newsService;
+  private static final MockedStatic<ExoContainerContext> EXO_CONTAINER_CONTEXT = mockStatic(ExoContainerContext.class);
+
+  private static final MockedStatic<PortalContainer>     PORTAL_CONTAINER      = mockStatic(PortalContainer.class);
+
+  private static final MockedStatic<RequestLifeCycle>    REQUEST_LIFECYCLE     = mockStatic(RequestLifeCycle.class);
 
   @Mock
-  private MetadataService      metadataService;
+  private EntityManagerService                           entityManagerService;
 
   @Mock
-  private EntityManager entityManager;
+  private NewsService                                    newsService;
 
-  @Before
-  public void setUp() throws Exception {
-    PowerMockito.mockStatic(ExoContainerContext.class);
-    PowerMockito.mockStatic(PortalContainer.class);
-    PowerMockito.mockStatic(RequestLifeCycle.class);
+  @Mock
+  private MetadataService                                metadataService;
+
+  @Mock
+  private EntityManager                                  entityManager;
+
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    EXO_CONTAINER_CONTEXT.close();
+    PORTAL_CONTAINER.close();
+    REQUEST_LIFECYCLE.close();
   }
 
   @Test
@@ -95,33 +96,37 @@ public class PublishedNewsDisplayedPropUpgradeTest {
     news.setId("1");
     news.setArchived(false);
     news.setPublicationState("published");
-    
+
     Transaction transaction = mock(Transaction.class);
     PortalContainer container = mock(PortalContainer.class);
-    
-    Query nativeQuery1 = mock(Query.class);
-    Query nativeQuery2 = mock(Query.class);
-    Query nativeQuery3 = mock(Query.class);
-    
-    when(ExoContainerContext.getCurrentContainer()).thenReturn(container);
+
+    Query deleteQuery = mock(Query.class);
+    Query insertQuery = mock(Query.class);
+    Query getQuery = mock(Query.class);
+
+    EXO_CONTAINER_CONTEXT.when(() -> ExoContainerContext.getCurrentContainer()).thenReturn(container);
+    EXO_CONTAINER_CONTEXT.when(() -> ExoContainerContext.getService(EntityManagerService.class)).thenReturn(entityManagerService);
     when(container.getComponentInstanceOfType(EntityManagerService.class)).thenReturn(entityManagerService);
     when(entityManagerService.getEntityManager()).thenReturn(entityManager);
     when(entityManager.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(true);
     doNothing().when(transaction).begin();
-    
+
     when(metadataService.getMetadatas(metadataType.getName(), 0)).thenReturn(newsTargets);
     when(newsService.getNewsById("1", false)).thenReturn(news);
 
-    when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery1);
-    when(nativeQuery1.getResultList()).thenReturn(metadataItemEntities);
+    when(entityManager.createNativeQuery(PublishedNewsDisplayedPropUpgrade.DELETE_NEWS_TARGETS_METADATA_ITEMS_PROPS,
+                                         MetadataItemEntity.class)).thenReturn(deleteQuery);
+    when(deleteQuery.executeUpdate()).thenReturn(1);
 
-    when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery2);
-    when(nativeQuery2.executeUpdate()).thenReturn(1);
-    
-    when(entityManager.createNativeQuery(Mockito.anyString(), Mockito.eq(MetadataItemEntity.class))).thenReturn(nativeQuery3);
-    when(nativeQuery3.executeUpdate()).thenReturn(1);
-    
+    when(entityManager.createNativeQuery(PublishedNewsDisplayedPropUpgrade.INSERT_NEWS_TARGETS_METADATA_ITEMS_PROPS,
+                                         MetadataItemEntity.class)).thenReturn(insertQuery);
+    when(insertQuery.executeUpdate()).thenReturn(1);
+
+    when(entityManager.createNativeQuery(PublishedNewsDisplayedPropUpgrade.GET_NEWS_TARGET_METADATA_ITEMS,
+                                         MetadataItemEntity.class)).thenReturn(getQuery);
+    when(getQuery.getResultList()).thenReturn(metadataItemEntities);
+
     PublishedNewsDisplayedPropUpgrade publishedNewsDisplayedPropUpgradePlugin = new PublishedNewsDisplayedPropUpgrade(initParams,
                                                                                                                       entityManagerService,
                                                                                                                       newsService,
