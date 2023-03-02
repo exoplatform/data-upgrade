@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,12 +16,12 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Workspace;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.info.ProductInformations;
 import org.exoplatform.container.xml.InitParams;
@@ -29,10 +30,11 @@ import org.exoplatform.services.cms.impl.Utils;
 import org.exoplatform.services.cms.templates.impl.TemplateServiceImpl;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Utils.class)
+@RunWith(MockitoJUnitRunner.class)
 public class NodeTypeTemplateUpgradePluginTest {
-  
+
+  private static final MockedStatic<Utils>            UTILS             = mockStatic(Utils.class);
+
   @Mock
   TemplateServiceImpl templateService;
   
@@ -43,7 +45,12 @@ public class NodeTypeTemplateUpgradePluginTest {
   ExtendedSession session;
   @Mock
   NodeIterator      nodeIterator;
-  
+
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    UTILS.close();
+  }
+
   @Test
   public void testNodeTypeTemplateMigration() throws Exception {
     InitParams initParams = new InitParams();
@@ -79,10 +86,9 @@ public class NodeTypeTemplateUpgradePluginTest {
   
     when(nodeIterator.nextNode()).thenReturn(templateNode1).thenReturn(templateNode2).thenReturn(templateNode3);
   
-    PowerMockito.mockStatic(Utils.class);
     Set<String> modifiedTemplateList=new HashSet<>();
     modifiedTemplateList.add("template2");
-    when(Utils.getAllEditedConfiguredData(anyString(),anyString(),anyBoolean())).thenReturn(modifiedTemplateList);
+    UTILS.when(() -> Utils.getAllEditedConfiguredData(anyString(),anyString(),anyBoolean())).thenReturn(modifiedTemplateList);
     
    
     NodeTypeTemplateUpgradePlugin nodeTypeTemplateUpgradePlugin = new NodeTypeTemplateUpgradePlugin(templateService,
