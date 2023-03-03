@@ -27,8 +27,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -36,8 +35,7 @@ import javax.jcr.Session;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "javax.management.*", "jdk.internal.reflect.*", "javax.xml.*", "org.apache.xerces.*", "org.xml.*" })
+@RunWith(MockitoJUnitRunner.class)
 public class RemoveNewsRootNodeUpgradePluginTest {
 
   @Mock
