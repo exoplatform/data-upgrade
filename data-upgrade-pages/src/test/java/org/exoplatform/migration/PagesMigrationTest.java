@@ -2,12 +2,12 @@ package org.exoplatform.migration;
 
 import java.util.ArrayList;
 
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
@@ -61,6 +61,10 @@ public class PagesMigrationTest extends AbstractKernelTest {
 
   protected String               newContent          = "newApp/newApp";
 
+
+  public PagesMigrationTest() {
+    setForceContainerReload(true);
+  }
   @Before
   public void setUp() throws Exception {
     super.setUp();

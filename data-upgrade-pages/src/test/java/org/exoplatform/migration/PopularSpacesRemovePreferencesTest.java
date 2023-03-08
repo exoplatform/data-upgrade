@@ -1,6 +1,10 @@
 package org.exoplatform.migration;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.component.test.AbstractKernelTest;
+import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
@@ -20,8 +24,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 import static org.junit.Assert.*;
+@ConfiguredBy({
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration-local.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml")
+})
+public class PopularSpacesRemovePreferencesTest extends AbstractKernelTest {
 
-public class PopularSpacesRemovePreferencesTest {
 
     private static final String    SITE_TYPE           = PortalConfig.PORTAL_TYPE;
     private static final String    SITE_NAME           = "testSite";
