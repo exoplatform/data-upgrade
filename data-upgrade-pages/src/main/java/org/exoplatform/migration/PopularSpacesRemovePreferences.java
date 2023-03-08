@@ -65,7 +65,6 @@ public class PopularSpacesRemovePreferences extends UpgradeProductPlugin {
             }
             if (transactionStarted && entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().commit();
-                entityManager.flush();
             }
         } catch (Exception e) {
             if (transactionStarted && entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
