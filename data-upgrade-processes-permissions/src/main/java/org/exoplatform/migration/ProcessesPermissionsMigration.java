@@ -75,8 +75,13 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
     ExoContainerContext.setCurrentContainer(container);
     log.info("Start upgrade of processes permissions");
     boolean upgraded = false;
+    List<WorkFlowEntity> workflowsToUpdate = workFlowDAO.findAll();
+    if (workflowsToUpdate == null || workflowsToUpdate.isEmpty()) {
+      log.info("No processes permissions to be upgraded. It took {} ms", (System.currentTimeMillis() - startupTime));
+      return;
+    }
     List<WorkFlowEntity> updatedWorkflows = new ArrayList();
-    for (WorkFlowEntity workflowEntity : workFlowDAO.findAll()) {
+    for (WorkFlowEntity workflowEntity : workflowsToUpdate) {
       if (workflowEntity.getManager() == null || workflowEntity.getManager().isEmpty()
           || workflowEntity.getParticipator() == null || workflowEntity.getParticipator().isEmpty()) {
         Space space = getProjectParentSpace(workflowEntity.getProjectId());
