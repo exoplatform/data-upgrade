@@ -77,7 +77,7 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
     boolean upgraded = false;
     List<WorkFlowEntity> workflowsToUpdate = workFlowDAO.findAll();
     if (workflowsToUpdate == null || workflowsToUpdate.isEmpty()) {
-      log.info("No processes permissions to be upgraded. It took {} ms", (System.currentTimeMillis() - startupTime));
+      log.info("No processes permissions to be upgraded.");
       return;
     }
     List<WorkFlowEntity> updatedWorkflows = new ArrayList();
