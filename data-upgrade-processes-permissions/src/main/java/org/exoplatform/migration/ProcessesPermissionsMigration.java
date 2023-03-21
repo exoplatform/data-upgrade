@@ -75,8 +75,14 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
     ExoContainerContext.setCurrentContainer(container);
     log.info("Start upgrade of processes permissions");
     boolean upgraded = false;
+    boolean shouldUpgrade = true;
+    List<WorkFlowEntity> workflowsToUpdate = workFlowDAO.findAll();
+    if (workflowsToUpdate == null || workflowsToUpdate.isEmpty()) {
+      log.info("No processes permissions to be upgraded.");
+      return;
+    }
     List<WorkFlowEntity> updatedWorkflows = new ArrayList();
-    for (WorkFlowEntity workflowEntity : workFlowDAO.findAll()) {
+    for (WorkFlowEntity workflowEntity : workflowsToUpdate) {
       if (workflowEntity.getManager() == null || workflowEntity.getManager().isEmpty()
           || workflowEntity.getParticipator() == null || workflowEntity.getParticipator().isEmpty()) {
         Space space = getProjectParentSpace(workflowEntity.getProjectId());
@@ -96,11 +102,17 @@ public class ProcessesPermissionsMigration extends UpgradeProductPlugin {
     if (!updatedWorkflows.isEmpty()) {
       workFlowDAO.updateAll(updatedWorkflows);
       upgraded = true;
+    } else {
+      shouldUpgrade = false;
     }
     if (upgraded) {
       log.info("Processes permissions upgrade proceeded successfully. It took {} ms", (System.currentTimeMillis() - startupTime));
     } else {
-      throw new IllegalStateException("Documents favorites upgrade failed due to previous errors");
+      if (!shouldUpgrade) {
+        log.info("No processes permissions to be upgraded");
+      } else {
+        throw new IllegalStateException("Processes permissions upgrade failed due to previous errors");
+      }
     }
   }
 
