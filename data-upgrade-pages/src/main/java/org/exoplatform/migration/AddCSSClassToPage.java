@@ -18,7 +18,7 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
 
   private static final Log LOG          = ExoLogger.getExoLogger(AddCSSClassToPage.class);
 
-  private PageStorage      pageStorage;
+  private final PageStorage      pageStorage;
 
   private String           cssClasses;
 
@@ -26,30 +26,26 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
 
   private String           pageName;
 
-  private String           containerName;
-
-  private String           CONTAINER_ID = "container-id";
-
-  private String           CSS_CLASSES  = "css-classes";
-
-  private String           SITE_NAME    = "site-name";
-
-  private String           PAGE_NAME    = "page-name";
+  private String containerId;
 
   public AddCSSClassToPage(PageStorage pageStorage, InitParams initParams) {
     super(initParams);
     this.pageStorage = pageStorage;
-    if (initParams.containsKey(SITE_NAME) && !initParams.getValueParam(SITE_NAME).getValue().isBlank()) {
-      siteName = initParams.getValueParam(SITE_NAME).getValue();
+    String siteNameParam = "site-name";
+    if (initParams.containsKey(siteNameParam) && !initParams.getValueParam(siteNameParam).getValue().isBlank()) {
+      siteName = initParams.getValueParam(siteNameParam).getValue();
     }
-    if (initParams.containsKey(CONTAINER_ID) && !initParams.getValueParam(CONTAINER_ID).getValue().isBlank()) {
-      containerName = initParams.getValueParam(CONTAINER_ID).getValue();
+    String containerIdParam = "container-id";
+    if (initParams.containsKey(containerIdParam) && !initParams.getValueParam(containerIdParam).getValue().isBlank()) {
+      containerId = initParams.getValueParam(containerIdParam).getValue();
     }
-    if (initParams.containsKey(CSS_CLASSES) && !initParams.getValueParam(CSS_CLASSES).getValue().isBlank()) {
-      cssClasses = initParams.getValueParam(CSS_CLASSES).getValue();
+    String cssClassesParam = "css-classes";
+    if (initParams.containsKey(cssClassesParam) && !initParams.getValueParam(cssClassesParam).getValue().isBlank()) {
+      cssClasses = initParams.getValueParam(cssClassesParam).getValue();
     }
-    if (initParams.containsKey(PAGE_NAME) && !initParams.getValueParam(PAGE_NAME).getValue().isBlank()) {
-      pageName = initParams.getValueParam(PAGE_NAME).getValue();
+    String pageNameParam = "page-name";
+    if (initParams.containsKey(pageNameParam) && !initParams.getValueParam(pageNameParam).getValue().isBlank()) {
+      pageName = initParams.getValueParam(pageNameParam).getValue();
     }
   }
 
@@ -57,7 +53,7 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     LOG.info("Start upgrade : adding CSS class {} to {} page", cssClasses, pageName);
 
-    if (StringUtils.isBlank(siteName) || StringUtils.isBlank(pageName) || StringUtils.isBlank(containerName)
+    if (StringUtils.isBlank(siteName) || StringUtils.isBlank(pageName) || StringUtils.isBlank(containerId)
         || StringUtils.isBlank(cssClasses)) {
       LOG.warn("upgrade canceled : missing required parameters");
       return;
@@ -71,7 +67,7 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
     try {
       Page page = pageStorage.getPage(new PageKey(SiteType.PORTAL.getName(), siteName, pageName));
       for (ModelObject child : page.getChildren()) {
-        if (child instanceof Container container && containerName.equals(container.getId())) {
+        if (child instanceof Container container && containerId.equals(container.getId())) {
           container.setCssClass(cssClasses);
         }
       }
