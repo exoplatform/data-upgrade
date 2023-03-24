@@ -108,6 +108,7 @@ public class PagesMigration extends UpgradeProductPlugin {
                  (System.currentTimeMillis() - startupTime));
         if (transactionStarted && entityManager.getTransaction().isActive()) {
           entityManager.getTransaction().commit();
+          entityManager.clear();
           entityManager.flush();
         }
       } catch (Exception e) {
