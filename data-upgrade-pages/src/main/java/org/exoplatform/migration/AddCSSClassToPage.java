@@ -5,12 +5,11 @@ import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.model.Container;
 import org.exoplatform.portal.config.model.ModelObject;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.mop.page.PageKey;
-import org.exoplatform.portal.mop.storage.PageStorage;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -18,7 +17,7 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
 
   private static final Log LOG          = ExoLogger.getExoLogger(AddCSSClassToPage.class);
 
-  private final PageStorage      pageStorage;
+  private final DataStorage pageStorage;
 
   private String           cssClasses;
 
@@ -28,7 +27,7 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
 
   private String containerId;
 
-  public AddCSSClassToPage(PageStorage pageStorage, InitParams initParams) {
+  public AddCSSClassToPage(DataStorage pageStorage, InitParams initParams) {
     super(initParams);
     this.pageStorage = pageStorage;
     String siteNameParam = "site-name";
@@ -65,13 +64,13 @@ public class AddCSSClassToPage extends UpgradeProductPlugin {
     RequestLifeCycle.begin(portalContainer);
 
     try {
-      Page page = pageStorage.getPage(new PageKey(SiteType.PORTAL.getName(), siteName, pageName));
+      Page page = pageStorage.getPage(SiteType.PORTAL.getName() + "::" + siteName +"::" + pageName);
       for (ModelObject child : page.getChildren()) {
         if (child instanceof Container container && containerId.equals(container.getId())) {
           container.setCssClass(cssClasses);
         }
       }
-      pageStorage.save(page.build());
+      pageStorage.save(page);
     } catch (Exception e) {
       LOG.error("Upgrade error : Failed to update the page {}", pageName, e);
     } finally {
