@@ -48,6 +48,7 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
     protected NavigationService navigationService;
 
     protected LayoutService layoutService;
+    protected CacheService cacheService;
 
     protected EntityManagerService entityManagerService;
 
@@ -60,6 +61,7 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
         navigationService = container.getComponentInstanceOfType(NavigationService.class);
         layoutService = container.getComponentInstanceOfType(LayoutService.class);
         entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
+        cacheService = container.getComponentInstanceOfType(CacheService.class);
 
         begin();
         injectData();
@@ -134,7 +136,7 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
     @Test
     public void testSiteConfigMigration() {
         InitParams initParams = new InitParams();
-        PortalConfigPermissionMigration portalConfigPermissionMigration = new PortalConfigPermissionMigration(container, entityManagerService,initParams);
+        PortalConfigPermissionMigration portalConfigPermissionMigration = new PortalConfigPermissionMigration(container, entityManagerService,cacheService,initParams);
         portalConfigPermissionMigration.processUpgrade(null, null);
         end();
         begin();
