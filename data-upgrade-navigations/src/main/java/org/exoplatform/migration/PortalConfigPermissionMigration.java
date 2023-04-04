@@ -101,19 +101,13 @@ public class PortalConfigPermissionMigration  extends UpgradeProductPlugin {
     }
     private void clearNavigationCache() {
         if (pagesNodesCount > 0) {
-            ExoCache<? extends Serializable, ?> navigationCache = this.cacheService.getAllCacheInstances()
-                                                                                   .stream()
-                                                                                   .filter(cache -> CacheNavigationStorage.NAVIGATION_CACHE_NAME.equals(cache.getName()))
-                                                                                   .findFirst()
-                                                                                   .orElse(null);
+
+            ExoCache<? extends Serializable, ?> navigationCache = this.cacheService.getCacheInstance(CacheNavigationStorage.NAVIGATION_CACHE_NAME);
             if (navigationCache != null) {
                 navigationCache.clearCache();
             }
-            ExoCache<? extends Serializable, ?> descriptionCache = this.cacheService.getAllCacheInstances()
-                                                                                    .stream()
-                                                                                    .filter(cache -> CacheDescriptionStorage.DESCRIPTION_CACHE_NAME.equals(cache.getName()))
-                                                                                    .findFirst()
-                                                                                    .orElse(null);
+
+            ExoCache<? extends Serializable, ?> descriptionCache = this.cacheService.getCacheInstance(CacheDescriptionStorage.DESCRIPTION_CACHE_NAME);
             if (descriptionCache != null) {
                 descriptionCache.clearCache();
             }
