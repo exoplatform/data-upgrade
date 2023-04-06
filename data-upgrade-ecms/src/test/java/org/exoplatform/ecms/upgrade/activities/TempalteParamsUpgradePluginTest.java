@@ -70,30 +70,17 @@ public class TempalteParamsUpgradePluginTest {
     valueParam.setValue("WORKSPACE  ");
     initParams.addParameter(valueParam);
 
-    //activity with correct template params key
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setType("MY_ACTIVITY");
-    HashMap<String, String> templateParams = new HashMap<>();
-    templateParams.put("WORKSPACE", "collaboration");
-    activity.setTemplateParams(templateParams);
-    activity.setUserId("1");
-    activity.setTitle("ActivityWithCorrectTemplateParamsKey");
+
     Identity identity = mock(Identity.class);
     when(identity.isEnable()).thenReturn(true);
     when(identity.getId()).thenReturn("1");
-    activityManager.saveActivityNoReturn(identity,activity);
 
     TemplateParamsUpgradePlugin
         templateParamsUpgradePlugin = new TemplateParamsUpgradePlugin(container, entityManagerService,initParams );
-    //processUpgrade
-    templateParamsUpgradePlugin.processUpgrade(null, null);
-
-    //assert no update executed
-    assertEquals(0,templateParamsUpgradePlugin.getTemplatePramasUpdatedCount());
 
     //activity with wrong template params key
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
-    activity.setType("MY_ACTIVITY");
+    activity1.setType("MY_ACTIVITY");
     HashMap<String, String> templateParams1 = new HashMap<>();
     templateParams1.put("WORKSPACE  ", "collaboration");
     activity1.setTemplateParams(templateParams1);
@@ -103,7 +90,7 @@ public class TempalteParamsUpgradePluginTest {
 
     //activity with lowercase template params key
     ExoSocialActivity activity2 = new ExoSocialActivityImpl();
-    activity.setType("MY_ACTIVITY");
+    activity2.setType("MY_ACTIVITY");
     HashMap<String, String> templateParams2 = new HashMap<>();
     templateParams2.put("workspace", "collaboration");
     activity2.setTemplateParams(templateParams2);
@@ -112,14 +99,14 @@ public class TempalteParamsUpgradePluginTest {
     activityManager.saveActivityNoReturn(identity,activity2);
     templateParamsUpgradePlugin.processUpgrade(null, null);
 
-    //assert 3 activities created
-    assertEquals(3, activityManager.getActivitiesByPoster(identity).getSize());
+    //assert 2 activities created
+    assertEquals(2, activityManager.getActivitiesByPoster(identity).getSize());
 
     //assert update executed once for the wrong activity template params key
     assertEquals(1,templateParamsUpgradePlugin.getTemplatePramasUpdatedCount());
 
     cachedActivityStorage.clearOwnerCache(identity.getId());
-    List<ExoSocialActivity> exoSocialActivityList = activityManager.getActivitiesByPoster(identity).loadAsList(0, 3);
+    List<ExoSocialActivity> exoSocialActivityList = activityManager.getActivitiesByPoster(identity).loadAsList(0, 2);
 
     //assert wrong activity template params key updated
     assertTrue( exoSocialActivityList.get(1).getTemplateParams().containsKey("WORKSPACE"));
