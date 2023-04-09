@@ -88,8 +88,10 @@ public class TemplateParamsUpgradePlugin extends UpgradeProductPlugin {
         transactionStarted = true;
       }
 
-      String sqlString = "UPDATE SOC_ACTIVITY_TEMPLATE_PARAMS SET TEMPLATE_PARAM_KEY = TRIM('"+newTemplateParamskey+"') WHERE TEMPLATE_PARAM_KEY LIKE '"+oldTemplateParamskey+"'";
+      String sqlString = "UPDATE SOC_ACTIVITY_TEMPLATE_PARAMS SET TEMPLATE_PARAM_KEY = TRIM(:newTemplateParamskey) WHERE TEMPLATE_PARAM_KEY LIKE :oldTemplateParamskey";
       Query nativeQuery = entityManager.createNativeQuery(sqlString);
+      nativeQuery.setParameter("newTemplateParamskey", newTemplateParamskey);
+      nativeQuery.setParameter("oldTemplateParamskey", oldTemplateParamskey);
       templatePramasUpdatedCount = nativeQuery.executeUpdate();
       LOG.info("End upgrade of '{}' ACTIVITY_TEMPLATE_PARAMS with key {} to use {}. It took {} ms",
                templatePramasUpdatedCount,

@@ -157,7 +157,7 @@
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
-          <value>6.5.0</value>
+          <value>6.4.1</value>
         </value-param>
       </init-params>
     </component-plugin>
