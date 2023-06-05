@@ -1,5 +1,6 @@
 package org.exoplatform.migration;
 
+import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
@@ -42,6 +43,8 @@ public class SpaceApplicationMigrationTest {
 
   protected EntityManagerService entityManagerService;
 
+  protected SettingService       settingService;
+
   @Before
   public void setUp() {
     container = PortalContainer.getInstance();
@@ -49,6 +52,7 @@ public class SpaceApplicationMigrationTest {
     this.navigationService = container.getComponentInstanceOfType(NavigationService.class);
     this.identityRegistry = container.getComponentInstanceOfType(IdentityRegistry.class);
     this.entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
+    this.settingService = container.getComponentInstanceOfType(SettingService.class);
     HashSet<MembershipEntry> memberships = new HashSet<MembershipEntry>();
     memberships.add(new MembershipEntry("/platform/users", "*"));
     memberships.add(new MembershipEntry("/platform/administrators", "*"));
@@ -102,7 +106,10 @@ public class SpaceApplicationMigrationTest {
 
     space = spaceService.createSpace(space, "root");
     assertTrue(SpaceUtils.isInstalledApp(space, "FileExplorerPortlet"));
-    SpaceApplicationMigration spaceApplicationMigration = new SpaceApplicationMigration(spaceService, entityManagerService, initParams);
+    SpaceApplicationMigration spaceApplicationMigration = new SpaceApplicationMigration(spaceService,
+                                                                                        entityManagerService,
+                                                                                        settingService,
+                                                                                        initParams);
     spaceApplicationMigration.processUpgrade(null, null);
     space = spaceService.getSpaceById(space.getId());
     assertFalse(SpaceUtils.isInstalledApp(space, "FileExplorerPortlet"));

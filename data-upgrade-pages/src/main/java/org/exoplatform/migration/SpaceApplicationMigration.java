@@ -1,6 +1,11 @@
 package org.exoplatform.migration;
 
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
@@ -22,17 +27,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpaceApplicationMigration extends UpgradeProductPlugin {
-  private static final Log     LOG                = ExoLogger.getExoLogger(SpaceApplicationMigration.class);
+  private static final Log     LOG                                     = ExoLogger.getExoLogger(SpaceApplicationMigration.class);
 
   private SpaceService         spaceService;
 
   private EntityManagerService entityManagerService;
 
-  private static final String  OLD_APP_NAME       = "old.app.name";
+  private SettingService       settingService;
 
-  private static final String  OLD_APP_ID         = "old.app.id";
+  private static final String  OLD_APP_NAME                            = "old.app.name";
 
-  private static final String  NEW_APP_ID         = "new.app.id";
+  private static final String  OLD_APP_ID                              = "old.app.id";
+
+  private static final String  NEW_APP_ID                              = "new.app.id";
+
+  private static final String  SPACE_APPLICATION_MIGRATION_SETTING_KEY = "SpaceApplicationMigrationEnded";
 
   private String               oldAppName;
 
@@ -40,12 +49,16 @@ public class SpaceApplicationMigration extends UpgradeProductPlugin {
 
   private String               newAppId;
 
-  private boolean              oldSpaceAppRemoved = false;
+  private boolean              oldSpaceAppRemoved                      = false;
 
-  public SpaceApplicationMigration(SpaceService spaceService, EntityManagerService entityManagerService, InitParams initParams) {
+  public SpaceApplicationMigration(SpaceService spaceService,
+                                   EntityManagerService entityManagerService,
+                                   SettingService settingService,
+                                   InitParams initParams) {
     super(initParams);
     this.spaceService = spaceService;
     this.entityManagerService = entityManagerService;
+    this.settingService = settingService;
     oldAppName = initParams.getValueParam(OLD_APP_NAME).getValue();
     oldAppId = initParams.getValueParam(OLD_APP_ID).getValue();
     newAppId = initParams.getValueParam(NEW_APP_ID).getValue();
@@ -67,7 +80,7 @@ public class SpaceApplicationMigration extends UpgradeProductPlugin {
       updatedSpaces = loadedSpaces.length;
       Arrays.stream(loadedSpaces).forEach(space -> {
         try {
-          forceRemoveOldApplication(space.getGroupId());
+          forceRemoveOldApplication(space);
           removeApp(space, oldAppId, oldAppName);
           if (!SpaceUtils.isInstalledApp(space, newAppId)) {
             spaceService.installApplication(space, newAppId);
@@ -92,7 +105,26 @@ public class SpaceApplicationMigration extends UpgradeProductPlugin {
              (System.currentTimeMillis() - startupTime));
   }
 
-  private void forceRemoveOldApplication(String spaceGroupId) {
+  @Override
+  public void afterUpgrade() {
+    settingService.set(Context.GLOBAL.id(oldAppId + ":" + newAppId),
+                       Scope.APPLICATION.id(oldAppId + ":" + newAppId),
+                       SPACE_APPLICATION_MIGRATION_SETTING_KEY,
+                       SettingValue.create(true));
+  }
+
+  @Override
+  public boolean shouldProceedToUpgrade(String newVersion,
+                                        String previousGroupVersion,
+                                        UpgradePluginExecutionContext previousUpgradePluginExecution) {
+    SettingValue<?> settingValue = settingService.get(Context.GLOBAL.id(oldAppId + ":" + newAppId),
+                                                      Scope.APPLICATION.id(oldAppId + ":" + newAppId),
+                                                      SPACE_APPLICATION_MIGRATION_SETTING_KEY);
+    return settingValue == null || settingValue.getValue().equals("false");
+  }
+
+
+  private void forceRemoveOldApplication(Space space) {
     LOG.info("Remove old space application: {}", oldAppId);
     boolean transactionStarted = false;
     EntityManager entityManager = this.entityManagerService.getEntityManager();
@@ -102,16 +134,16 @@ public class SpaceApplicationMigration extends UpgradeProductPlugin {
         transactionStarted = true;
       }
 
-      String sqlString = "DELETE FROM PORTAL_PAGES WHERE SITE_ID IN (SELECT ID FROM PORTAL_SITES WHERE NAME ='" + spaceGroupId
-          + "') AND NAME='" + oldAppId + "'";
+      String sqlString = "DELETE FROM PORTAL_PAGES WHERE SITE_ID IN (SELECT ID FROM PORTAL_SITES WHERE NAME ='"
+          + space.getGroupId() + "') AND NAME='" + oldAppId + "'";
+      String sqlString1 = "DELETE FROM SOC_APPS WHERE APP_ID='" + oldAppId + "' AND SPACE_ID= '" + space.getId() + "'";
       Query nativeQuery = entityManager.createNativeQuery(sqlString);
+      Query nativeQuery1 = entityManager.createNativeQuery(sqlString1);
+      nativeQuery1.executeUpdate();
       nativeQuery.executeUpdate();
-      if (!oldSpaceAppRemoved) {
-        String sqlString1 = "DELETE FROM SOC_APPS WHERE APP_ID='" + oldAppId + "'";
+      if (oldSpaceAppRemoved) {
         String sqlString2 = "DELETE FROM PORTAL_APPLICATIONS WHERE APP_NAME='" + oldAppId + "'";
-        Query nativeQuery1 = entityManager.createNativeQuery(sqlString1);
         Query nativeQuery2 = entityManager.createNativeQuery(sqlString2);
-        nativeQuery1.executeUpdate();
         nativeQuery2.executeUpdate();
         oldSpaceAppRemoved = true;
       }
