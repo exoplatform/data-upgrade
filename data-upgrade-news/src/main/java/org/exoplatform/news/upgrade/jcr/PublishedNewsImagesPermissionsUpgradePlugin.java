@@ -16,17 +16,8 @@
  */
 package org.exoplatform.news.upgrade.jcr;
 
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
-import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
-import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.ext.app.SessionProviderService;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.container.xml.InitParams;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -34,33 +25,44 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
+import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.core.ExtendedNode;
+import org.exoplatform.services.jcr.ext.app.SessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductPlugin {
-  private static final Log LOG = ExoLogger.getLogger(PublishedNewsImagesPermissionsUpgradePlugin.class.getName());
-  private final RepositoryService repositoryService;
-  private SessionProviderService sessionProviderService;
-  private static final Pattern IMAGE_SRC_PATTERN                = Pattern.compile("src=\"/portal/rest/images/?(.+)?\"");
-  public static final String EXO_PRIVILEGEABLE = "exo:privilegeable";
-  public static final String READ_PERMISSIONS = "permissions";
-  public static final String PLATFORM_USERS_GROUP_IDENTITY = "platform.users.group.identity";
-  private  int imageNewsUpdatedCount;
-  private  int newsCount;
-  private String readPermissions;
-  private String platformUsersGroupIdentity;
+  public static final String           EXO_PRIVILEGEABLE             = "exo:privilegeable";
 
-  public PublishedNewsImagesPermissionsUpgradePlugin(InitParams initParams, RepositoryService repositoryService, SessionProviderService sessionProviderService) {
+  public static final String[]         READ_PERMISSIONS              = new String[] { "read" };
+
+  public static final String           PLATFORM_USERS_GROUP_IDENTITY = "*:/platform/users";
+
+  private static final Log             LOG                           =
+                                           ExoLogger.getLogger(PublishedNewsImagesPermissionsUpgradePlugin.class.getName());
+
+  private static final Pattern         IMAGE_SRC_PATTERN             = Pattern.compile("src=\"/portal/rest/images/?(.+)?\"");
+
+  private final RepositoryService      repositoryService;
+
+  private final SessionProviderService sessionProviderService;
+
+  private int                          imageNewsUpdatedCount;
+
+  private int                          newsCount;
+
+  public PublishedNewsImagesPermissionsUpgradePlugin(InitParams initParams,
+                                                     RepositoryService repositoryService,
+                                                     SessionProviderService sessionProviderService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.sessionProviderService = sessionProviderService;
-
-    if (initParams.containsKey(READ_PERMISSIONS)) {
-      readPermissions = initParams.getValueParam(READ_PERMISSIONS).getValue();
-    }
-    if (initParams.containsKey(PLATFORM_USERS_GROUP_IDENTITY)) {
-      platformUsersGroupIdentity = initParams.getValueParam(PLATFORM_USERS_GROUP_IDENTITY).getValue();
-    }
   }
 
   @Override
@@ -73,49 +75,49 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
 
   @Override
   public void processUpgrade(String s, String s1) {
-
-    if (StringUtils.isEmpty(readPermissions)||StringUtils.isEmpty(platformUsersGroupIdentity)) {
-      LOG.error("Couldn't process upgrade, all parameters are mandatory");
-      return;
-    }
     long startupTime = System.currentTimeMillis();
     LOG.info("Start upgrade of published news images permission");
     SessionProvider sessionProvider = null;
     try {
       sessionProvider = sessionProviderService.getSystemSessionProvider(null);
       Session session = sessionProvider.getSession(
-              repositoryService.getCurrentRepository()
-                      .getConfiguration()
-                      .getDefaultWorkspaceName(),
-              repositoryService.getCurrentRepository());
+                                                   repositoryService.getCurrentRepository()
+                                                                    .getConfiguration()
+                                                                    .getDefaultWorkspaceName(),
+                                                   repositoryService.getCurrentRepository());
       QueryManager qm = session.getWorkspace().getQueryManager();
-      int limit = 10 , offset = 0;
-      String stringQuery = "select * from exo:news WHERE publication:currentState = 'published' AND jcr:path LIKE '/Groups/spaces/%'";
+      int limit = 10, offset = 0;
+      String stringQuery =
+                         "select * from exo:news WHERE publication:currentState = 'published' AND jcr:path LIKE '/Groups/spaces/%'";
       Query jcrQuery = qm.createQuery(stringQuery, Query.SQL);
       boolean hasMoreElements = true;
       while (hasMoreElements) {
-        ((QueryImpl)jcrQuery).setOffset(offset);
-        ((QueryImpl)jcrQuery).setLimit(limit);
+        ((QueryImpl) jcrQuery).setOffset(offset);
+        ((QueryImpl) jcrQuery).setLimit(limit);
         NodeIterator nodeIterator = jcrQuery.execute().getNodes();
-        if (nodeIterator != null){
-          while (nodeIterator.hasNext()){
+        if (nodeIterator != null) {
+          while (nodeIterator.hasNext()) {
             Node newsNode = nodeIterator.nextNode();
             updateNewsImagesPermissions(newsNode, session);
           }
           if (nodeIterator.getSize() < limit) {
             // no more elements
-            hasMoreElements = false ;
+            hasMoreElements = false;
           } else {
             offset += limit;
           }
         }
       }
-      LOG.info("End updating of '{}' images for '{}' published news . It took {} ms.", this.imageNewsUpdatedCount, this.newsCount, (System.currentTimeMillis() - startupTime));
+      LOG.info("End updating of '{}' images for '{}' published news . It took {} ms.",
+               this.imageNewsUpdatedCount,
+               this.newsCount,
+               (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
       LOG.error("An error occurred when upgrading published images news permissions :", e);
     } finally {
       if (sessionProvider != null) {
-        sessionProvider.close();      }
+        sessionProvider.close();
+      }
     }
   }
 
@@ -130,20 +132,27 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
         if (image.canAddMixin(EXO_PRIVILEGEABLE)) {
           image.addMixin(EXO_PRIVILEGEABLE);
         }
-        boolean isPublicImage = image.getACL().getPermissionEntries().stream().filter(accessControlEntry -> accessControlEntry.getIdentity().equals(platformUsersGroupIdentity)).toList().size() > 0;
-        if (! isPublicImage) {
+        boolean isPublicImage = image.getACL()
+                                     .getPermissionEntries()
+                                     .stream()
+                                     .filter(accessControlEntry -> accessControlEntry.getIdentity()
+                                                                                     .equals(PLATFORM_USERS_GROUP_IDENTITY))
+                                     .toList()
+                                     .size() > 0;
+        if (!isPublicImage) {
           // make news images public
-          image.setPermission(platformUsersGroupIdentity, new String[] {readPermissions});
+          image.setPermission(PLATFORM_USERS_GROUP_IDENTITY, READ_PERMISSIONS);
           image.save();
           imagesCount += 1;
         }
       }
     }
     if (imagesCount > 0) {
-      this.newsCount +=1;
+      this.newsCount += 1;
       this.imageNewsUpdatedCount += imagesCount;
     }
   }
+
   private String getStringProperty(Node node, String propertyName) throws RepositoryException {
     if (node.hasProperty(propertyName)) {
       return node.getProperty(propertyName).getString();
