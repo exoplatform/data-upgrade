@@ -51,7 +51,7 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
   private static final Log             LOG                           =
                                            ExoLogger.getLogger(PublishedNewsImagesPermissionsUpgradePlugin.class.getName());
 
-  private static final String         IMAGE_SRC_REGEX                = "src=\"/portal/rest/images/?(.+)?\"";
+  private static final String          IMAGE_SRC_REGEX               = "src=\"/portal/rest/images/?(.+)?\"";
 
   private final RepositoryService      repositoryService;
 
@@ -125,35 +125,55 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
     }
   }
 
-  private void updateNewsImagesPermissions(Node newsNode, Session session, String imageSrcRegex) throws RepositoryException {
-    Matcher matcher = Pattern.compile(imageSrcRegex).matcher(getStringProperty(newsNode, "exo:body"));
+  private void updateNewsImagesPermissions(Node newsNode, Session session) throws RepositoryException {
+    Matcher matcher = Pattern.compile(IMAGE_SRC_REGEX).matcher(getStringProperty(newsNode, "exo:body"));
     int imagesCount = 0;
-    while (matcher.find()) {
-      String match = matcher.group(1);
-      ExtendedNode image = null;
-      if (imageSrcRegex.equals(IMAGE_SRC_REGEX)) {
+    ExtendedNode image = null;
+    if (matcher.find()) {
+      do {
+        String match = matcher.group(1);
         String imageUUID = match.substring(match.lastIndexOf("/") + 1);
         image = (ExtendedNode) session.getNodeByUUID(imageUUID);
-      } else {
-        String imagePath = match.substring(match.indexOf("/Groups"));
-        image = (ExtendedNode) getNodeByPath(imagePath,session);
-      }
-      if (image != null) {
-        if (image.canAddMixin(EXO_PRIVILEGEABLE)) {
-          image.addMixin(EXO_PRIVILEGEABLE);
+        if (image != null) {
+          if (image.canAddMixin(EXO_PRIVILEGEABLE)) {
+            image.addMixin(EXO_PRIVILEGEABLE);
+          }
+          boolean isPublicImage = image.getACL()
+                                       .getPermissionEntries()
+                                       .stream()
+                                       .anyMatch(accessControlEntry -> accessControlEntry.getIdentity()
+                                                                                         .equals(PLATFORM_USERS_GROUP_IDENTITY));
+          if (!isPublicImage) {
+            // make news images public
+            image.setPermission(PLATFORM_USERS_GROUP_IDENTITY, READ_PERMISSIONS);
+            image.save();
+            imagesCount += 1;
+          }
         }
-        boolean isPublicImage = image.getACL()
-                                     .getPermissionEntries()
-                                     .stream()
-                                     .filter(accessControlEntry -> accessControlEntry.getIdentity()
-                                                                                     .equals(PLATFORM_USERS_GROUP_IDENTITY))
-                                     .toList()
-                                     .size() > 0;
-        if (!isPublicImage) {
-          // make news images public
-          image.setPermission(PLATFORM_USERS_GROUP_IDENTITY, READ_PERMISSIONS);
-          image.save();
-          imagesCount += 1;
+      } while (matcher.find());
+    } else {
+      String existingUploadImagesSrcRegex = "src=\"" + CommonsUtils.getCurrentDomain() + "/"
+          + PortalContainer.getCurrentPortalContainerName() + "/" + CommonsUtils.getRestContextName() + "/jcr/?(.+)?\"";
+      matcher = Pattern.compile(existingUploadImagesSrcRegex).matcher(getStringProperty(newsNode, "exo:body"));
+      while (matcher.find()) {
+        String match = matcher.group(1);
+        String imagePath = match.substring(match.indexOf("/Groups"));
+        image = (ExtendedNode) getNodeByPath(imagePath, session);
+        if (image != null) {
+          if (image.canAddMixin(EXO_PRIVILEGEABLE)) {
+            image.addMixin(EXO_PRIVILEGEABLE);
+          }
+          boolean isPublicImage = image.getACL()
+                                       .getPermissionEntries()
+                                       .stream()
+                                       .anyMatch(accessControlEntry -> accessControlEntry.getIdentity()
+                                                                                         .equals(PLATFORM_USERS_GROUP_IDENTITY));
+          if (!isPublicImage) {
+            // make news images public
+            image.setPermission(PLATFORM_USERS_GROUP_IDENTITY, READ_PERMISSIONS);
+            image.save();
+            imagesCount += 1;
+          }
         }
       }
     }
@@ -169,21 +189,13 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
     }
     return "";
   }
-  private void updateNewsImagesPermissions(Node newsNode, Session session) throws RepositoryException {
-    Matcher matcher = Pattern.compile(IMAGE_SRC_REGEX).matcher(getStringProperty(newsNode, "exo:body"));
-    if (matcher.find()) {
-      updateNewsImagesPermissions(newsNode, session, IMAGE_SRC_REGEX);
-    } else {
-      String existingUploadImagesSrcRegex = "src=\"" + CommonsUtils.getCurrentDomain() + "/" + PortalContainer.getCurrentPortalContainerName() + "/" + CommonsUtils.getRestContextName() + "/jcr/?(.+)?\"";
-      updateNewsImagesPermissions(newsNode, session, existingUploadImagesSrcRegex);
-    }
-  }
 
-  public Node getNodeByPath(String path, Session session) {
+  private Node getNodeByPath(String path, Session session) {
     try {
       return (Node) session.getItem(URLDecoder.decode(path, StandardCharsets.UTF_8));
     } catch (RepositoryException exception) {
       return null;
     }
   }
+
 }
