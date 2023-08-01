@@ -284,7 +284,7 @@
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
-          <value>6.4.2</value>
+          <value>6.4.3</value>
         </value-param>
       </init-params>
     </component-plugin>

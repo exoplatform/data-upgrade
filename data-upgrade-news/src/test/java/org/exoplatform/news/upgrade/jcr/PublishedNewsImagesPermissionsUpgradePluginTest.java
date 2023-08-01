@@ -30,8 +30,14 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({"com.sun.*", "org.w3c.*", "javax.naming.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
+@PrepareForTest({CommonsUtils.class, PortalContainer.class})
 public class PublishedNewsImagesPermissionsUpgradePluginTest {
 
   @Mock
@@ -51,15 +57,6 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
 
   @Mock
   SessionProvider        sessionProvider;
-
-  private static final MockedStatic<PortalContainer> PORTAL_CONTAINER = mockStatic(PortalContainer.class);
-  private static final MockedStatic<CommonsUtils> COMMONS_UTILS = mockStatic(CommonsUtils.class);
-
-  @AfterClass
-  public static void afterRunBare() throws Exception { // NOSONAR
-    COMMONS_UTILS.close();
-    PORTAL_CONTAINER.close();
-  }
 
   @Test
   public void publishedNewsImagesPermissionsUpgradePluginTest() throws Exception {
@@ -111,9 +108,11 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
     String currentDomainName = "https://exoplatform.com";
     String currentPortalContainerName = "portal";
     String restContextName = "rest";
-    COMMONS_UTILS.when(() -> CommonsUtils.getRestContextName()).thenReturn(restContextName);
-    PORTAL_CONTAINER.when(() -> PortalContainer.getCurrentPortalContainerName()).thenReturn(currentPortalContainerName);
-    COMMONS_UTILS.when(() -> CommonsUtils.getCurrentDomain()).thenReturn(currentDomainName);
+    PowerMockito.mockStatic(CommonsUtils.class);
+    PowerMockito.mockStatic(PortalContainer.class);
+    when(CommonsUtils.getRestContextName()).thenReturn(restContextName);
+    when(PortalContainer.getCurrentPortalContainerName()).thenReturn(currentPortalContainerName);
+    when(CommonsUtils.getCurrentDomain()).thenReturn(currentDomainName);
     ExtendedNode existingUploadImageNode = mock(ExtendedNode.class);
     when(existingUploadImageNode.canAddMixin(EXO_PRIVILEGEABLE)).thenReturn(true);
     when(session.getItem(nullable(String.class))).thenReturn(existingUploadImageNode);
