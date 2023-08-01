@@ -32,9 +32,7 @@ import org.picketlink.idm.api.User;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserPasswordHashMigration extends UpgradeProductPlugin {
@@ -73,12 +71,11 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
     AtomicInteger updatedPasswords = new AtomicInteger();
     EntityManager entityManager = this.entityManagerService.getEntityManager();
     try {
-      String sqlString = "SELECT jbid_io.NAME, jbid_io_creden.TEXT  FROM" +
-              " (jbid_io_creden INNER JOIN jbid_io ON jbid_io_creden.IDENTITY_OBJECT_ID = jbid_io.ID)" +
-              " INNER JOIN (SELECT jbid_io_attr.IDENTITY_OBJECT_ID," +
-              " min(CASE WHEN jbid_io_attr.NAME = 'passwordSalt128' THEN jbid_io_attr.NAME  ELSE NULL END) AS salt128" +
-              " FROM jbid_io_attr  GROUP BY jbid_io_attr.IDENTITY_OBJECT_ID" +
-              " HAVING salt128 IS NULL) jia ON jbid_io_creden.IDENTITY_OBJECT_ID  = jia.IDENTITY_OBJECT_ID;";
+      String sqlString = "SELECT jbid_io.NAME, jbid_io_creden.TEXT  FROM"
+          + " (jbid_io_creden INNER JOIN jbid_io ON jbid_io_creden.IDENTITY_OBJECT_ID = jbid_io.ID)"
+          + " INNER JOIN (SELECT jbid_io_attr.IDENTITY_OBJECT_ID FROM jbid_io_attr"
+          + " WHERE NOT EXISTS (SELECT jbid_io_attr.IDENTITY_OBJECT_ID FROM jbid_io_attr WHERE NAME = 'passwordSalt128')"
+          + " GROUP BY jbid_io_attr.IDENTITY_OBJECT_ID) jia ON jbid_io_creden.IDENTITY_OBJECT_ID  = jia.IDENTITY_OBJECT_ID;";
 
       Query nativeQuery = entityManager.createNativeQuery(sqlString);
       List<Object[]> result = nativeQuery.getResultList();
