@@ -11,9 +11,13 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.container.PortalContainer;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.container.xml.InitParams;
@@ -47,6 +51,15 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
 
   @Mock
   SessionProvider        sessionProvider;
+
+  private static final MockedStatic<PortalContainer> PORTAL_CONTAINER = mockStatic(PortalContainer.class);
+  private static final MockedStatic<CommonsUtils> COMMONS_UTILS = mockStatic(CommonsUtils.class);
+
+  @AfterClass
+  public static void afterRunBare() throws Exception { // NOSONAR
+    COMMONS_UTILS.close();
+    PORTAL_CONTAINER.close();
+  }
 
   @Test
   public void publishedNewsImagesPermissionsUpgradePluginTest() throws Exception {
@@ -91,5 +104,25 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
     // then
     verify(imageNode, times(1)).setPermission("*:/platform/users", new String[] { "read" });
     verify(imageNode, times(1)).save();
+
+    //
+    when(nodeIterator.hasNext()).thenReturn(true, false);
+    when(property.getString()).thenReturn("news body with image src=\"https://exoplatform.com/portal/rest/jcr/repository/collaboration/Groups/spaces/test/testimage\"");
+    String currentDomainName = "https://exoplatform.com";
+    String currentPortalContainerName = "portal";
+    String restContextName = "rest";
+    COMMONS_UTILS.when(() -> CommonsUtils.getRestContextName()).thenReturn(restContextName);
+    PORTAL_CONTAINER.when(() -> PortalContainer.getCurrentPortalContainerName()).thenReturn(currentPortalContainerName);
+    COMMONS_UTILS.when(() -> CommonsUtils.getCurrentDomain()).thenReturn(currentDomainName);
+    ExtendedNode existingUploadImageNode = mock(ExtendedNode.class);
+    when(existingUploadImageNode.canAddMixin(EXO_PRIVILEGEABLE)).thenReturn(true);
+    when(session.getItem(nullable(String.class))).thenReturn(existingUploadImageNode);
+    when(existingUploadImageNode.getACL()).thenReturn(accessControlList);
+
+    publishedNewsImagesPermissionsUpgradePlugin.processUpgrade(null, null);
+    // then
+    verify(existingUploadImageNode, times(1)).setPermission("*:/platform/users", new String[] { "read" });
+    verify(existingUploadImageNode, times(1)).save();
+
   }
 }
