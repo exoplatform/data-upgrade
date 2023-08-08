@@ -72,9 +72,9 @@ public class ElasticsearchMigration extends UpgradeProductPlugin {
             + ", response code = " + response.getStatusCode() + " message = " + response.getMessage());
       } else {
         LOG.info("Reindexation finished for index  from old index {} to new index {}", oldIndex, newIndex);
-        LOG.info("START::Delete files index {}", oldIndex);
+        LOG.info("START::Delete profiles index {}", oldIndex);
         analyticsESClient.sendHttpDeleteRequest(oldIndex);
-        LOG.info("END::Delete old files index {} successfully", oldIndex);
+        LOG.info("END::Delete old profiles index {} successfully", oldIndex);
         LOG.info("END::Index '{}' migration to {} successfully. The operation took {} milliseconds.",
                  oldIndex,
                  newIndex,
