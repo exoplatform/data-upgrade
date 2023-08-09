@@ -36,8 +36,8 @@
         </value-param>
         <value-param>
           <name>plugin.upgrade.target.version</name>
-          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.3.0)</description>
-          <value>6.3.0</value>
+          <description>The plugin target version</description>
+          <value>6.5.0</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
@@ -57,12 +57,12 @@
         <value-param>
           <name>oldIndex</name>
           <description>Old index name</description>
-          <value>${exo.upgrade.reindex.old.index:}</value>
+          <value>profile_v2 </value>
         </value-param>
         <value-param>
           <name>newIndex</name>
           <description>New index name</description>
-          <value>${exo.upgrade.reindex.new.index:}</value>
+          <value>profile_v3</value>
         </value-param>
       </init-params>
     </component-plugin>
