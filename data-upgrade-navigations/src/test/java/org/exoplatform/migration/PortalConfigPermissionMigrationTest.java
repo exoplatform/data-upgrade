@@ -124,7 +124,9 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
                 null,
                 null,
                 container,
-                null);
+                null,
+                true,
+                8);
         this.layoutService.create(new PortalConfig(portal));
 
         NavigationContext navigation = new NavigationContext(type.key(siteName), new NavigationState(1));
