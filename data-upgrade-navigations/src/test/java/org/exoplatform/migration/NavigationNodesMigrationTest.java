@@ -180,7 +180,9 @@ public class NavigationNodesMigrationTest extends AbstractKernelTest {
                                        container,
                                        null,
                                        true,
-                                       5);
+                                       5,
+                                       "",
+                                       0);
     this.layoutService.create(new PortalConfig(portal));
 
     NavigationContext nav = new NavigationContext(type.key(siteName), new NavigationState(1));
