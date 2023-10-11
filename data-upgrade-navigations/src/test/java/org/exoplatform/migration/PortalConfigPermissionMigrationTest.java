@@ -127,7 +127,6 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
                 null,
                 true,
                 8,
-                "",
                 0);
         this.layoutService.create(new PortalConfig(portal));
 
