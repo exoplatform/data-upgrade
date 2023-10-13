@@ -111,10 +111,14 @@ public class MoveNodesUpgradePlugin extends UpgradeProductPlugin {
         for (Space space : spaceArray) {
           String originFolderPath = "/Groups" + space.getGroupId() + originPath;
           String destinationFolderPath = "/Groups" + space.getGroupId() + destinationPath;
-          Item originFolderNode = session.getItem(originFolderPath);
-          if(originFolderNode != null) {
-            session.move(originFolderPath, destinationFolderPath);
-            movedFoldersCount ++;
+          try {
+            Item originFolderNode = session.getItem(originFolderPath);
+            if (originFolderNode != null) {
+              session.move(originFolderPath, destinationFolderPath);
+              movedFoldersCount++;
+            }
+          } catch(RepositoryException e) {
+            log.warn("Folder {} to move was not found, ignoring it", originFolderPath, e);
           }
           // remove unnecessary folders if defined in init params
           if(!foldersToRemove.isEmpty()) {
