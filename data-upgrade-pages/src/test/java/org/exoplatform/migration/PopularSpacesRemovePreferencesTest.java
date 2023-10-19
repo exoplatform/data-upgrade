@@ -41,13 +41,19 @@ public class PopularSpacesRemovePreferencesTest extends AbstractKernelTest {
     protected EntityManagerService entityManagerService;
     protected Page testPage;
 
+    public PopularSpacesRemovePreferencesTest() {
+      setForceContainerReload(true);
+    }
 
     @Before
-    public void setUp() {
-        container = PortalContainer.getInstance();
+    public void setUp() throws Exception {
+        super.setUp();
+        container = getContainer();
         pageService = container.getComponentInstanceOfType(PageService.class);
         dataStorage = container.getComponentInstanceOfType(DataStorage.class);
         entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
+
+        begin();
     }
 
     @Test
@@ -75,7 +81,7 @@ public class PopularSpacesRemovePreferencesTest extends AbstractKernelTest {
     @After
     public void tearDown() throws Exception {
         pageService.destroyPage(testPage.getPageKey());
-        RequestLifeCycle.end();
+        end();
     }
 
     private Page createPage(String pageName, String contentId) throws Exception {
