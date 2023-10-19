@@ -5,6 +5,7 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
@@ -33,8 +34,12 @@ import java.util.HashSet;
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml") })
-public class SpaceApplicationMigrationTest {
+@ConfiguredBy({
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration-local.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml")
+})
+public class SpaceApplicationMigrationTest extends AbstractKernelTest {
 
   protected PortalContainer         container;
 
@@ -50,9 +55,13 @@ public class SpaceApplicationMigrationTest {
 
   private SpaceApplicationMigration spaceApplicationMigration;
 
+  public SpaceApplicationMigrationTest() {
+    setForceContainerReload(true);
+  }
+
   @Before
   public void setUp() {
-    container = PortalContainer.getInstance();
+    container = getContainer();
     this.spaceService = container.getComponentInstanceOfType(SpaceService.class);
     this.navigationService = container.getComponentInstanceOfType(NavigationService.class);
     this.identityRegistry = container.getComponentInstanceOfType(IdentityRegistry.class);
