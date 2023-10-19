@@ -22,6 +22,8 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.*;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.gatein.pc.api.PortletInvoker;
+import org.gatein.pc.api.PortletInvokerException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +34,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashSet;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @ConfiguredBy({
@@ -60,13 +64,17 @@ public class SpaceApplicationMigrationTest extends AbstractKernelTest {
   }
 
   @Before
-  public void setUp() {
+  public void setUp() throws PortletInvokerException {
     container = getContainer();
     this.spaceService = container.getComponentInstanceOfType(SpaceService.class);
     this.navigationService = container.getComponentInstanceOfType(NavigationService.class);
     this.identityRegistry = container.getComponentInstanceOfType(IdentityRegistry.class);
     this.entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
     this.settingService = container.getComponentInstanceOfType(SettingService.class);
+    PortletInvoker portletInvoker = mock(PortletInvoker.class);
+    when(portletInvoker.getPortlets()).thenReturn(new HashSet<>());
+    container.unregisterComponent(PortletInvoker.class);
+    container.registerComponentInstance(PortletInvoker.class, portletInvoker);
     HashSet<MembershipEntry> memberships = new HashSet<MembershipEntry>();
     memberships.add(new MembershipEntry("/platform/users", "*"));
     memberships.add(new MembershipEntry("/platform/administrators", "*"));
