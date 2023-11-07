@@ -80,6 +80,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-es-reindex</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-move-folders</artifactId>
+    </dependency>
 
     <!-- Transitive dependencies provided by eXo : set to provided -->
     <dependency>

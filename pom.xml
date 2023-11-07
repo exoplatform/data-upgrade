@@ -32,6 +32,7 @@
     <module>data-upgrade-notifications</module>
     <module>data-upgrade-processes-permissions</module>
     <module>data-upgrade-es-reindex</module>
+    <module>data-upgrade-move-folders</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
@@ -130,6 +131,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-es-reindex</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-move-folders</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
