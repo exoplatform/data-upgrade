@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.exoplatform.addons.upgrade</groupId>
     <artifactId>upgrade</artifactId>
-    <version>6.5.x-maintenance-SNAPSHOT</version>
+    <version>6.5.x-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-upgrade-move-folders</artifactId>
@@ -24,7 +24,7 @@
   <name>eXo Add-on:: Data Upgrade Add-on - Move Folders</name>
 
   <properties>
-    <exo.test.coverage.ratio>0.0</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.66</exo.test.coverage.ratio>
   </properties>
 
   <dependencies>
