@@ -169,12 +169,12 @@
           <value>6.5.0</value>
         </value-param>
         <value-param>
-          <name>navigation.node.names</name>
+          <name>space.node.names</name>
           <description>The plugin will set the icons of these space nodes names</description>
           <value>settings;members;notes;tasks,TaskManagementApplication,Tasks;SpaceWallet;agenda,Calendar;documents</value>
         </value-param>
         <value-param>
-          <name>navigation.node.icons</name>
+          <name>space.node.icons</name>
           <description>The plugin will set the space nodes icons with these icons</description>
           <value>fas fa-cog;fas fa-users;fas fa-clipboard;fas fa-tasks;fas fa-wallet;fas fa-calendar-alt;fas fa-folder-open</value>
         </value-param>
@@ -196,6 +196,4 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-
-
 </configuration>
