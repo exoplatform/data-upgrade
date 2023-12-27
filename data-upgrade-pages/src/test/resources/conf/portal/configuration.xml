@@ -3,6 +3,6 @@
                xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
                xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
 
-    <import>jar:/conf/spaces-templates-configuration.xml</import>
-    <import>jar:/conf/application-registry-configuration.xml</import>
+    <import>jar:/conf/data-upgrade-spaces-templates-configuration.xml</import>
+    <import>jar:/conf/data-upgrade-application-registry-configuration.xml</import>
 </configuration>

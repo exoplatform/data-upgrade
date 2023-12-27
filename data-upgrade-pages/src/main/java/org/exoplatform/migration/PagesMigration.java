@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 
