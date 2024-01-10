@@ -82,6 +82,15 @@ public class NotesFolderPermissionsUpgradePluginTest {
     when(notesNode.getACL()).thenReturn(accessControlList);
     AccessControlEntry accessControlEntry = new AccessControlEntry("/spaces/test", "read");
     when(accessControlList.getPermissionEntries()).thenReturn(List.of(accessControlEntry));
+    NodeIterator imagesNodeIterator = mock(NodeIterator.class);
+    when(notesNode.getNodes()).thenReturn(imagesNodeIterator);
+    when(imagesNodeIterator.hasNext()).thenReturn(true, false);
+    ExtendedNode imagesNode = mock(ExtendedNode.class);
+    when(imagesNodeIterator.nextNode()).thenReturn(imagesNode);
+    when(imagesNode.getPath()).thenReturn("Group/spaces/test/notes/images");
+    when(imagesNode.getNodes()).thenReturn(imagesNodeIterator);
+    when(imagesNode.getACL()).thenReturn(accessControlList);
+
     // when
     NotesFolderPermissionsUpgradePlugin notesFolderPermissionsUpgradePlugin =
                                                                             new NotesFolderPermissionsUpgradePlugin(initParams,
@@ -95,6 +104,11 @@ public class NotesFolderPermissionsUpgradePluginTest {
                                    new String[] { PermissionType.READ, PermissionType.ADD_NODE, PermissionType.SET_PROPERTY });
     verify(notesNode, times(1)).save();
 
+    verify(imagesNode, times(1)).removePermission("/spaces/test");
+    verify(imagesNode,
+            times(1)).setPermission("*:/spaces/test",
+            new String[] { PermissionType.READ, PermissionType.ADD_NODE, PermissionType.SET_PROPERTY });
+    verify(imagesNode, times(1)).save();
     //
     accessControlEntry = new AccessControlEntry("*:/spaces/test", "read");
     when(accessControlList.getPermissionEntries()).thenReturn(List.of(accessControlEntry));

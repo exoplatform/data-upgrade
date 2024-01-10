@@ -62,13 +62,8 @@ public class NotesFolderPermissionsUpgradePlugin extends UpgradeProductPlugin {
                                                    repositoryService.getCurrentRepository());
       QueryManager qm = session.getWorkspace().getQueryManager();
       int limit = 10, offset = 0;
-      // Set the date
-      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-      Date afterDate = dateFormat.parse("2023-11-06");
-      // get nodes created after the 2023-11-06 date.
       String stringQuery =
-                         "select * from nt:folder WHERE jcr:path LIKE '/Groups/spaces/%/notes' AND exo:dateCreated > TIMESTAMP '"
-                             + afterDate.toInstant().toString() + "'";
+                         "select * from nt:folder WHERE jcr:path LIKE '/Groups/spaces/%/notes'";
       Query jcrQuery = qm.createQuery(stringQuery, Query.SQL);
       boolean hasMoreElements = true;
       while (hasMoreElements) {
@@ -106,7 +101,7 @@ public class NotesFolderPermissionsUpgradePlugin extends UpgradeProductPlugin {
   private void updateNotesNodePermissions(Node node) {
     try {
       String nodePath = node.getPath();
-      String groupId = nodePath.substring(nodePath.indexOf("/spaces/"), nodePath.lastIndexOf("/"));
+      String groupId = nodePath.substring(nodePath.indexOf("/spaces/"), nodePath.indexOf("/notes"));
       if (node.canAddMixin("exo:privilegeable")) {
         node.addMixin("exo:privilegeable");
       }
@@ -124,6 +119,10 @@ public class NotesFolderPermissionsUpgradePlugin extends UpgradeProductPlugin {
             + groupId, new String[] { PermissionType.READ, PermissionType.ADD_NODE, PermissionType.SET_PROPERTY });
         node.save();
         this.notesCount += 1;
+        NodeIterator nodeIterator = node.getNodes();
+        if (nodeIterator.hasNext()) {
+          updateNotesNodePermissions(nodeIterator.nextNode());
+        }
       }
     } catch (RepositoryException e) {
       if (LOG.isErrorEnabled()) {
