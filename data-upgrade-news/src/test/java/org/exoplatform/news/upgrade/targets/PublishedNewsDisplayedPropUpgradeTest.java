@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import org.hibernate.Transaction;
 import org.junit.AfterClass;
