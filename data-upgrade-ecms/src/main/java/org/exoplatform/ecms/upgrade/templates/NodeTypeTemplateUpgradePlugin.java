@@ -25,7 +25,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Workspace;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.info.MissingProductInformationException;
 import org.exoplatform.commons.info.ProductInformations;

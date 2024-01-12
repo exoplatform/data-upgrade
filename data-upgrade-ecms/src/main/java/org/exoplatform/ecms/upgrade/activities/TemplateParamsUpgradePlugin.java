@@ -27,8 +27,8 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 public class TemplateParamsUpgradePlugin extends UpgradeProductPlugin {
   private static final Log LOG = ExoLogger.getExoLogger(TemplateParamsUpgradePlugin.class);

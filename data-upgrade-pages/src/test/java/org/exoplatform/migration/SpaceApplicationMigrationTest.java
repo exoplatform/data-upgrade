@@ -67,13 +67,6 @@ public class SpaceApplicationMigrationTest extends AbstractKernelTest {
     this.identityRegistry = container.getComponentInstanceOfType(IdentityRegistry.class);
     this.entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
     this.settingService = container.getComponentInstanceOfType(SettingService.class);
-    HashSet<MembershipEntry> memberships = new HashSet<MembershipEntry>();
-    memberships.add(new MembershipEntry("/platform/users", "*"));
-    memberships.add(new MembershipEntry("/platform/administrators", "*"));
-    Identity root = new Identity("root", memberships);
-    identityRegistry.register(root);
-    ConversationState conversationState = new ConversationState(root);
-    ConversationState.setCurrent(conversationState);
 
     RequestLifeCycle.begin(container);
     InitParams initParams = new InitParams();
@@ -104,6 +97,8 @@ public class SpaceApplicationMigrationTest extends AbstractKernelTest {
 
   @Test
   public void processUpgrade() throws Exception {
+    startAdminSession();
+
     Space space = new Space();
     space.setDisplayName("testspace");
     space.setPrettyName(space.getDisplayName());
@@ -136,4 +131,15 @@ public class SpaceApplicationMigrationTest extends AbstractKernelTest {
             "SpaceApplicationMigrationEnded");
     assertEquals(true , settingValue.getValue());
   }
+
+  private void startAdminSession() {
+    HashSet<MembershipEntry> memberships = new HashSet<MembershipEntry>();
+    memberships.add(new MembershipEntry("/platform/users", "*"));
+    memberships.add(new MembershipEntry("/platform/administrators", "*"));
+    Identity root = new Identity("root", memberships);
+    identityRegistry.register(root);
+    ConversationState conversationState = new ConversationState(root);
+    ConversationState.setCurrent(conversationState);
+  }
+
 }
