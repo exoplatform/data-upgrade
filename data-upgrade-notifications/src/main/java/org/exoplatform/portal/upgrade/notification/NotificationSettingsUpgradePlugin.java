@@ -61,7 +61,10 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
 
         PluginInfo pluginTypeConfig = findPlugin(pluginType);
         List<String> usersContexts;
-
+        if (pluginTypeConfig == null) {
+          LOG.info("=== couldn't initialize the settings of {} , plugin is not found", pluginType);
+          continue;
+        }
         entityManagerService.startRequest(currentContainer);
         long startTime = System.currentTimeMillis();
         do {
