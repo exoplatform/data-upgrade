@@ -34,6 +34,8 @@ public class ImportDocumentsNotificationUpgradePlugin extends UpgradeProductPlug
 
   private String                     notificationPlugin;
 
+  private int settingsUpdateCount;
+
   public ImportDocumentsNotificationUpgradePlugin(SettingService settingService,
                                                   UserSettingService userSettingService,
                                                   PluginSettingService pluginSettingService,
@@ -66,6 +68,7 @@ public class ImportDocumentsNotificationUpgradePlugin extends UpgradeProductPlug
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
     int pageSize = 20;
     int current = 0;
+    settingsUpdateCount = 0;
     try {
       LOG.info("=== Start initialisation of {} settings", notificationPlugin);
       LOG.info("  Starting activating {} Notifications for users", notificationPlugin);
@@ -96,8 +99,13 @@ public class ImportDocumentsNotificationUpgradePlugin extends UpgradeProductPlug
               entityManagerService.startRequest(currentContainer);
               UserSetting userSetting = this.userSettingService.get(userName);
               if (userSetting != null) {
+                int initialSettingUpdateCount = settingsUpdateCount;
                 updateSetting(userSetting, pluginTypeConfig);
-                userSettingService.save(userSetting);
+                boolean isUserSettingsUpdated = initialSettingUpdateCount < settingsUpdateCount;
+                // do not save the user settings if it isn't updated.
+                if (isUserSettingsUpdated) {
+                  userSettingService.save(userSetting);
+                }
               }
             } catch (Exception e) {
               LOG.error("  Error while activating {} Notifications for user {} ", notificationPlugin, userName, e);
@@ -105,26 +113,38 @@ public class ImportDocumentsNotificationUpgradePlugin extends UpgradeProductPlug
           }
           current += usersContexts.size();
         }
+        // Log the number of users' notification settings updated per page
+        LOG.info(" Notifications settings initialized for : {} from {} users", settingsUpdateCount, current);
       } while (usersContexts != null && !usersContexts.isEmpty());
       long endTime = System.currentTimeMillis();
+      // Log total number of users' notification settings updated.
       LOG.info("  Users {} Notifications settings initialised in {} ms", notificationPlugin, (endTime - startTime));
     } catch (Exception e) {
       LOG.error("Error while initialisation of users {} Notifications settings - Cause :", notificationPlugin, e.getMessage(), e);
     } finally {
       entityManagerService.endRequest(currentContainer);
     }
-    LOG.info("=== {} users with modified notifications settings have been found and processed successfully", current);
+    LOG.info("=== {} users with modified notifications settings have been found and processed successfully", settingsUpdateCount);
     LOG.info("=== End initialisation of {} Notifications settings", notificationPlugin);
   }
   private void updateSetting(UserSetting userSetting, PluginInfo config) {
+    boolean isSettingUpdated = false;
     for (String defaultConf : config.getDefaultConfig()) {
       for (String channelId : userSetting.getChannelActives()) {
+        if (userSetting.getPlugins(channelId).contains(config.getType())) {
+          continue;
+        }
         if (UserSetting.FREQUENCY.getFrequecy(defaultConf) == UserSetting.FREQUENCY.INSTANTLY) {
           userSetting.addChannelPlugin(channelId, config.getType());
+          isSettingUpdated = true;
         } else {
           userSetting.addPlugin(config.getType(), UserSetting.FREQUENCY.getFrequecy(defaultConf));
+          isSettingUpdated = true;
         }
       }
+    }
+    if (isSettingUpdated) {
+      settingsUpdateCount += 1;
     }
   }
 }
