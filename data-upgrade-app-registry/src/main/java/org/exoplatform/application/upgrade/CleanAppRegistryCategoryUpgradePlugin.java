@@ -19,8 +19,10 @@ package org.exoplatform.application.upgrade;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.exoplatform.application.registry.impl.JDBCApplicationRegistryService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -75,10 +77,20 @@ public class CleanAppRegistryCategoryUpgradePlugin extends UpgradeProductPlugin 
       }
     } finally {
       RequestLifeCycle.end();
+      restartApplicationRegistryService();
     }
   }
-
   public int getCleanedCategoriesCount() {
     return cleanedCategoriesCount;
+  }
+
+  private void restartApplicationRegistryService() {
+    try {
+      JDBCApplicationRegistryService applicationRegistryService = CommonsUtils.getService(JDBCApplicationRegistryService.class);
+      applicationRegistryService.stop();
+      applicationRegistryService.start();
+    } catch (Exception e) {
+      LOG.info("Error encountered when restarting {} during the clean application registry upgrade plugin", JDBCApplicationRegistryService.class);
+    }
   }
 }
