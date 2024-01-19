@@ -27,6 +27,7 @@ import org.exoplatform.portal.config.model.ApplicationType;
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.application-registry-configuration-local.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/application-registry-initializer-configuration.xml"),
 })
 public class CleanAppRegistryCategoryUpgradePluginTest extends AbstractKernelTest {
 
@@ -59,9 +60,9 @@ public class CleanAppRegistryCategoryUpgradePluginTest extends AbstractKernelTes
     valueParam.setValue("org.exoplatform.platform");
     initParams.addParameter(valueParam);
 
-    String toolCategoryName = "Tools";
+    String toolsCategoryName = "Tools";
     String analyticsCategoryName = "Analytics";
-    ApplicationCategory toolsCategory = createAppCategory(toolCategoryName, "None");
+    ApplicationCategory toolsCategory = createAppCategory(toolsCategoryName, "None");
     ApplicationCategory analytics = createAppCategory(analyticsCategoryName, "None");
     applicationRegistryService.save(toolsCategory);
     applicationRegistryService.save(analytics);
@@ -75,6 +76,16 @@ public class CleanAppRegistryCategoryUpgradePluginTest extends AbstractKernelTes
       List<ApplicationCategory> cats = applicationRegistryService.getApplicationCategories();
       assertFalse(apps.isEmpty());
       assertFalse(cats.isEmpty());
+      // assert that the tools category is created with the iframe portlet as the application
+      ApplicationCategory tools = applicationRegistryService.getApplicationCategory(toolsCategoryName);
+      assertNotNull(tools);
+      assertTrue(tools.getApplications().size() == 2);
+      assertTrue(tools.getApplications().stream().anyMatch(application -> application.getApplicationName().equals("IFramePortlet")));
+      //assert that the analytics category is created with the AnalyticsPortlet as the application
+      ApplicationCategory analyticsCategory = applicationRegistryService.getApplicationCategory(analyticsCategoryName);
+      assertNotNull(analyticsCategory);
+      assertTrue(analyticsCategory.getApplications().size() == 1);
+      assertTrue(analyticsCategory.getApplications().stream().anyMatch(application -> application.getApplicationName().equals("AnalyticsPortlet")));
     } catch (Exception e) {
       fail();
     }
@@ -86,9 +97,17 @@ public class CleanAppRegistryCategoryUpgradePluginTest extends AbstractKernelTes
     appRegistryCategoryUpgradePlugin.processUpgrade(null, null);
     try {
       List<Application> apps = applicationRegistryService.getAllApplications();
-      assertTrue(apps.isEmpty());
+      assertTrue(!apps.isEmpty());
       List<ApplicationCategory> cats = applicationRegistryService.getApplicationCategories();
-      assertTrue(cats.isEmpty());
+      assertTrue(!cats.isEmpty());
+      // assert that the tools category is recreated with the WhoIsOnLinePortlet as the application
+      ApplicationCategory tools = applicationRegistryService.getApplicationCategory(toolsCategoryName);
+      assertNotNull(tools);
+      assertTrue(tools.getApplications().size() == 1);
+      assertTrue(tools.getApplications().get(0).getApplicationName().equals("WhoIsOnLinePortlet"));
+      // assert that the analytics category is removed
+      ApplicationCategory analyticsCategory = applicationRegistryService.getApplicationCategory(analyticsCategoryName);
+      assertNull(analyticsCategory);
     } catch (Exception e) {
       fail();
     }
