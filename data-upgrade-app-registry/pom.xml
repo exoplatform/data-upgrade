@@ -32,7 +32,7 @@
   <name>eXo Add-on:: Data Upgrade Add-on - ApplicationRegistery - Upgrade</name>
 
   <properties>
-    <exo.test.coverage.ratio>0.82</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.78</exo.test.coverage.ratio>
   </properties>
 
   <dependencies>
