@@ -16,6 +16,7 @@
  */
 package org.exoplatform.migration;
 
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -38,6 +39,14 @@ public class UserSetExternalInGateinPortal extends UpgradeProductPlugin {
     super(initParams);
     this.organizationService=organizationService;
 
+  }
+  @Override
+  public boolean shouldProceedToUpgrade(String newVersion,
+                                        String previousGroupVersion,
+                                        UpgradePluginExecutionContext previousUpgradePluginExecution) {
+
+    int executionCount = previousUpgradePluginExecution == null ? 0 : previousUpgradePluginExecution.getExecutionCount();
+    return !isExecuteOnlyOnce() || executionCount == 0;
   }
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
@@ -63,9 +72,14 @@ public class UserSetExternalInGateinPortal extends UpgradeProductPlugin {
             if (profile==null) {
               profile=organizationService.getUserProfileHandler().createUserProfileInstance(username);
             }
-            profile.setAttribute(UserProfile.OTHER_KEYS[2],"true");
-            organizationService.getUserProfileHandler().saveUserProfile(profile,true);
-            LOG.debug("External info added in gatein profile for user {}, {}ms", username, System.currentTimeMillis() - startTimeForUser);
+            // do not update the profiles of users who already have the correct external property value
+            if (profile.getAttribute(UserProfile.OTHER_KEYS[2]) != null && String.valueOf(true).equals(profile.getAttribute(UserProfile.OTHER_KEYS[2]))) {
+              LOG.debug("External info already set in gatein profile for user {}", username);
+            } else {
+              profile.setAttribute(UserProfile.OTHER_KEYS[2],"true");
+              organizationService.getUserProfileHandler().saveUserProfile(profile,true);
+              LOG.debug("External info added in gatein profile for user {}, {}ms", username, System.currentTimeMillis() - startTimeForUser);
+            }
           } catch (Exception e) {
             LOG.error("Unable to get profile for user {}",username);
           }
