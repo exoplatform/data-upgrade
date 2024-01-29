@@ -60,7 +60,7 @@
   <external-component-plugins>
     <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
     <component-plugin>
-      <name>ExternalUserUpgradePlugin</name>
+      <name>ExternalUserUpgradePluginV1</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.migration.UserSetExternalInGateinPortal</type>
       <description>Add external information in gatein portal profile</description>
@@ -74,7 +74,7 @@
           <name>plugin.upgrade.target.version</name>
           <description>The plugin target version (will not be executed if previous version is equal or higher than 6.3.1)
           </description>
-          <value>6.3.0</value>
+          <value>6.6.x</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
