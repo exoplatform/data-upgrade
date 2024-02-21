@@ -51,57 +51,74 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
     List<String> pluginTypes = Arrays.asList(notificationPluginTypes.replace("\n", "").replaceAll("\\s", "").split(","));
+    int pageSize = 20;
+    int current = 0;
+    try {
+      LOG.info("=== Start initialisation of settings");
+      LOG.info("  Starting activating Notifications for users");
+      entityManagerService.startRequest(currentContainer);
+      long startTime = System.currentTimeMillis();
+      List<String> usersContexts;
+      do {
+        LOG.info("  Progression of users Notifications settings initialisation : {} users", current);
 
-    for (String pluginType : pluginTypes) {
-      int pageSize = 20;
-      int current = 0;
-      try {
-        LOG.info("=== Start initialisation of {} settings", pluginType);
-        LOG.info("  Starting activating {} Notifications for users", pluginType);
+        // Get all users who already update their notification settings
+        usersContexts = settingService.getContextNamesByType(Context.USER.getName(), current, pageSize);
 
-        PluginInfo pluginTypeConfig = findPlugin(pluginType);
-        List<String> usersContexts;
-        if (pluginTypeConfig == null) {
-          LOG.info("=== couldn't initialize the settings of {} , plugin is not found", pluginType);
-          continue;
-        }
-        entityManagerService.startRequest(currentContainer);
-        long startTime = System.currentTimeMillis();
-        do {
-          LOG.info("  Progression of users {} Notifications settings initialisation : {} users", pluginType, current);
+        LOG.info("Time to get all users who already update their notification settings : {}ms (usersContext={})",System.currentTimeMillis() - startTime, usersContexts);
+        long tempStartTime=System.currentTimeMillis();
 
-          // Get all users who already update their notification settings
-          usersContexts = settingService.getContextNamesByType(Context.USER.getName(), current, pageSize);
+        if (usersContexts != null) {
+          for (String userName : usersContexts) {
+            long startUserTime = System.currentTimeMillis();
+            try {
+              entityManagerService.endRequest(currentContainer);
+              LOG.info("Time to make endRequest : {}ms", System.currentTimeMillis() - tempStartTime);
+              tempStartTime=System.currentTimeMillis();
+              entityManagerService.startRequest(currentContainer);
+              LOG.info("Time to make startRequest : {}ms", System.currentTimeMillis() - tempStartTime);
+              tempStartTime=System.currentTimeMillis();
+              UserSetting userSetting = this.userSettingService.get(userName);
+              LOG.info("Time to getUserSettings : {}ms (userSettings={})", System.currentTimeMillis() - tempStartTime, userSetting);
+              tempStartTime=System.currentTimeMillis();
+              if (userSetting != null) {
 
-          if (usersContexts != null) {
-            for (String userName : usersContexts) {
-              try {
-                entityManagerService.endRequest(currentContainer);
-                entityManagerService.startRequest(currentContainer);
-
-                UserSetting userSetting = this.userSettingService.get(userName);
-                if (userSetting != null) {
+                for (String pluginType : pluginTypes) {
+                  PluginInfo pluginTypeConfig = findPlugin(pluginType);
+                  if (pluginTypeConfig == null) {
+                    LOG.info("=== couldn't initialize the settings of {} , plugin is not found", pluginType);
+                    continue;
+                  }
+                  LOG.info("Call updateSettings : usersetting={}, pluginTypeConfig={}",pluginType, userSetting, pluginTypeConfig);
                   updateSetting(userSetting, pluginTypeConfig);
-                  userSettingService.save(userSetting);
+                  LOG.info("({}) Time to updateSetting : {}ms",pluginType, System.currentTimeMillis() - tempStartTime);
                 }
-              } catch (Exception e) {
-                LOG.error("  Error while activating {} Notifications for user {} ", pluginType, userName, e);
-              }
-            }
-            current += usersContexts.size();
-          }
-        } while (usersContexts != null && !usersContexts.isEmpty());
-        long endTime = System.currentTimeMillis();
-        LOG.info("  Users {} Notifications settings initialised in {} ms", pluginType, (endTime - startTime));
-      } catch (Exception e) {
-        LOG.error("Error while initialisation of users {} Notifications settings - Cause :", pluginType, e.getMessage(), e);
-      } finally {
-        entityManagerService.endRequest(currentContainer);
-      }
 
-      LOG.info("=== {} users with modified notifications settings have been found and processed successfully", current);
-      LOG.info("=== End initialisation of {} Notifications settings", pluginType);
+                tempStartTime=System.currentTimeMillis();
+                userSettingService.save(userSetting);
+                LOG.info("Time to save userSettings : {}ms", System.currentTimeMillis() - tempStartTime);
+                tempStartTime=System.currentTimeMillis();
+              }
+            } catch (Exception e) {
+              LOG.error("Error while activating {} Notifications for user {} ", userName, e);
+            }
+            LOG.info("Time to treat user={} : {}ms", userName, System.currentTimeMillis() - startUserTime);
+          }
+          current += usersContexts.size();
+        }
+      } while (usersContexts != null && !usersContexts.isEmpty());
+      long endTime = System.currentTimeMillis();
+      LOG.info("  Users Notifications settings initialised in {} ms", (endTime - startTime));
+    } catch (Exception e) {
+      LOG.error("Error while initialisation of users Notifications settings - Cause :", e.getMessage(), e);
+    } finally {
+      entityManagerService.endRequest(currentContainer);
     }
+
+    LOG.info("=== {} users with modified notifications settings have been found and processed successfully", current);
+    LOG.info("=== End initialisation of Notifications settings");
+
+
   }
 
   private PluginInfo findPlugin(String type) {
