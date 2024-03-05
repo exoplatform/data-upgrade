@@ -105,20 +105,8 @@ public class PortalNavigationIconMigration extends UpgradeProductPlugin {
       String keys = Arrays.stream(e.getKey().split(",")).map(key -> String.format("'%s'", key)).collect(Collectors.joining(","));
       return String.format(ICON_UPDATE_CASE_SQL, keys, e.getValue());
     }).collect(Collectors.joining()));
-    boolean transactionStarted = false;
-    try {
-      if (!entityManager.getTransaction().isActive()) {
-        entityManager.getTransaction().begin();
-        transactionStarted = true;
-      }
-      Query query = entityManager.createNativeQuery(sqlStatement);
-      return query.executeUpdate();
-    } catch (Exception e) {
-      if (transactionStarted && entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
-        entityManager.getTransaction().rollback();
-      }
-      return 0;
-    }
+    Query query = entityManager.createNativeQuery(sqlStatement);
+    return query.executeUpdate();
   }
 
   public int getMigratedPortalNodeIconsNodeIcons() {

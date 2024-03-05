@@ -3,8 +3,6 @@ package org.exoplatform.migration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.component.test.AbstractKernelTest;
@@ -25,7 +23,6 @@ import org.exoplatform.portal.mop.dao.NodeDAO;
 import org.exoplatform.portal.mop.dao.PageDAO;
 import org.exoplatform.portal.mop.dao.SiteDAO;
 
-@RunWith(MockitoJUnitRunner.class)
 @ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration-local.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml") })
@@ -45,29 +42,29 @@ public class PortalNavigationIconMigrationTest extends AbstractKernelTest {
     pageDAO = container.getComponentInstanceOfType(PageDAO.class);
     nodeDAO = container.getComponentInstanceOfType(NodeDAO.class);
     entityManagerService = container.getComponentInstanceOfType(EntityManagerService.class);
-    RequestLifeCycle.begin(container);
+    begin();
     ValueParam productGroupIdValueParam = new ValueParam();
     productGroupIdValueParam.setName("product.group.id");
     productGroupIdValueParam.setValue("org.exoplatform.platform");
-    ValueParam spaceNodeNamesValueParam = new ValueParam();
-    spaceNodeNamesValueParam.setName("portal.node.names");
-    spaceNodeNamesValueParam.setValue("external-stream");
-    ValueParam spaceNodeIconsValueParam = new ValueParam();
-    spaceNodeIconsValueParam.setName("portal.node.icons");
-    spaceNodeIconsValueParam.setValue("fas fa-user-lock");
+    ValueParam portalNodeNamesValueParam = new ValueParam();
+    portalNodeNamesValueParam.setName("portal.node.names");
+    portalNodeNamesValueParam.setValue("external-stream");
+    ValueParam portalNodeIconsValueParam = new ValueParam();
+    portalNodeIconsValueParam.setName("portal.node.icons");
+    portalNodeIconsValueParam.setValue("fas fa-user-lock");
     initParams.addParameter(productGroupIdValueParam);
-    initParams.addParameter(spaceNodeNamesValueParam);
-    initParams.addParameter(spaceNodeIconsValueParam);
+    initParams.addParameter(portalNodeNamesValueParam);
+    initParams.addParameter(portalNodeIconsValueParam);
     this.portalNavigationIconMigration = new PortalNavigationIconMigration(entityManagerService, initParams);
   }
 
   @After
   public void tearDown() throws Exception {
-    RequestLifeCycle.end();
+    end();
   }
 
   @Test
-  public void portalNavigationIconMigrationTest() {
+  public void testPortalNavigationIconMigration() {
 
     SiteEntity siteEntity = new SiteEntity();
     siteEntity.setName("dw");
@@ -91,7 +88,6 @@ public class PortalNavigationIconMigrationTest extends AbstractKernelTest {
     nodeEntity.setTarget(NodeTarget.NEW_TAB);
     nodeDAO.create(nodeEntity);
     nodeEntity = nodeDAO.findAllByPage(pageEntity.getId()).stream().filter(e -> e.getName().equals("external-stream")).toList().get(0);
-    assertNotNull(nodeEntity);
     //
     assertNotNull(nodeEntity);
     restartTransaction();
