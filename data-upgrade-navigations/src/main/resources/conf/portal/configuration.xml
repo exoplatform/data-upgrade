@@ -165,7 +165,7 @@
         </value-param>
         <value-param>
           <name>plugin.upgrade.target.version</name>
-          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.5.0)</description>
+          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.6.0)</description>
           <value>6.6.0</value>
         </value-param>
         <value-param>
