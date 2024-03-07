@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2003-2024 eXo Platform SAS
+ * Copyright (C) 2024 eXo Platform SAS.
  *
- *  This program is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -9,10 +9,10 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <gnu.org/licenses>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.migration;
 
@@ -22,15 +22,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.exoplatform.commons.api.persistence.ExoTransactional;
+
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 /**
  * This plugin will be executed in order to set icons for the portal navigation
@@ -88,7 +90,6 @@ public class PortalNavigationIconMigration extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
 
     long startupTime = System.currentTimeMillis();
-
     LOG.info("Start:: Upgrade of portal navigation node icons");
     Set<Map.Entry<String, String>> portalNodesEntrySet = portalNodes.entrySet();
     this.migratedPortalNodeIcons = upgradePortalNodeIcons(portalNodesEntrySet);
@@ -96,17 +97,30 @@ public class PortalNavigationIconMigration extends UpgradeProductPlugin {
              migratedPortalNodeIcons,
              (System.currentTimeMillis() - startupTime));
   }
-
-  @ExoTransactional
   public int upgradePortalNodeIcons(Set<Map.Entry<String, String>> portalNodesEntrySet) {
-    EntityManager entityManager = entityManagerService.getEntityManager();
-
-    String sqlStatement = String.format(ICON_UPDATE_SQL, portalNodes.entrySet().stream().map(e -> {
-      String keys = Arrays.stream(e.getKey().split(",")).map(key -> String.format("'%s'", key)).collect(Collectors.joining(","));
-      return String.format(ICON_UPDATE_CASE_SQL, keys, e.getValue());
-    }).collect(Collectors.joining()));
-    Query query = entityManager.createNativeQuery(sqlStatement);
-    return query.executeUpdate();
+    PortalContainer container = PortalContainer.getInstance();
+    RequestLifeCycle.begin(container);
+    EntityManager entityManager = this.entityManagerService.getEntityManager();
+    boolean transactionStarted = false;
+    try {
+      if (!entityManager.getTransaction().isActive()) {
+        entityManager.getTransaction().begin();
+        transactionStarted = true;
+      }
+      String sqlStatement = String.format(ICON_UPDATE_SQL, portalNodes.entrySet().stream().map(e -> {
+        String keys = Arrays.stream(e.getKey().split(",")).map(key -> String.format("'%s'", key)).collect(Collectors.joining(","));
+        return String.format(ICON_UPDATE_CASE_SQL, keys, e.getValue());
+      }).collect(Collectors.joining()));
+      Query query = entityManager.createNativeQuery(sqlStatement);
+      return query.executeUpdate();
+    } catch (Exception exception) {
+      if (transactionStarted && entityManager.getTransaction().isActive() && entityManager.getTransaction().getRollbackOnly()) {
+        entityManager.getTransaction().rollback();
+      }
+      return 0;
+    } finally {
+      RequestLifeCycle.end();
+    }
   }
 
   public int getMigratedPortalNodeIconsNodeIcons() {

@@ -90,14 +90,22 @@ public class PortalNavigationIconMigrationTest extends AbstractKernelTest {
     nodeEntity = nodeDAO.findAllByPage(pageEntity.getId()).stream().filter(e -> e.getName().equals("external-stream")).toList().get(0);
     //
     assertNotNull(nodeEntity);
+    assertEquals("external-stream", nodeEntity.getName());
+    assertEquals("stream", nodeEntity.getPage().getName());
+    assertEquals("dw", nodeEntity.getPage().getOwner().getName());
+    assertNull(nodeEntity.getIcon());
     restartTransaction();
     portalNavigationIconMigration.processUpgrade(null, null);
     //
+    assertNotNull(portalNavigationIconMigration.getMigratedPortalNodeIconsNodeIcons());
     assertEquals(1, portalNavigationIconMigration.getMigratedPortalNodeIconsNodeIcons());
     nodeEntity = nodeDAO.find(nodeEntity.getId());
     assertNotNull(nodeEntity);
     assertNotNull(nodeEntity.getIcon());
     assertEquals("fas fa-user-lock", nodeEntity.getIcon());
+    assertEquals("external-stream", nodeEntity.getName());
+    assertEquals("stream", nodeEntity.getPage().getName());
+    assertEquals("dw", nodeEntity.getPage().getOwner().getName());
   }
 
 }
