@@ -163,6 +163,7 @@ public class NavigationNodesMigrationTest extends AbstractKernelTest {
                                                 "",
                                                 "",
                                                 "",
+                                                "",
                                                 Collections.emptyList(),
                                                 Collections.emptyList(),
                                                 Collections.emptyList(),
@@ -178,7 +179,6 @@ public class NavigationNodesMigrationTest extends AbstractKernelTest {
                                        null,
                                        null,
                                        container,
-                                       null,
                                        true,
                                        5,
                                        0);
