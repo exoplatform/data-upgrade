@@ -10,7 +10,7 @@
   </parent>
   <groupId>org.exoplatform.addons.upgrade</groupId>
   <artifactId>upgrade</artifactId>
-  <version>7.0.x-SNAPSHOT</version>
+  <version>7.0.x-experience-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Add-on:: Data Upgrade Add-on</name>
   <scm>
@@ -36,10 +36,10 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.news.version>7.0.x-SNAPSHOT</addon.exo.news.version>
+    <addon.exo.ecms.version>7.0.x-experience-SNAPSHOT</addon.exo.ecms.version>
+    <addon.exo.news.version>7.0.x-experience-SNAPSHOT</addon.exo.news.version>
     <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
-    <addon.meeds.content.version>7.0.x-exo-SNAPSHOT</addon.meeds.content.version>
+    <addon.meeds.content.version>7.0.x-experience-SNAPSHOT</addon.meeds.content.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
