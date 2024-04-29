@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.exoplatform.addons</groupId>
     <artifactId>addons-exo-parent-pom</artifactId>
-    <version>18-M06.1</version>
+    <version>18-security-fix-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <groupId>org.exoplatform.addons.upgrade</groupId>
   <artifactId>upgrade</artifactId>
-  <version>7.0.x-SNAPSHOT</version>
+  <version>7.0.x-security-fix-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Add-on:: Data Upgrade Add-on</name>
   <scm>
@@ -34,8 +34,8 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
+    <addon.exo.ecms.version>7.0.x-security-fix-SNAPSHOT</addon.exo.ecms.version>
+    <addon.exo.processes.version>7.0.x-security-fix-SNAPSHOT</addon.exo.processes.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
