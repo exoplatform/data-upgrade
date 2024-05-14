@@ -28,7 +28,6 @@ import javax.jcr.Session;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
-import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cms.BasePath;
 import org.exoplatform.services.cms.impl.DMSConfiguration;
@@ -87,7 +86,7 @@ public class SiteExplorerTemplateUpgradePlugin extends UpgradeProductPlugin {
     long startupTime = System.currentTimeMillis();
     log.info("Start upgrade of site explorer templates");
 
-    String unchangedViews = PrivilegedSystemHelper.getProperty("unchanged-site-explorer-templates");
+    String unchangedViews = System.getProperty("unchanged-site-explorer-templates");
     SessionProvider sessionProvider = null;
     if (StringUtils.isEmpty(unchangedViews)) {
       unchangedViews = "";
