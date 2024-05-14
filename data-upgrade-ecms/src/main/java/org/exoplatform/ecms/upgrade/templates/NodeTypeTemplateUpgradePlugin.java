@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.info.MissingProductInformationException;
 import org.exoplatform.commons.info.ProductInformations;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
-import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.commons.version.util.VersionComparator;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cms.templates.TemplateService;
@@ -76,7 +75,7 @@ public class NodeTypeTemplateUpgradePlugin extends UpgradeProductPlugin {
     if (log.isInfoEnabled()) {
       log.info("Start " + this.getClass().getName() + ".............");
     }
-    String unchangedNodeTypes = PrivilegedSystemHelper.getProperty(UNCHANG_NODE_TYPES_CONFIG);
+    String unchangedNodeTypes = System.getProperty(UNCHANG_NODE_TYPES_CONFIG);
     String previousPlfVersion = PRODUCT_VERSION_ZERO;
     Set<String> modifiedTemplateLog = new HashSet<String>();
     try {

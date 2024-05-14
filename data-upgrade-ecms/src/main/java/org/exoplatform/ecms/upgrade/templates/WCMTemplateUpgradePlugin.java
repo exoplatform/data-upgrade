@@ -29,7 +29,6 @@ import javax.jcr.query.QueryManager;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
-import org.exoplatform.commons.utils.PrivilegedSystemHelper;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cms.views.ApplicationTemplateManagerService;
 import org.exoplatform.services.cms.views.impl.ApplicationTemplateManagerServiceImpl;
@@ -51,8 +50,8 @@ public class WCMTemplateUpgradePlugin extends UpgradeProductPlugin {
     if (log.isInfoEnabled()) {
       log.info("Start " + this.getClass().getName() + ".............");
     }
-    String unchangedClvTemplates = PrivilegedSystemHelper.getProperty("unchanged-clv-templates");
-    String unchangedSearchTemplates = PrivilegedSystemHelper.getProperty("unchanged-wcm-search-templates");
+    String unchangedClvTemplates = System.getProperty("unchanged-clv-templates");
+    String unchangedSearchTemplates = System.getProperty("unchanged-wcm-search-templates");
     upgrade(unchangedClvTemplates, "content-list-viewer");
     upgrade(unchangedSearchTemplates, "search");
     
