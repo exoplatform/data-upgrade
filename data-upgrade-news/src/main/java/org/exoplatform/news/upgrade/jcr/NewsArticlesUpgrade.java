@@ -28,7 +28,6 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Value;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
@@ -182,10 +181,11 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     }
   }
 
-  public int manageNewsArticles(List<Node> newsArticlesNodes, Session session) throws UnsupportedRepositoryOperationException,
-                                                              RepositoryException {
+  public int manageNewsArticles(List<Node> newsArticlesNodes, Session session) throws Exception {
     int notMigratedNewsArticlesCount = 0;
     for (Node newsArticleNode : newsArticlesNodes) {
+      News article = null;
+      News draftArticle = null;
       try {
         News news = convertNewsNodeToNewEntity(newsArticleNode);
         LOG.info("Migrating news article with id '{}' and title '{}'", newsArticleNode.getUUID(), news.getTitle());
@@ -194,7 +194,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         // existing published and staged articles
         if (getStringProperty(newsArticleNode, "publication:currentState").equals("staged")
             || getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
-          News article = newsService.createNewsArticlePage(news, news.getAuthor(), news.getCreationDate(), news.getUpdateDate());
+          article = newsService.createNewsArticlePage(news, news.getAuthor(), news.getCreationDate(), news.getUpdateDate());
           PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
           setArticleIllustration(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
@@ -212,7 +212,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           if (!newsArticleNode.hasProperty(AuthoringPublicationConstant.LIVE_REVISION_PROP)) {
             // upgrade the drafts of not existing articles
             /* attachments will not be migrated for drafts */
-            News draftArticle = newsService.createDraftArticleForNewPage(news,
+            draftArticle = newsService.createDraftArticleForNewPage(news,
                                                                          space.getGroupId(),
                                                                          news.getAuthor(),
                                                                          news.getCreationDate().getTime());
@@ -224,7 +224,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             Node versionNode = newsArticleNode.getVersionHistory().getSession().getNodeByUUID(versionNodeUUID);
             Node publishedNode = versionNode.getNode("jcr:frozenNode");
             News publishedNews = convertNewsNodeToNewEntity(publishedNode);
-            News article = newsService.createNewsArticlePage(publishedNews,
+            article = newsService.createNewsArticlePage(publishedNews,
                                                              publishedNews.getAuthor(),
                                                              publishedNews.getCreationDate(),
                                                              publishedNews.getUpdateDate());
@@ -238,11 +238,11 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
             // upgrade the drafts of existing articles
             /* attachments will not be migrated for drafts */
-            News draftArticle = newsService.createDraftForExistingPage(news,
+            News draftForExistingArticle = newsService.createDraftForExistingPage(news,
                                                                        news.getAuthor(),
                                                                        publishedPage,
                                                                        news.getCreationDate().getTime());
-            setArticleIllustration(draftArticle.getId(), draftArticle.getSpaceId(), newsArticleNode, "newsLatestDraftPage");
+            setArticleIllustration(draftForExistingArticle.getId(), draftForExistingArticle.getSpaceId(), newsArticleNode, "newsLatestDraftPage");
           }
         }
         newsArticleNode.setProperty("exo:archived", true);
@@ -250,6 +250,13 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         session.save();
       } catch (Exception e) {
         LOG.warn("Error migrating news article with id '{}'. Continue to migrate other items", newsArticleNode.getUUID(), e);
+        if (article != null) {
+          newsService.deleteArticle(article, article.getAuthor());
+          setArticleMetadatasItems(newsArticleNode.getUUID(), article.getId());
+        }
+        else if (draftArticle != null) {
+          newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor(), true);
+        }
         notMigratedNewsArticlesCount++;
       }
     }
