@@ -267,6 +267,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     News news = new News();
     String portalOwner = CommonsUtils.getCurrentPortalOwner();
     news.setTitle(getStringProperty(newsNode, "exo:title"));
+    news.setName(news.getTitle() + "_" + newsNode.getUUID());
     news.setSummary(getStringProperty(newsNode, "exo:summary"));
     String body = getStringProperty(newsNode, "exo:body");
     String sanitizedBody = HTMLSanitizer.sanitize(body);
