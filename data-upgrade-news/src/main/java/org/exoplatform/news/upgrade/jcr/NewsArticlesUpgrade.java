@@ -17,7 +17,11 @@
 package org.exoplatform.news.upgrade.jcr;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -415,7 +419,12 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                    Node newsNode,
                                    String articleObjectType) throws RepositoryException {
     if (newsNode.hasProperty(AuthoringPublicationConstant.START_TIME_PROPERTY)) {
-      String scheduledPostDate = getStringProperty(newsNode, AuthoringPublicationConstant.START_TIME_PROPERTY);
+      Calendar startPostDate = newsNode.getProperty(AuthoringPublicationConstant.START_TIME_PROPERTY).getDate();
+
+      // create a SimpleDateFormat to format the parsed date and then save it as string
+      SimpleDateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+      defaultFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
+      String scheduledPostDate = defaultFormat.format(startPostDate.getTime());
       MetadataObject articleMetaDataObject = new MetadataObject(articleObjectType, articleId, null, Long.parseLong(spaceId));
       MetadataItem articleMetadataItem = metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY,
                                                                                              articleMetaDataObject)
