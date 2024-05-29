@@ -142,7 +142,9 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
       Iterator<Node> newsIterator = query.execute().getNodes();
       List<Node> newsArticlesNodes = new ArrayList<Node>();
-      newsIterator.forEachRemaining(newsArticlesNodes::add);
+      while (newsIterator.hasNext()) {
+        newsArticlesNodes.add(newsIterator.next());
+      }
       totalNewsArticlesCount = newsArticlesNodes.size();
       LOG.info("Total number of news articles to be migrated: {}", totalNewsArticlesCount);
       for (List<Node> newsArticlesChunk : ListUtils.partition(newsArticlesNodes, 10)) {
@@ -194,7 +196,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         // existing published and staged articles
         if (getStringProperty(newsArticleNode, "publication:currentState").equals("staged")
             || getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
-          article = newsService.createNewsArticlePage(news, news.getAuthor(), news.getCreationDate(), news.getUpdateDate());
+          article = newsService.createNewsArticlePage(news, news.getAuthor(), NewsUtils.NewsObjectType.ARTICLE.name().toLowerCase());
           PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
           setArticleIllustration(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
@@ -226,8 +228,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             News publishedNews = convertNewsNodeToNewEntity(publishedNode);
             article = newsService.createNewsArticlePage(publishedNews,
                                                              publishedNews.getAuthor(),
-                                                             publishedNews.getCreationDate(),
-                                                             publishedNews.getUpdateDate());
+                                                             NewsUtils.NewsObjectType.ARTICLE.name().toLowerCase());
             PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
             setArticleIllustration(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
             setArticleAttachments(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
@@ -359,7 +360,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                               Long.parseLong(article.getSpaceId()));
     MetadataItem articleMetadataItem =
                                      metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY, articleMetaDataObject)
-                                                    .get(0);
+                                                    .stream().findFirst().orElse(null);
     String articleActivities = getStringProperty(newsNode, "exo:activities");
     if (articleMetadataItem != null) {
       Map<String, String> articleMetadataItemProperties = articleMetadataItem.getProperties();
