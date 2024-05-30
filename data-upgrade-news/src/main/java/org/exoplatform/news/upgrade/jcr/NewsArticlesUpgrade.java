@@ -116,10 +116,6 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     this.noteService = noteService;
   }
 
-  public int getMigratedNewsArticlesCount() {
-    return migratedNewsArticlesCount;
-  }
-
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
     long startupTime = System.currentTimeMillis();

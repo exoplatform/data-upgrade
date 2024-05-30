@@ -29,6 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -175,6 +177,17 @@ public class NewsArticlesUpgradeTest {
 
     Property activityPostedProperty = mock(Property.class);
     lenient().when(node.getProperty("exo:newsActivityPosted")).thenReturn(activityPostedProperty);
+    
+    Property dateCreatedProperty = mock(Property.class);
+    when(node.hasProperty("exo:dateCreated")).thenReturn(true);
+    lenient().when(node.getProperty("exo:dateCreated")).thenReturn(dateCreatedProperty);
+    lenient().when(dateCreatedProperty.getDate()).thenReturn(mock(Calendar.class));
+    
+    Property dateModifiedProperty = mock(Property.class);
+    when(node.hasProperty("exo:dateModified")).thenReturn(true);
+    lenient().when(node.getProperty("exo:dateModified")).thenReturn(dateModifiedProperty);
+    lenient().when(dateModifiedProperty.getDate()).thenReturn(mock(Calendar.class));
+    
     lenient().when(activityPostedProperty.getString()).thenReturn("true");
 
     lenient().when(node.getName()).thenReturn("newsName");
@@ -202,6 +215,16 @@ public class NewsArticlesUpgradeTest {
     ExoSocialActivity exoSocialActivity = mock(ExoSocialActivity.class);
     when(activityManager.getActivity(any())).thenReturn(exoSocialActivity);
     when(metadataService.getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class))).thenReturn(metadataItems);
+    lenient().when(node.hasNode("illustration")).thenReturn(true);
+    Node illustrationNode = mock(Node.class);
+    lenient().when(node.getNode("illustration")).thenReturn(illustrationNode);
+    Node illustrationContentNode = mock(Node.class);
+    lenient().when(illustrationNode.getNode("jcr:content")).thenReturn(illustrationContentNode);
+    lenient().when(illustrationContentNode.getProperty("jcr:data")).thenReturn(mock(Property.class));
+    lenient().when(illustrationContentNode.getProperty("jcr:mimeType")).thenReturn(mock(Property.class));
+    lenient().when(illustrationNode.getProperty("exo:title")).thenReturn(mock(Property.class));
+    
+    lenient().when(node.hasNode("exo:attachmentsIds")).thenReturn(true);
 
     // Run the processUpgrade method
     newsArticlesUpgrade.processUpgrade("1.0", "2.0");
@@ -209,10 +232,9 @@ public class NewsArticlesUpgradeTest {
     // Verify that createNewsArticlePage was called
     verify(newsService, times(1)).createNewsArticlePage(any(News.class), anyString(), anyString());
     verify(noteService, times(1)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
-    verify(metadataService, times(1)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
-    verify(metadataService, times(1)).updateMetadataItem(any(), anyLong());
+    verify(metadataService, times(2)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
+    verify(metadataService, times(2)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(true));
-
   }
 }
