@@ -196,7 +196,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         // existing published and staged articles
         if (getStringProperty(newsArticleNode, "publication:currentState").equals("staged")
             || getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
-          article = newsService.createNewsArticlePage(news, news.getAuthor(), NewsUtils.NewsObjectType.ARTICLE.name().toLowerCase());
+
+          article = newsService.createNewsArticlePage(news, news.getAuthor());
           PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
           setArticleIllustration(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
@@ -208,6 +209,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("staged")) {
             setSchedulePostDate(article.getId(), article.getSpaceId(), newsArticleNode, "newsPage");
           }
+          // set the update and the created date
+          setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
         } else if (getStringProperty(newsArticleNode, "publication:currentState").equals("draft")) {
 
           // drafts of not existing articles
@@ -226,9 +229,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             Node versionNode = newsArticleNode.getVersionHistory().getSession().getNodeByUUID(versionNodeUUID);
             Node publishedNode = versionNode.getNode("jcr:frozenNode");
             News publishedNews = convertNewsNodeToNewEntity(publishedNode);
-            article = newsService.createNewsArticlePage(publishedNews,
-                                                             publishedNews.getAuthor(),
-                                                             NewsUtils.NewsObjectType.ARTICLE.name().toLowerCase());
+            article = newsService.createNewsArticlePage(publishedNews, publishedNews.getAuthor());
             PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
             setArticleIllustration(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
             setArticleAttachments(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
@@ -244,6 +245,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                                        publishedPage,
                                                                        news.getCreationDate().getTime());
             setArticleIllustration(draftForExistingArticle.getId(), draftForExistingArticle.getSpaceId(), newsArticleNode, "newsLatestDraftPage");
+            // set the update and the created date
+            setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
           }
         }
         newsArticleNode.setProperty("exo:archived", true);
@@ -422,15 +425,17 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                    Node newsNode,
                                    String articleObjectType) throws RepositoryException {
     if (newsNode.hasProperty(AuthoringPublicationConstant.START_TIME_PROPERTY)) {
+
       Calendar startPostDate = newsNode.getProperty(AuthoringPublicationConstant.START_TIME_PROPERTY).getDate();
+
+      // create a SimpleDateFormat to format the date and then save it as string
       SimpleDateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
       defaultFormat.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
       String scheduledPostDate = defaultFormat.format(startPostDate.getTime());
-      
       MetadataObject articleMetaDataObject = new MetadataObject(articleObjectType, articleId, null, Long.parseLong(spaceId));
       MetadataItem articleMetadataItem = metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY,
                                                                                              articleMetaDataObject)
-                                                        .get(0);
+                                                        .stream().findFirst().orElse(null);
       if (articleMetadataItem != null) {
         Map<String, String> articleMetadataItemProperties = articleMetadataItem.getProperties();
         if (articleMetadataItemProperties == null) {
@@ -451,4 +456,24 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       metadataService.updateMetadataItem(metadataItem, metadataItem.getCreatorId());
     }
   }
+
+  private void setArticleCreateAndUpdateDate(String articleId, String spaceId, Node newsNode) throws Exception {
+    Page articlePage = noteService.getNoteById(articleId);
+    if (articlePage != null) {
+      Date createDate = getDateProperty(newsNode, "exo:createDate");
+      Date updateDate = getDateProperty(newsNode, "exo:dateModified");
+      MetadataItem articleMetaData = metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY, new NewsPageObject("newsPage", articleId, null, Long.parseLong(spaceId))).stream().findFirst().orElse(null);
+      if (updateDate != null) {
+        articlePage.setUpdatedDate(updateDate);
+        articleMetaData.setUpdatedDate(updateDate.getTime());
+      }
+      if (createDate != null) {
+        articlePage.setCreatedDate(createDate);
+        articleMetaData.setCreatedDate(createDate.getTime());
+      }
+      noteService.updateNote(articlePage);
+      metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId());
+    }
+  }
 }
+

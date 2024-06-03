@@ -179,12 +179,12 @@ public class NewsArticlesUpgradeTest {
     lenient().when(node.getProperty("exo:newsActivityPosted")).thenReturn(activityPostedProperty);
     
     Property dateCreatedProperty = mock(Property.class);
-    when(node.hasProperty("exo:dateCreated")).thenReturn(true);
+    lenient().when(node.hasProperty("exo:dateCreated")).thenReturn(true);
     lenient().when(node.getProperty("exo:dateCreated")).thenReturn(dateCreatedProperty);
     lenient().when(dateCreatedProperty.getDate()).thenReturn(mock(Calendar.class));
     
     Property dateModifiedProperty = mock(Property.class);
-    when(node.hasProperty("exo:dateModified")).thenReturn(true);
+    lenient().when(node.hasProperty("exo:dateModified")).thenReturn(true);
     lenient().when(node.getProperty("exo:dateModified")).thenReturn(dateModifiedProperty);
     lenient().when(dateModifiedProperty.getDate()).thenReturn(mock(Calendar.class));
     
@@ -197,7 +197,7 @@ public class NewsArticlesUpgradeTest {
     News article = mock(News.class);
     when(article.getId()).thenReturn("1");
     when(article.getSpaceId()).thenReturn("1");
-    when(newsService.createNewsArticlePage(any(News.class), anyString(), anyString())).thenReturn(article);
+    when(newsService.createNewsArticlePage(any(News.class), anyString())).thenReturn(article);
 
     PageVersion pageVersion = mock(PageVersion.class);
     when(noteService.getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class))).thenReturn(pageVersion);
@@ -230,7 +230,7 @@ public class NewsArticlesUpgradeTest {
     newsArticlesUpgrade.processUpgrade("1.0", "2.0");
 
     // Verify that createNewsArticlePage was called
-    verify(newsService, times(1)).createNewsArticlePage(any(News.class), anyString(), anyString());
+    verify(newsService, times(1)).createNewsArticlePage(any(News.class), anyString());
     verify(noteService, times(1)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
     verify(metadataService, times(2)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
     verify(metadataService, times(2)).updateMetadataItem(any(), anyLong());
