@@ -249,8 +249,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
           }
         }
-        newsArticleNode.setProperty("exo:archived", true);
-        newsArticleNode.save();
+        newsArticleNode.remove();
         session.save();
       } catch (Exception e) {
         LOG.warn("Error migrating news article with id '{}'. Continue to migrate other items", newsArticleNode.getUUID(), e);
