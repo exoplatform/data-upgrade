@@ -209,10 +209,20 @@ public class NewsArticlesUpgradeTest {
     List<MetadataItem> metadataItems = new ArrayList<>();
     MetadataItem metadataItem = mock(MetadataItem.class);
     metadataItems.add(metadataItem);
-    Property property = mock(Property.class);
-    when(node.getProperty("exo:activities")).thenReturn(property);
+    Property activitiesProperty = mock(Property.class);
+    when(node.getProperty("exo:activities")).thenReturn(activitiesProperty);
     when(node.hasProperty("exo:activities")).thenReturn(true);
-    when(property.getString()).thenReturn("1:1;");
+    when(activitiesProperty.getString()).thenReturn("1:1;");
+    
+    Property viewsCountProperty = mock(Property.class);
+    when(node.getProperty("exo:viewsCount")).thenReturn(viewsCountProperty);
+    when(node.hasProperty("exo:viewsCount")).thenReturn(true);
+    when(viewsCountProperty.getLong()).thenReturn(1L);
+    
+    Property viewersProperty = mock(Property.class);
+    when(node.getProperty("exo:viewers")).thenReturn(viewersProperty);
+    when(node.hasProperty("exo:viewers")).thenReturn(true);
+    when(viewersProperty.getString()).thenReturn("1");
 
     ExoSocialActivity exoSocialActivity = mock(ExoSocialActivity.class);
     when(activityManager.getActivity(any())).thenReturn(exoSocialActivity);
@@ -234,8 +244,8 @@ public class NewsArticlesUpgradeTest {
     // Verify that createNewsArticlePage was called
     verify(newsService, times(1)).createNewsArticlePage(any(News.class), anyString());
     verify(noteService, times(1)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
-    verify(metadataService, times(3)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
-    verify(metadataService, times(3)).updateMetadataItem(any(), anyLong());
+    verify(metadataService, times(4)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
+    verify(metadataService, times(4)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(true));
   }
