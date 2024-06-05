@@ -41,14 +41,14 @@ public class PortalNavigationIconMigration extends UpgradeProductPlugin {
   private static final Log           LOG                  = ExoLogger.getExoLogger(PortalNavigationIconMigration.class);
 
   private static final String        ICON_UPDATE_SQL      =
-                                                     """
+                                                     """  
                                                            UPDATE PORTAL_NAVIGATION_NODES
                                                            SET ICON =
                                                              CASE
                                                                %s
+                                                              ELSE ICON
                                                              END
-                                                           WHERE ICON IS NULL
-                                                           AND EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE PAGE_ID = p.ID AND s.TYPE = 0 AND s.NAME LIKE 'dw')
+                                                           WHERE EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE PAGE_ID = p.ID AND s.TYPE = 0)
                                                          """;
 
   private static final String        ICON_UPDATE_CASE_SQL = """
@@ -105,6 +105,7 @@ public class PortalNavigationIconMigration extends UpgradeProductPlugin {
       String keys = Arrays.stream(e.getKey().split(",")).map(key -> String.format("'%s'", key)).collect(Collectors.joining(","));
       return String.format(ICON_UPDATE_CASE_SQL, keys, e.getValue());
     }).collect(Collectors.joining()));
+    sqlStatement += " AND NAME IN ('"+portalNodes.entrySet().stream().map(e -> e.getKey()).collect(Collectors.joining(","))+"')";
     Query query = entityManager.createNativeQuery(sqlStatement);
     return query.executeUpdate();
   }
