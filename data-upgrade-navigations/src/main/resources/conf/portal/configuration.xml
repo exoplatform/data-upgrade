@@ -209,17 +209,17 @@
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>The plugin target version (will not be executed if previous version is equal or higher than 6.6.0)</description>
-          <value>6.6.0</value>
+          <value>7.0.0</value>
         </value-param>
         <value-param>
           <name>portal.node.names</name>
           <description>The plugin will set the icons of these portal nodes names</description>
-          <value>external-stream</value>
+          <value>external-stream;visio</value>
         </value-param>
         <value-param>
           <name>portal.node.icons</name>
           <description>The plugin will set the portal nodes icons with these icons</description>
-          <value>fas fa-user-lock</value>
+          <value>fas fa-user-lock;fas fa-video</value>
         </value-param>
         <value-param>
           <name>plugin.execution.order</name>
