@@ -40,7 +40,7 @@
     <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.news.version>7.0.x-SNAPSHOT</addon.exo.news.version>
     <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
-    <addon.meeds.content.version>7.0.x-experience-SNAPSHOT</addon.meeds.content.version>
+    <addon.meeds.content.version>7.0.x-exo-SNAPSHOT</addon.meeds.content.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
