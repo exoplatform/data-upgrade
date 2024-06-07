@@ -210,8 +210,6 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           /* upgrade news id for news targets and favorite metadatata items */
           setArticleMetadatasItems(article.getId(), getStringProperty(newsArticleNode, "jcr:uuid"));
-          // set the update and the created date
-          setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
             setArticleActivities(article, newsArticleNode);
             setArticleViews(article, newsArticleNode);
@@ -220,6 +218,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("staged")) {
             setSchedulePostDate(article.getId(), article.getSpaceId(), newsArticleNode, "newsPage");
           }
+          // set the update and the created date
+          setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
         } else if (getStringProperty(newsArticleNode, "publication:currentState").equals("draft")) {
 
           // drafts of not existing articles
