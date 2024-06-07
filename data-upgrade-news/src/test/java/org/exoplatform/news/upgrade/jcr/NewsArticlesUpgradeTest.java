@@ -51,6 +51,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
@@ -110,6 +111,9 @@ public class NewsArticlesUpgradeTest {
   @Mock
   private FileService                             fileService;
 
+  @Mock
+  private IndexingService                         indexingService;
+
   private NewsArticlesUpgrade                     newsArticlesUpgrade;
 
   @AfterClass
@@ -134,8 +138,10 @@ public class NewsArticlesUpgradeTest {
                                                   activityManager,
                                                   metadataService,
                                                   fileService,
-                                                  noteService);
+                                                  noteService,
+                                                  indexingService);
   }
+
   @Test
   public void testProcessUpgrade() throws Exception {
     // Mock the session provider and session
@@ -178,17 +184,17 @@ public class NewsArticlesUpgradeTest {
 
     Property activityPostedProperty = mock(Property.class);
     lenient().when(node.getProperty("exo:newsActivityPosted")).thenReturn(activityPostedProperty);
-    
+
     Property dateCreatedProperty = mock(Property.class);
     lenient().when(node.hasProperty("exo:dateCreated")).thenReturn(true);
     lenient().when(node.getProperty("exo:dateCreated")).thenReturn(dateCreatedProperty);
     lenient().when(dateCreatedProperty.getDate()).thenReturn(mock(Calendar.class));
-    
+
     Property dateModifiedProperty = mock(Property.class);
     lenient().when(node.hasProperty("exo:dateModified")).thenReturn(true);
     lenient().when(node.getProperty("exo:dateModified")).thenReturn(dateModifiedProperty);
     lenient().when(dateModifiedProperty.getDate()).thenReturn(mock(Calendar.class));
-    
+
     lenient().when(activityPostedProperty.getString()).thenReturn("true");
 
     lenient().when(node.getName()).thenReturn("newsName");
@@ -213,12 +219,12 @@ public class NewsArticlesUpgradeTest {
     when(node.getProperty("exo:activities")).thenReturn(activitiesProperty);
     when(node.hasProperty("exo:activities")).thenReturn(true);
     when(activitiesProperty.getString()).thenReturn("1:1;");
-    
+
     Property viewsCountProperty = mock(Property.class);
     when(node.getProperty("exo:viewsCount")).thenReturn(viewsCountProperty);
     when(node.hasProperty("exo:viewsCount")).thenReturn(true);
     when(viewsCountProperty.getLong()).thenReturn(1L);
-    
+
     Property viewersProperty = mock(Property.class);
     when(node.getProperty("exo:viewers")).thenReturn(viewersProperty);
     when(node.hasProperty("exo:viewers")).thenReturn(true);
@@ -235,7 +241,7 @@ public class NewsArticlesUpgradeTest {
     lenient().when(illustrationContentNode.getProperty("jcr:data")).thenReturn(mock(Property.class));
     lenient().when(illustrationContentNode.getProperty("jcr:mimeType")).thenReturn(mock(Property.class));
     lenient().when(illustrationNode.getProperty("exo:title")).thenReturn(mock(Property.class));
-    
+
     lenient().when(node.hasNode("exo:attachmentsIds")).thenReturn(true);
 
     // Run the processUpgrade method

@@ -40,6 +40,7 @@ import org.apache.commons.collections4.ListUtils;
 
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.HTMLSanitizer;
@@ -68,6 +69,7 @@ import org.exoplatform.wiki.service.NoteService;
 
 import io.meeds.news.model.News;
 import io.meeds.news.model.NewsPageObject;
+import io.meeds.news.search.NewsIndexingServiceConnector;
 import io.meeds.news.service.NewsService;
 import io.meeds.news.utils.NewsUtils;
 
@@ -91,6 +93,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
   private NoteService              noteService;
 
+  private IndexingService          indexingService;
+
   private int                      migratedNewsArticlesCount = 0;
 
   public static final MetadataType NEWS_METADATA_TYPE        = new MetadataType(1000, "news");
@@ -108,7 +112,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                              ActivityManager activityManager,
                              MetadataService metadataService,
                              FileService fileService,
-                             NoteService noteService) {
+                             NoteService noteService,
+                             IndexingService indexingService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.sessionProviderService = sessionProviderService;
@@ -118,6 +123,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     this.metadataService = metadataService;
     this.fileService = fileService;
     this.noteService = noteService;
+    this.indexingService = indexingService;
   }
 
   @Override
@@ -186,6 +192,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   public int manageNewsArticles(List<Node> newsArticlesNodes, Session session) throws Exception {
     int notMigratedNewsArticlesCount = 0;
     for (Node newsArticleNode : newsArticlesNodes) {
+      indexingService.unindex(NewsIndexingServiceConnector.TYPE, newsArticleNode.getUUID());
       News article = null;
       News draftArticle = null;
       try {
@@ -203,15 +210,16 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           /* upgrade news id for news targets and favorite metadatata items */
           setArticleMetadatasItems(article.getId(), getStringProperty(newsArticleNode, "jcr:uuid"));
+          // set the update and the created date
+          setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
             setArticleActivities(article, newsArticleNode);
             setArticleViews(article, newsArticleNode);
+            indexingService.index(NewsIndexingServiceConnector.TYPE, article.getId());
           }
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("staged")) {
             setSchedulePostDate(article.getId(), article.getSpaceId(), newsArticleNode, "newsPage");
           }
-          // set the update and the created date
-          setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
         } else if (getStringProperty(newsArticleNode, "publication:currentState").equals("draft")) {
 
           // drafts of not existing articles
