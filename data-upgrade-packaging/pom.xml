@@ -62,10 +62,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-app-registry</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-notifications</artifactId>
     </dependency>
     <dependency>
