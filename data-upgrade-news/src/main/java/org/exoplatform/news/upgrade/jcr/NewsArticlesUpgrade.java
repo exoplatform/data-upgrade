@@ -141,15 +141,18 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                                     .getConfiguration()
                                                                     .getDefaultWorkspaceName(),
                                                    repositoryService.getCurrentRepository());
-      String queryString =
-                         "SELECT * FROM exo:news WHERE jcr:path LIKE '/Groups/spaces/%/News/%' and exo:archived = 'false' order by exo:dateModified DESC";
+
+      String queryString = "SELECT * FROM exo:news WHERE jcr:path LIKE '/Groups/spaces/%/News/%' order by exo:dateModified DESC";
       QueryManager queryManager = session.getWorkspace().getQueryManager();
       Query query = queryManager.createQuery(queryString, Query.SQL);
 
       Iterator<Node> newsIterator = query.execute().getNodes();
       List<Node> newsArticlesNodes = new ArrayList<Node>();
       while (newsIterator.hasNext()) {
-        newsArticlesNodes.add(newsIterator.next());
+        Node newsArticleNode = newsIterator.next();
+        if (!newsArticleNode.hasProperty("exo:archived") || !newsArticleNode.getProperty("exo:archived").getBoolean()) {
+          newsArticlesNodes.add(newsArticleNode);
+        }
       }
       totalNewsArticlesCount = newsArticlesNodes.size();
       LOG.info("Total number of news articles to be migrated: {}", totalNewsArticlesCount);
