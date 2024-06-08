@@ -21,7 +21,6 @@
   </scm>
   <modules>
     <module>data-upgrade-users</module>
-    <module>data-upgrade-elasticsearch7</module>
     <module>data-upgrade-wiki</module>
     <module>data-upgrade-ecms</module>
     <module>data-upgrade-news</module>
@@ -30,7 +29,6 @@
     <module>data-upgrade-dlp</module>
     <module>data-upgrade-notifications</module>
     <module>data-upgrade-processes-permissions</module>
-    <module>data-upgrade-es-reindex</module>
     <module>data-upgrade-move-folders</module>
     <module>data-upgrade-packaging</module>
   </modules>
@@ -74,11 +72,6 @@
 
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>data-upgrade-elasticsearch7</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-news</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -120,11 +113,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-processes-permissions</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>data-upgrade-es-reindex</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

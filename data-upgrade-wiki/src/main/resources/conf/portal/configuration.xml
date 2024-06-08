@@ -71,47 +71,6 @@
         </value-param>
       </init-params>
     </component-plugin>
-
-
-    <component-plugin>
-      <name>NotesElasticsearchUpgradePlugin</name>
-      <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.wiki.upgrade.ElasticsearchMigration</type>
-      <description>Reindex notes</description>
-      <init-params>
-        <value-param>
-          <name>product.group.id</name>
-          <description>The groupId of the product</description>
-          <value>org.exoplatform.platform</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.target.version</name>
-          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.2.0)</description>
-          <value>6.3.0</value>
-        </value-param>
-        <value-param>
-          <name>plugin.execution.order</name>
-          <description>The plugin execution order</description>
-          <value>100</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.execute.once</name>
-          <description>The plugin must be executed only once</description>
-          <value>true</value>
-        </value-param>
-        <value-param>
-          <name>plugin.upgrade.async.execution</name>
-          <description>The plugin will be executed in an asynchronous mode</description>
-          <value>true</value>
-        </value-param>
-        <value-param>
-          <name>elasticsearch.url</name>
-          <description>Elasticsearch URL</description>
-          <value>${exo.es.index.server.url:}</value>
-        </value-param>
-      </init-params>
-    </component-plugin>
-
     <component-plugin  profiles="notes">
       <name>NotesFolderPermissionsUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
