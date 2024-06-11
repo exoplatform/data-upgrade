@@ -265,6 +265,6 @@ public class NewsArticlesUpgradeTest {
     verify(metadataService, times(7)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
     verify(metadataService, times(7)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
-    verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(true));
+    verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(false));
   }
 }
