@@ -40,12 +40,7 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.ecms</groupId>
-      <artifactId>ecms-core-services</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.addons.news</groupId>
-      <artifactId>news-services</artifactId>
+      <artifactId>ecms-ext-authoring-services</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>

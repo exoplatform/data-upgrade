@@ -37,6 +37,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.Workspace;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
@@ -60,6 +61,7 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.wcm.extensions.publication.lifecycle.authoring.AuthoringPublicationConstant;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -168,36 +170,27 @@ public class NewsArticlesUpgradeTest {
     when(queryResult.getNodes()).thenReturn(iterator);
 
     // Mock nodes
-    Node node = mock(Node.class);
-    when(iterator.hasNext()).thenReturn(true, false); // one node
-    when(iterator.next()).thenReturn(node);
+    Node node1 = mock(Node.class);
+    Node node2 = mock(Node.class);
 
-    // Mock the necessary properties of the node
-    when(node.hasProperty("publication:currentState")).thenReturn(true);
-    Property currentStateProperty = mock(Property.class);
-    lenient().when(node.getProperty("publication:currentState")).thenReturn(currentStateProperty);
-    lenient().when(currentStateProperty.getString()).thenReturn("published");
+    when(iterator.hasNext()).thenReturn(true, true, false);
+    when(iterator.next()).thenReturn(node1, node2);
 
-    Property pinnedProperty = mock(Property.class);
-    lenient().when(node.getProperty("exo:pinned")).thenReturn(pinnedProperty);
-    lenient().when(pinnedProperty.getString()).thenReturn("true");
-
-    Property activityPostedProperty = mock(Property.class);
-    lenient().when(node.getProperty("exo:newsActivityPosted")).thenReturn(activityPostedProperty);
+    // Mock the necessary properties of the node1
+    when(node1.hasProperty("publication:currentState")).thenReturn(true);
+    Property publishedStateProperty = mock(Property.class);
+    when(node1.getProperty("publication:currentState")).thenReturn(publishedStateProperty);
+    when(publishedStateProperty.getString()).thenReturn("published");
 
     Property dateCreatedProperty = mock(Property.class);
-    lenient().when(node.hasProperty("exo:dateCreated")).thenReturn(true);
-    lenient().when(node.getProperty("exo:dateCreated")).thenReturn(dateCreatedProperty);
-    lenient().when(dateCreatedProperty.getDate()).thenReturn(mock(Calendar.class));
+    when(node1.hasProperty("exo:dateCreated")).thenReturn(true);
+    when(node1.getProperty("exo:dateCreated")).thenReturn(dateCreatedProperty);
+    when(dateCreatedProperty.getDate()).thenReturn(mock(Calendar.class));
 
     Property dateModifiedProperty = mock(Property.class);
-    lenient().when(node.hasProperty("exo:dateModified")).thenReturn(true);
-    lenient().when(node.getProperty("exo:dateModified")).thenReturn(dateModifiedProperty);
-    lenient().when(dateModifiedProperty.getDate()).thenReturn(mock(Calendar.class));
-
-    lenient().when(activityPostedProperty.getString()).thenReturn("true");
-
-    lenient().when(node.getName()).thenReturn("newsName");
+    when(node1.hasProperty("exo:dateModified")).thenReturn(true);
+    when(node1.getProperty("exo:dateModified")).thenReturn(dateModifiedProperty);
+    when(dateModifiedProperty.getDate()).thenReturn(mock(Calendar.class));
 
     COMMONS_UTILS.when(() -> CommonsUtils.getCurrentPortalOwner()).thenReturn("root");
     MENTION_UTILS.when(() -> MentionUtils.substituteUsernames(anyString(), anyString())).thenReturn("");
@@ -210,48 +203,67 @@ public class NewsArticlesUpgradeTest {
     when(noteService.getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class))).thenReturn(pageVersion);
     when(noteService.getNoteById(anyString())).thenReturn(mock(Page.class));
     when(pageVersion.getId()).thenReturn("1");
-    when(node.hasNode("illustration")).thenReturn(false);
+    when(node1.hasNode("illustration")).thenReturn(false);
 
     List<MetadataItem> metadataItems = new ArrayList<>();
     MetadataItem metadataItem = mock(MetadataItem.class);
     metadataItems.add(metadataItem);
+    when(node1.hasProperty("exo:activities")).thenReturn(true);
     Property activitiesProperty = mock(Property.class);
-    when(node.getProperty("exo:activities")).thenReturn(activitiesProperty);
-    when(node.hasProperty("exo:activities")).thenReturn(true);
+    when(node1.getProperty("exo:activities")).thenReturn(activitiesProperty);
     when(activitiesProperty.getString()).thenReturn("1:1;");
 
+    when(node1.hasProperty("exo:viewsCount")).thenReturn(true);
     Property viewsCountProperty = mock(Property.class);
-    when(node.getProperty("exo:viewsCount")).thenReturn(viewsCountProperty);
-    when(node.hasProperty("exo:viewsCount")).thenReturn(true);
+    when(node1.getProperty("exo:viewsCount")).thenReturn(viewsCountProperty);
     when(viewsCountProperty.getLong()).thenReturn(1L);
 
+    when(node1.hasProperty("exo:viewers")).thenReturn(true);
     Property viewersProperty = mock(Property.class);
-    when(node.getProperty("exo:viewers")).thenReturn(viewersProperty);
-    when(node.hasProperty("exo:viewers")).thenReturn(true);
+    when(node1.getProperty("exo:viewers")).thenReturn(viewersProperty);
     when(viewersProperty.getString()).thenReturn("1");
 
     ExoSocialActivity exoSocialActivity = mock(ExoSocialActivity.class);
     when(activityManager.getActivity(any())).thenReturn(exoSocialActivity);
     when(metadataService.getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class))).thenReturn(metadataItems);
-    lenient().when(node.hasNode("illustration")).thenReturn(true);
+    lenient().when(node1.hasNode("illustration")).thenReturn(true);
     Node illustrationNode = mock(Node.class);
-    lenient().when(node.getNode("illustration")).thenReturn(illustrationNode);
+    lenient().when(node1.getNode("illustration")).thenReturn(illustrationNode);
     Node illustrationContentNode = mock(Node.class);
-    lenient().when(illustrationNode.getNode("jcr:content")).thenReturn(illustrationContentNode);
-    lenient().when(illustrationContentNode.getProperty("jcr:data")).thenReturn(mock(Property.class));
-    lenient().when(illustrationContentNode.getProperty("jcr:mimeType")).thenReturn(mock(Property.class));
-    lenient().when(illustrationNode.getProperty("exo:title")).thenReturn(mock(Property.class));
+    when(illustrationNode.getNode("jcr:content")).thenReturn(illustrationContentNode);
+    when(illustrationContentNode.getProperty("jcr:data")).thenReturn(mock(Property.class));
+    when(illustrationContentNode.getProperty("jcr:mimeType")).thenReturn(mock(Property.class));
+    when(illustrationNode.getProperty("exo:title")).thenReturn(mock(Property.class));
 
-    lenient().when(node.hasNode("exo:attachmentsIds")).thenReturn(true);
+    when(node1.hasProperty("exo:attachmentsIds")).thenReturn(true);
+    Property attachmentsIdsProperty = mock(Property.class);
+    when(node1.getProperty("exo:attachmentsIds")).thenReturn(attachmentsIdsProperty);
+    Value value1 = mock(Value.class);
+    when(value1.getString()).thenReturn("22121212");
+    Value value2 = mock(Value.class);
+    when(value2.getString()).thenReturn("443434343");
+    Value[] attachmentsIdsPropertyValues = { value1, value2 };
+    when(attachmentsIdsProperty.getValues()).thenReturn(attachmentsIdsPropertyValues);
+
+    // Mock the necessary properties of the node2
+    when(node2.hasProperty("publication:currentState")).thenReturn(true);
+    Property stagedStateProperty = mock(Property.class);
+    when(node2.getProperty("publication:currentState")).thenReturn(stagedStateProperty);
+    when(stagedStateProperty.getString()).thenReturn("staged");
+    when(node2.hasProperty(AuthoringPublicationConstant.START_TIME_PROPERTY)).thenReturn(true);
+    Property startTimeProperty = mock(Property.class);
+    when(node2.getProperty(AuthoringPublicationConstant.START_TIME_PROPERTY)).thenReturn(startTimeProperty);
+    Calendar startTimePropertyCalendar = mock(Calendar.class);
+    when(startTimeProperty.getDate()).thenReturn(startTimePropertyCalendar);
+    when(startTimePropertyCalendar.getTime()).thenReturn(mock(Date.class));
 
     // Run the processUpgrade method
     newsArticlesUpgrade.processUpgrade("1.0", "2.0");
 
-    // Verify that createNewsArticlePage was called
-    verify(newsService, times(1)).createNewsArticlePage(any(News.class), anyString());
-    verify(noteService, times(1)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
-    verify(metadataService, times(4)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
-    verify(metadataService, times(4)).updateMetadataItem(any(), anyLong());
+    verify(newsService, times(2)).createNewsArticlePage(any(News.class), anyString());
+    verify(noteService, times(2)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
+    verify(metadataService, times(7)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
+    verify(metadataService, times(7)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(true));
   }
