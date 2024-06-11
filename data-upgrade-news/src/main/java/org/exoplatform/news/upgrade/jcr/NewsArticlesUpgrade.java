@@ -212,7 +212,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           setArticleIllustration(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           /* upgrade news id for news targets and favorite metadatata items */
-          setArticleMetadatasItems(article.getId(), getStringProperty(newsArticleNode, "jcr:uuid"));
+          setArticleMetadatasItems(article.getId(), newsArticleNode.getUUID());
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
             setArticleActivities(article, newsArticleNode);
             setArticleViews(article, newsArticleNode);
@@ -247,7 +247,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             setArticleIllustration(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
             setArticleAttachments(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
             /* upgrade news id for news targets and favorite metadatata items */
-            setArticleMetadatasItems(article.getId(), getStringProperty(newsArticleNode, "jcr:uuid"));
+            setArticleMetadatasItems(article.getId(), newsArticleNode.getUUID());
             setArticleActivities(article, publishedNode);
             setArticleViews(article, newsArticleNode);
             Page publishedPage = noteService.getNoteById(article.getId());
@@ -395,7 +395,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                     .findFirst()
                                                     .orElse(null);
     String articleActivities = getStringProperty(newsNode, "exo:activities");
-    if (articleMetadataItem != null) {
+    if (!articleActivities.equals("") && articleMetadataItem != null) {
       Map<String, String> articleMetadataItemProperties = articleMetadataItem.getProperties();
       if (articleMetadataItemProperties == null) {
         articleMetadataItemProperties = new HashMap<>();
@@ -403,16 +403,19 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       articleMetadataItemProperties.put("activities", articleActivities);
       articleMetadataItem.setProperties(articleMetadataItemProperties);
       metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
-    }
-    String newsActivityId = articleActivities.split(";")[0].split(":")[1];
-    ExoSocialActivity activity = activityManager.getActivity(newsActivityId);
-    if (activity != null) {
-      Map<String, String> templateParams = activity.getTemplateParams() == null ? new HashMap<>() : activity.getTemplateParams();
-      templateParams.put("newsId", article.getId());
-      activity.setTemplateParams(templateParams);
-      activity.setMetadataObjectId(article.getId());
-      activity.setMetadataObjectType(NewsUtils.NEWS_METADATA_OBJECT_TYPE);
-      activityManager.updateActivity(activity, true);
+      String newsActivity = articleActivities.split(";")[0];
+      if (newsActivity.split(":").length > 1) {
+        String newsActivityId = newsActivity.split(":")[1];
+        ExoSocialActivity activity = activityManager.getActivity(newsActivityId);
+        if (activity != null) {
+          Map<String, String> templateParams = activity.getTemplateParams() == null ? new HashMap<>() : activity.getTemplateParams();
+          templateParams.put("newsId", article.getId());
+          activity.setTemplateParams(templateParams);
+          activity.setMetadataObjectId(article.getId());
+          activity.setMetadataObjectType(NewsUtils.NEWS_METADATA_OBJECT_TYPE);
+          activityManager.updateActivity(activity, false);
+        }
+      }
     }
   }
 
