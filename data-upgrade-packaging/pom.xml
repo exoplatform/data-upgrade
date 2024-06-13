@@ -54,10 +54,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-elasticsearch7</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-navigations</artifactId>
     </dependency>
     <dependency>
@@ -71,10 +67,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-processes-permissions</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-es-reindex</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
