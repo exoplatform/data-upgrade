@@ -39,6 +39,8 @@ import javax.jcr.Property;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.Workspace;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -178,6 +180,10 @@ public class NewsArticlesUpgradeTest {
 
     // Mock the necessary properties of the node1
     when(node1.hasProperty("publication:currentState")).thenReturn(true);
+    Property archivedProperty = mock(Property.class);
+    when(node1.hasProperty("exo:archived")).thenReturn(true);
+    when(node1.getProperty("exo:archived")).thenReturn(archivedProperty);
+    when(archivedProperty.getBoolean()).thenReturn(false);
     Property publishedStateProperty = mock(Property.class);
     when(node1.getProperty("publication:currentState")).thenReturn(publishedStateProperty);
     when(publishedStateProperty.getString()).thenReturn("published");
@@ -266,5 +272,27 @@ public class NewsArticlesUpgradeTest {
     verify(metadataService, times(7)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(false));
+  }
+  
+  @Test
+  public void testShouldProceedToUpgrade() throws Exception {
+    // Mock the session provider and session
+    when(repositoryService.getCurrentRepository()).thenReturn(repository);
+    when(repository.getConfiguration()).thenReturn(repositoryEntry);
+    when(repositoryEntry.getDefaultWorkspaceName()).thenReturn("collaboration");
+    SessionProvider sessionProvider = mock(SessionProvider.class);
+    when(sessionProviderService.getSystemSessionProvider(null)).thenReturn(sessionProvider);
+    Session session = mock(Session.class);
+    when(sessionProvider.getSession(anyString(), any())).thenReturn(session);
+
+    Workspace workspace = mock(Workspace.class);
+    when(session.getWorkspace()).thenReturn(workspace);
+    NodeTypeManager nodetypeManager = mock(NodeTypeManager.class);
+    when(workspace.getNodeTypeManager()).thenReturn(nodetypeManager);
+    when(nodetypeManager.getNodeType(anyString())).thenReturn(mock(NodeType.class));
+
+    // Run the shouldProceedToUpgrade method
+    newsArticlesUpgrade.shouldProceedToUpgrade("2.0", "0", null);
+    verify(nodetypeManager, times(1)).getNodeType(anyString());
   }
 }

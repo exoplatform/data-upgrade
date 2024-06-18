@@ -33,6 +33,8 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
@@ -41,6 +43,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.HTMLSanitizer;
@@ -150,8 +153,12 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       List<Node> newsArticlesNodes = new ArrayList<Node>();
       while (newsIterator.hasNext()) {
         Node newsArticleNode = newsIterator.next();
-        if (!newsArticleNode.hasProperty("exo:archived") || !newsArticleNode.getProperty("exo:archived").getBoolean()) {
+        if (!getBooleanProperty(newsArticleNode, "exo:archived")) {
           newsArticlesNodes.add(newsArticleNode);
+        }
+        else {
+          newsArticleNode.remove();
+          session.save();
         }
       }
       totalNewsArticlesCount = newsArticlesNodes.size();
@@ -190,6 +197,30 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                (System.currentTimeMillis() - startupTime));
       throw new IllegalStateException("Some news articles wasn't executed successfully. It will be re-attempted next startup");
     }
+  }
+  
+  @Override
+  public boolean shouldProceedToUpgrade(String newVersion, String previousGroupVersion, UpgradePluginExecutionContext previousUpgradePluginExecution) {
+    SessionProvider sessionProvider = sessionProviderService.getSystemSessionProvider(null);
+    Session session;
+    try {
+      session = sessionProvider.getSession(
+                                                   repositoryService.getCurrentRepository()
+                                                                    .getConfiguration()
+                                                                    .getDefaultWorkspaceName(),
+                                                   repositoryService.getCurrentRepository());
+      NodeTypeManager nodetypeManager = session.getWorkspace().getNodeTypeManager();
+      nodetypeManager.getNodeType("exo:news");
+    } catch (NoSuchNodeTypeException e) {
+      return false;
+    } catch (Exception e) {
+      return super.shouldProceedToUpgrade(newVersion, previousGroupVersion, previousUpgradePluginExecution);
+    } finally {
+      if (sessionProvider != null) {
+        sessionProvider.close();
+      }
+    }
+    return super.shouldProceedToUpgrade(newVersion, previousGroupVersion, previousUpgradePluginExecution);
   }
 
   public int manageNewsArticles(List<Node> newsArticlesNodes, Session session) throws Exception {
