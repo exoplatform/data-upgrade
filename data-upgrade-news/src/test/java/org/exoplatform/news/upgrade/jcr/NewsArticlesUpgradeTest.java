@@ -63,6 +63,7 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.wcm.extensions.publication.lifecycle.authoring.AuthoringPublicationConstant;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -156,11 +157,14 @@ public class NewsArticlesUpgradeTest {
     when(sessionProviderService.getSystemSessionProvider(null)).thenReturn(sessionProvider);
     Session session = mock(Session.class);
     when(sessionProvider.getSession(anyString(), any())).thenReturn(session);
+    Workspace workspace = mock(Workspace.class);
+    when(session.getWorkspace()).thenReturn(workspace);
+    NodeTypeManagerImpl nodetypeManager = mock(NodeTypeManagerImpl.class);
+    when(workspace.getNodeTypeManager()).thenReturn(nodetypeManager);
+    when(nodetypeManager.hasNodeType(anyString())).thenReturn(true);
 
     // Mock the query manager and query
     QueryManager queryManager = mock(QueryManager.class);
-    Workspace workspace = mock(Workspace.class);
-    when(session.getWorkspace()).thenReturn(workspace);
     when(workspace.getQueryManager()).thenReturn(queryManager);
     Query query = mock(Query.class);
     when(queryManager.createQuery(anyString(), eq(Query.SQL))).thenReturn(query);
@@ -272,27 +276,5 @@ public class NewsArticlesUpgradeTest {
     verify(metadataService, times(7)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(false));
-  }
-  
-  @Test
-  public void testShouldProceedToUpgrade() throws Exception {
-    // Mock the session provider and session
-    when(repositoryService.getCurrentRepository()).thenReturn(repository);
-    when(repository.getConfiguration()).thenReturn(repositoryEntry);
-    when(repositoryEntry.getDefaultWorkspaceName()).thenReturn("collaboration");
-    SessionProvider sessionProvider = mock(SessionProvider.class);
-    when(sessionProviderService.getSystemSessionProvider(null)).thenReturn(sessionProvider);
-    Session session = mock(Session.class);
-    when(sessionProvider.getSession(anyString(), any())).thenReturn(session);
-
-    Workspace workspace = mock(Workspace.class);
-    when(session.getWorkspace()).thenReturn(workspace);
-    NodeTypeManager nodetypeManager = mock(NodeTypeManager.class);
-    when(workspace.getNodeTypeManager()).thenReturn(nodetypeManager);
-    when(nodetypeManager.getNodeType(anyString())).thenReturn(mock(NodeType.class));
-
-    // Run the shouldProceedToUpgrade method
-    newsArticlesUpgrade.shouldProceedToUpgrade("2.0", "0", null);
-    verify(nodetypeManager, times(1)).getNodeType(anyString());
   }
 }
