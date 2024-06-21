@@ -48,6 +48,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.IdentityConstants;
@@ -142,31 +143,38 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                                     .getDefaultWorkspaceName(),
                                                    repositoryService.getCurrentRepository());
 
-      String queryString = "SELECT * FROM exo:news WHERE jcr:path LIKE '/Groups/spaces/%/News/%' order by exo:dateModified DESC";
-      QueryManager queryManager = session.getWorkspace().getQueryManager();
-      Query query = queryManager.createQuery(queryString, Query.SQL);
+      NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace().getNodeTypeManager();
+      if (ntManager.hasNodeType("exo:news")) {
+        String queryString =
+                           "SELECT * FROM exo:news WHERE jcr:path LIKE '/Groups/spaces/%/News/%' order by exo:dateModified DESC";
+        QueryManager queryManager = session.getWorkspace().getQueryManager();
+        Query query = queryManager.createQuery(queryString, Query.SQL);
 
-      Iterator<Node> newsIterator = query.execute().getNodes();
-      List<Node> newsArticlesNodes = new ArrayList<Node>();
-      while (newsIterator.hasNext()) {
-        Node newsArticleNode = newsIterator.next();
-        if (!newsArticleNode.hasProperty("exo:archived") || !newsArticleNode.getProperty("exo:archived").getBoolean()) {
-          newsArticlesNodes.add(newsArticleNode);
+        Iterator<Node> newsIterator = query.execute().getNodes();
+        List<Node> newsArticlesNodes = new ArrayList<Node>();
+        while (newsIterator.hasNext()) {
+          Node newsArticleNode = newsIterator.next();
+          if (!getBooleanProperty(newsArticleNode, "exo:archived")) {
+            newsArticlesNodes.add(newsArticleNode);
+          } else {
+            newsArticleNode.remove();
+            session.save();
+          }
         }
-      }
-      totalNewsArticlesCount = newsArticlesNodes.size();
-      LOG.info("Total number of news articles to be migrated: {}", totalNewsArticlesCount);
-      for (List<Node> newsArticlesChunk : ListUtils.partition(newsArticlesNodes, 10)) {
-        int notMigratedNewsArticlesCountByTransaction = manageNewsArticles(newsArticlesChunk, session);
-        int processedNewsArticlesCountByTransaction = newsArticlesChunk.size();
-        processedNewsArticlesCount += processedNewsArticlesCountByTransaction;
-        migratedNewsArticlesCount += processedNewsArticlesCountByTransaction - notMigratedNewsArticlesCountByTransaction;
-        notMigratedNewsArticlesCount += notMigratedNewsArticlesCountByTransaction;
-        LOG.info("News articles migration progress: processed={}/{} succeeded={} error={}",
-                 processedNewsArticlesCount,
-                 totalNewsArticlesCount,
-                 migratedNewsArticlesCount,
-                 notMigratedNewsArticlesCount);
+        totalNewsArticlesCount = newsArticlesNodes.size();
+        LOG.info("Total number of news articles to be migrated: {}", totalNewsArticlesCount);
+        for (List<Node> newsArticlesChunk : ListUtils.partition(newsArticlesNodes, 10)) {
+          int notMigratedNewsArticlesCountByTransaction = manageNewsArticles(newsArticlesChunk, session);
+          int processedNewsArticlesCountByTransaction = newsArticlesChunk.size();
+          processedNewsArticlesCount += processedNewsArticlesCountByTransaction;
+          migratedNewsArticlesCount += processedNewsArticlesCountByTransaction - notMigratedNewsArticlesCountByTransaction;
+          notMigratedNewsArticlesCount += notMigratedNewsArticlesCountByTransaction;
+          LOG.info("News articles migration progress: processed={}/{} succeeded={} error={}",
+                   processedNewsArticlesCount,
+                   totalNewsArticlesCount,
+                   migratedNewsArticlesCount,
+                   notMigratedNewsArticlesCount);
+        }
       }
     } catch (Exception e) {
       LOG.error("An error occurred when upgrading news articles:", e);
@@ -408,7 +416,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         String newsActivityId = newsActivity.split(":")[1];
         ExoSocialActivity activity = activityManager.getActivity(newsActivityId);
         if (activity != null) {
-          Map<String, String> templateParams = activity.getTemplateParams() == null ? new HashMap<>() : activity.getTemplateParams();
+          Map<String, String> templateParams = activity.getTemplateParams() == null ? new HashMap<>()
+                                                                                    : activity.getTemplateParams();
           templateParams.put("newsId", article.getId());
           activity.setTemplateParams(templateParams);
           activity.setMetadataObjectId(article.getId());

@@ -39,6 +39,8 @@ import javax.jcr.Property;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.Workspace;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -61,6 +63,7 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.wcm.extensions.publication.lifecycle.authoring.AuthoringPublicationConstant;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -154,11 +157,14 @@ public class NewsArticlesUpgradeTest {
     when(sessionProviderService.getSystemSessionProvider(null)).thenReturn(sessionProvider);
     Session session = mock(Session.class);
     when(sessionProvider.getSession(anyString(), any())).thenReturn(session);
+    Workspace workspace = mock(Workspace.class);
+    when(session.getWorkspace()).thenReturn(workspace);
+    NodeTypeManagerImpl nodetypeManager = mock(NodeTypeManagerImpl.class);
+    when(workspace.getNodeTypeManager()).thenReturn(nodetypeManager);
+    when(nodetypeManager.hasNodeType(anyString())).thenReturn(true);
 
     // Mock the query manager and query
     QueryManager queryManager = mock(QueryManager.class);
-    Workspace workspace = mock(Workspace.class);
-    when(session.getWorkspace()).thenReturn(workspace);
     when(workspace.getQueryManager()).thenReturn(queryManager);
     Query query = mock(Query.class);
     when(queryManager.createQuery(anyString(), eq(Query.SQL))).thenReturn(query);
@@ -178,6 +184,10 @@ public class NewsArticlesUpgradeTest {
 
     // Mock the necessary properties of the node1
     when(node1.hasProperty("publication:currentState")).thenReturn(true);
+    Property archivedProperty = mock(Property.class);
+    when(node1.hasProperty("exo:archived")).thenReturn(true);
+    when(node1.getProperty("exo:archived")).thenReturn(archivedProperty);
+    when(archivedProperty.getBoolean()).thenReturn(false);
     Property publishedStateProperty = mock(Property.class);
     when(node1.getProperty("publication:currentState")).thenReturn(publishedStateProperty);
     when(publishedStateProperty.getString()).thenReturn("published");
