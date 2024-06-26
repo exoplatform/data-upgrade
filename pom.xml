@@ -34,9 +34,9 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
-    <addon.meeds.content.version>7.0.x-exo-SNAPSHOT</addon.meeds.content.version>
+    <addon.exo.ecms.version>7.0.0-20240626</addon.exo.ecms.version>
+    <addon.exo.processes.version>7.0.0-20240626</addon.exo.processes.version>
+    <addon.meeds.content.version>7.0.0-exo-20240626</addon.meeds.content.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
