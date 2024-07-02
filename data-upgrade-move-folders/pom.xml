@@ -29,7 +29,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-upgrade</artifactId>
       <scope>provided</scope>
     </dependency>

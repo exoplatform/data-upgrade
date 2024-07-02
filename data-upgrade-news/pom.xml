@@ -34,7 +34,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-upgrade</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -49,7 +49,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.addons.notes</groupId>
+      <groupId>io.meeds.notes</groupId>
       <artifactId>notes-service</artifactId>
       <scope>provided</scope>
     </dependency>

@@ -37,7 +37,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-core</artifactId>
       <scope>provided</scope>
     </dependency>
@@ -47,7 +47,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.addons.task</groupId>
+      <groupId>io.meeds.task</groupId>
       <artifactId>task-management-services</artifactId>
       <scope>provided</scope>
     </dependency>
