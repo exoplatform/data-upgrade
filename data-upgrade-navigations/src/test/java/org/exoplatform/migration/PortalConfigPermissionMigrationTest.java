@@ -110,6 +110,7 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
                 "",
                 "",
                 null,
+                null,
                 Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList(),
