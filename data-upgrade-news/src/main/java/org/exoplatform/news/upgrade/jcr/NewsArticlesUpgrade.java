@@ -282,7 +282,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           newsService.deleteArticle(article, article.getAuthor());
           setArticleMetadatasItems(newsArticleNode.getUUID(), article.getId());
         } else if (draftArticle != null) {
-          newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor(), true);
+          newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor());
         }
         notMigratedNewsArticlesCount++;
       }
@@ -295,7 +295,6 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     String portalOwner = CommonsUtils.getCurrentPortalOwner();
     news.setTitle(getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:title"));
     news.setName(news.getTitle() + "_" + newsNode.getUUID());
-    news.setSummary(getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:summary"));
     String body = getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:body");
     String sanitizedBody = HTMLSanitizer.sanitize(body);
     sanitizedBody = sanitizedBody.replaceAll("&#64;", "@");
