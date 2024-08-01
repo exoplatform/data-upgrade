@@ -39,9 +39,15 @@ import javax.jcr.query.QueryManager;
 import io.meeds.notes.model.NotePageProperties;
 import org.apache.commons.collections4.ListUtils;
 
+import org.apache.commons.collections4.MapUtils;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.HTMLSanitizer;
@@ -66,6 +72,7 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.wiki.model.DraftPage;
 import org.exoplatform.wiki.model.Page;
 import org.exoplatform.wiki.model.PageVersion;
 import org.exoplatform.wiki.service.NoteService;
@@ -75,6 +82,7 @@ import io.meeds.news.model.NewsPageObject;
 import io.meeds.news.search.NewsIndexingServiceConnector;
 import io.meeds.news.service.NewsService;
 import io.meeds.news.utils.NewsUtils;
+import org.exoplatform.wiki.utils.Utils;
 
 public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
@@ -97,8 +105,10 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private NoteService              noteService;
 
   private IndexingService          indexingService;
-  
+
   private IdentityManager          identityManager;
+  
+  private SettingService           settingService;
 
   private int                      migratedNewsArticlesCount = 0;
 
@@ -108,6 +118,14 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
   private static final MetadataKey NEWS_METADATA_KEY         =
                                                      new MetadataKey(NEWS_METADATA_TYPE.getName(), NEWS_METADATA_NAME, 0);
+
+  private static final MetadataKey NOTES_METADATA_KEY        = new MetadataKey("notes", Utils.NOTES_METADATA_OBJECT_TYPE, 0);
+
+  private static final String      PLUGIN_NAME               = "NewsArticlesUpgradePlugin";
+
+  private static final String      PLUGIN_EXECUTED_KEY       = "articlesUpgradeExecuted";
+  
+  private boolean                  upgradeFailed             = false;
 
   public NewsArticlesUpgrade(InitParams initParams,
                              RepositoryService repositoryService,
@@ -119,7 +137,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                              FileService fileService,
                              NoteService noteService,
                              IdentityManager identityManager,
-                             IndexingService indexingService) {
+                             IndexingService indexingService,
+                             SettingService settingService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.sessionProviderService = sessionProviderService;
@@ -131,6 +150,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     this.noteService = noteService;
     this.identityManager = identityManager;
     this.indexingService = indexingService;
+    this.settingService = settingService;
   }
 
   @Override
@@ -202,8 +222,34 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                migratedNewsArticlesCount,
                notMigratedNewsArticlesCount,
                (System.currentTimeMillis() - startupTime));
+      this.upgradeFailed = true;
       throw new IllegalStateException("Some news articles wasn't executed successfully. It will be re-attempted next startup");
     }
+  }
+
+  @Override
+  public void afterUpgrade() {
+    if (!upgradeFailed) {
+      settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
+                         Scope.APPLICATION.id(PLUGIN_NAME),
+                         PLUGIN_EXECUTED_KEY,
+                         SettingValue.create(true));
+    }
+  }
+
+  @Override
+  public boolean shouldProceedToUpgrade(String newVersion, String previousGroupVersion, UpgradePluginExecutionContext upgradePluginExecutionContext) {
+    SettingValue<?> settingValue = settingService.get(Context.GLOBAL.id(PLUGIN_NAME),
+                                                      Scope.APPLICATION.id(PLUGIN_NAME),
+                                                      PLUGIN_EXECUTED_KEY);
+    boolean shouldUpgrade = super.shouldProceedToUpgrade(newVersion, previousGroupVersion, upgradePluginExecutionContext);
+    if (!shouldUpgrade && settingValue == null) {
+      settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
+                         Scope.APPLICATION.id(PLUGIN_NAME),
+                         PLUGIN_EXECUTED_KEY,
+                         SettingValue.create(true));
+    }
+    return shouldUpgrade;
   }
 
   public int manageNewsArticles(List<Node> newsArticlesNodes, Session session) throws Exception {
@@ -214,6 +260,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       News draftArticle = null;
       try {
         News news = convertNewsNodeToNewEntity(newsArticleNode, null);
+        NotePageProperties properties = news.getProperties();
         LOG.info("Migrating news article with id '{}' and title '{}'", newsArticleNode.getUUID(), news.getTitle());
         Space space = spaceService.getSpaceById(news.getSpaceId());
 
@@ -222,15 +269,14 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             || getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
 
           article = newsService.createNewsArticlePage(news, news.getAuthor());
-          if (news.getProperties() != null && news.getAuthor() != null) {
-            NotePageProperties properties = news.getProperties();
-            properties.setNoteId(Long.parseLong(article.getId()));
+          properties.setNoteId(Long.parseLong(article.getId()));
+          if (news.getAuthor() != null) {
             noteService.saveNoteMetadata(properties,
                                          article.getLang(),
                                          Long.valueOf(identityManager.getOrCreateUserIdentity(news.getAuthor()).getId()));
           }
           PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
-          setArticleIllustration(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
+          setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), newsArticleNode, "notePage");
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           /* upgrade news id for news targets and favorite metadatata items */
           setArticleMetadatasItems(article.getId(), newsArticleNode.getUUID());
@@ -254,7 +300,15 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                                     space.getGroupId(),
                                                                     news.getAuthor(),
                                                                     news.getCreationDate().getTime());
-            setArticleIllustration(draftArticle.getId(), draftArticle.getSpaceId(), newsArticleNode, "newsDraftPage");
+            DraftPage draftPage = noteService.getDraftNoteById(draftArticle.getId(), draftArticle.getAuthor());
+            properties.setNoteId(Long.parseLong(draftPage.getId()));
+            properties.setDraft(true);
+            if (news.getAuthor() != null) {
+              noteService.saveNoteMetadata(properties,
+                                           draftPage.getLang(),
+                                           Long.valueOf(identityManager.getOrCreateUserIdentity(news.getAuthor()).getId()));
+            }
+            setArticleIllustration(draftPage, draftArticle.getSpaceId(), newsArticleNode, "noteDraftPage");
           } else {// drafts of existing articles
 
             // upgrade existing articles
@@ -262,17 +316,17 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             Node versionNode = newsArticleNode.getVersionHistory().getSession().getNodeByUUID(versionNodeUUID);
             Node publishedNode = versionNode.getNode("jcr:frozenNode");
             News publishedNews = convertNewsNodeToNewEntity(newsArticleNode, publishedNode);
-
             article = newsService.createNewsArticlePage(publishedNews, publishedNews.getAuthor());
-            if (publishedNews.getProperties() != null && publishedNews.getAuthor() != null) {
-              NotePageProperties properties = publishedNews.getProperties();
-              properties.setNoteId(Long.parseLong(article.getId()));
-              noteService.saveNoteMetadata(properties,
+            properties = publishedNews.getProperties();
+            properties.setNoteId(Long.parseLong(article.getId()));
+            if (publishedNews.getAuthor() != null) {
+              properties = noteService.saveNoteMetadata(properties,
                                            article.getLang(),
-                                           Long.valueOf(identityManager.getOrCreateUserIdentity(publishedNews.getAuthor()).getId()));
+                                           Long.valueOf(identityManager.getOrCreateUserIdentity(publishedNews.getAuthor())
+                                                                       .getId()));
             }
             PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
-            setArticleIllustration(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
+            setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), publishedNode, "notePage");
             setArticleAttachments(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
             /* upgrade news id for news targets and favorite metadatata items */
             setArticleMetadatasItems(article.getId(), newsArticleNode.getUUID());
@@ -282,14 +336,15 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
             // upgrade the drafts of existing articles
             /* attachments will not be migrated for drafts */
+            properties.setDraft(true);
+            news.setProperties(properties);
             News draftForExistingArticle = newsService.createDraftForExistingPage(news,
                                                                                   news.getAuthor(),
                                                                                   publishedPage,
                                                                                   news.getCreationDate().getTime());
-            setArticleIllustration(draftForExistingArticle.getId(),
-                                   draftForExistingArticle.getSpaceId(),
-                                   newsArticleNode,
-                                   "newsLatestDraftPage");
+            DraftPage draftPage = noteService.getDraftNoteById(draftForExistingArticle.getId(),
+                                                               draftForExistingArticle.getAuthor());
+            setArticleIllustration(draftPage, draftForExistingArticle.getSpaceId(), newsArticleNode, "noteDraftPage");
             // set the update and the created date
             setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
           }
@@ -372,7 +427,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       FileItem articleIllustrationFileItem = new FileItem(null,
                                                           fileName,
                                                           mimeType,
-                                                          "news",
+                                                          "wiki",
                                                           uploadSize,
                                                           new Date(),
                                                           IdentityConstants.SYSTEM,
@@ -386,10 +441,10 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     }
   }
 
-  private void setArticleIllustration(String articleId,
+  private void setArticleIllustration(Page article,
                                       String spaceId,
                                       Node newsNode,
-                                      String articleObjectType) throws RepositoryException {
+                                      String articleObjectType) throws Exception {
     if (newsNode.hasNode("illustration")) {
       Node illustrationNode = newsNode.getNode("illustration");
       Node illustrationContentNode = illustrationNode.getNode("jcr:content");
@@ -397,19 +452,32 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       String mimetype = illustrationContentNode.getProperty("jcr:mimeType").getString();
       String illustrationNodeName = illustrationNode.getProperty("exo:title").getString();
       Long articleIllustrationId = saveArticleIllustration(illustrationNodeInputStream, illustrationNodeName, mimetype, 0);
-      MetadataObject articleMetaDataObject = new MetadataObject(articleObjectType, articleId, null, Long.parseLong(spaceId));
+      if (article != null && article.getAuthor() != null) {
+        long creatorId = Long.parseLong(identityManager.getOrCreateUserIdentity(article.getAuthor()).getId());
+        MetadataObject articleMetaDataObject = new MetadataObject(articleObjectType,
+                                                                  article.getId(),
+                                                                  article.getParentPageId(),
+                                                                  Long.parseLong(spaceId));
 
-      MetadataItem articleMetadataItem = metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY,
-                                                                                             articleMetaDataObject)
-                                                        .get(0);
-      if (articleMetadataItem != null) {
-        Map<String, String> articleMetadataItemProperties = articleMetadataItem.getProperties();
-        if (articleMetadataItemProperties == null) {
-          articleMetadataItemProperties = new HashMap<>();
+        MetadataItem articleMetadataItem = metadataService
+                                                          .getMetadataItemsByMetadataAndObject(NOTES_METADATA_KEY,
+                                                                                               articleMetaDataObject)
+                                                          .stream()
+                                                          .findFirst()
+                                                          .orElse(null);
+        Map<String, String> articleMetadataItemProperties = new HashMap<>();
+        if (articleMetadataItem != null && !MapUtils.isEmpty(articleMetadataItem.getProperties())) {
+          articleMetadataItemProperties = articleMetadataItem.getProperties();
         }
-        articleMetadataItemProperties.put("illustrationId", String.valueOf(articleIllustrationId));
-        articleMetadataItem.setProperties(articleMetadataItemProperties);
-        metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+        articleMetadataItemProperties.put("featuredImageId", String.valueOf(articleIllustrationId));
+        articleMetadataItemProperties.put("featuredImageUpdatedDate", String.valueOf(new Date().getTime()));
+
+        if (articleMetadataItem != null) {
+          articleMetadataItem.setProperties(articleMetadataItemProperties);
+          metadataService.updateMetadataItem(articleMetadataItem, creatorId);
+        } else {
+          metadataService.createMetadataItem(articleMetaDataObject, NOTES_METADATA_KEY, articleMetadataItemProperties, creatorId);
+        }
       }
     }
   }

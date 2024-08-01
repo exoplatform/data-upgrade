@@ -16,18 +16,16 @@
  */
 package org.exoplatform.news.upgrade.jcr;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,6 +43,10 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import io.meeds.notes.model.NotePageProperties;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.junit.AfterClass;
@@ -124,6 +126,9 @@ public class NewsArticlesUpgradeTest {
   @Mock
   private IndexingService                         indexingService;
 
+  @Mock
+  private SettingService                          settingService;
+
   private NewsArticlesUpgrade                     newsArticlesUpgrade;
 
   @AfterClass
@@ -150,7 +155,8 @@ public class NewsArticlesUpgradeTest {
                                                   fileService,
                                                   noteService,
                                                   identityManager,
-                                                  indexingService);
+                                                  indexingService,
+                                                  settingService);
   }
 
   @Test
@@ -216,9 +222,12 @@ public class NewsArticlesUpgradeTest {
     News article = mock(News.class);
     when(article.getId()).thenReturn("1");
     when(article.getSpaceId()).thenReturn("1");
-    when(newsService.createNewsArticlePage(any(News.class), anyString())).thenReturn(article);
-
+    Page page = new Page();
+    page.setId("1");
+    page.setAuthor("user");
+    when(identityManager.getOrCreateUserIdentity("user")).thenReturn(identity);
     PageVersion pageVersion = mock(PageVersion.class);
+    when(pageVersion.getParent()).thenReturn(page);
     when(noteService.getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class))).thenReturn(pageVersion);
     when(noteService.getNoteById(anyString())).thenReturn(mock(Page.class));
     when(pageVersion.getId()).thenReturn("1");
@@ -276,6 +285,12 @@ public class NewsArticlesUpgradeTest {
     when(startTimeProperty.getDate()).thenReturn(startTimePropertyCalendar);
     when(startTimePropertyCalendar.getTime()).thenReturn(mock(Date.class));
 
+    Method method = newsArticlesUpgrade.getClass().getDeclaredMethod("convertNewsNodeToNewEntity", Node.class, Node.class);
+    method.setAccessible(true);
+    News news1 = (News) method.invoke(newsArticlesUpgrade, node1, null);
+    News news2 = (News) method.invoke(newsArticlesUpgrade, node2, null);
+    when(newsService.createNewsArticlePage(news1, "")).thenReturn(article);
+    when(newsService.createNewsArticlePage(news2, "")).thenReturn(article);
     // Run the processUpgrade method
     newsArticlesUpgrade.processUpgrade("1.0", "2.0");
 
@@ -285,5 +300,19 @@ public class NewsArticlesUpgradeTest {
     verify(metadataService, times(7)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(false));
+  }
+
+  @Test
+  public void shouldProceedToUpgrade() {
+    SettingValue settingValue = mock(SettingValue.class);
+    UpgradePluginExecutionContext context = new UpgradePluginExecutionContext("0.9", 1);
+    when(settingService.get(any(), any(), anyString())).thenReturn(null);
+    newsArticlesUpgrade.shouldProceedToUpgrade("0.9", "1.0", context);
+    verify(settingService, times(1)).set(any(), any(), anyString(), any());
+    reset(settingService);
+    when(settingService.get(any(), any(), anyString())).thenReturn(settingValue);
+    context.setVersion("1.2");
+    newsArticlesUpgrade.shouldProceedToUpgrade("1.2", "1.0", context);
+    verify(settingService, times(0)).set(any(), any(), anyString(), any());
   }
 }
