@@ -34,39 +34,41 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.wcm.core.NodetypeConstant;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
-public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductPlugin {
-  public static final String           EXO_PRIVILEGEABLE             = "exo:privilegeable";
-
-  public static final String[]         READ_PERMISSIONS              = new String[] { "read" };
-
-  public static final String           PLATFORM_USERS_GROUP_IDENTITY = "*:/platform/users";
+public class PublishedNewsImagesPermissionsV2UpgradePlugin extends UpgradeProductPlugin {
 
   private static final Log             LOG                           =
-                                           ExoLogger.getLogger(PublishedNewsImagesPermissionsUpgradePlugin.class.getName());
+          ExoLogger.getLogger(PublishedNewsImagesPermissionsV2UpgradePlugin.class.getName());
 
   private static final String          IMAGE_SRC_REGEX               = "src=\"/portal/rest/images/?(.+)?\"";
 
   private final RepositoryService      repositoryService;
 
   private final SessionProviderService sessionProviderService;
+  private final SpaceService spaceService;
 
   private int                          imageNewsUpdatedCount;
 
   private int                          newsCount;
 
-  public PublishedNewsImagesPermissionsUpgradePlugin(InitParams initParams,
+  public PublishedNewsImagesPermissionsV2UpgradePlugin(InitParams initParams,
                                                      RepositoryService repositoryService,
-                                                     SessionProviderService sessionProviderService) {
+                                                       SessionProviderService sessionProviderService,
+                                                       SpaceService spaceService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.sessionProviderService = sessionProviderService;
+    this.spaceService = spaceService;
   }
 
   @Override
@@ -133,22 +135,7 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
       String match = matcher.group(1);
       String imageUUID = match.substring(match.lastIndexOf("/") + 1);
       image = (ExtendedNode) session.getNodeByUUID(imageUUID);
-      if (image != null) {
-        if (image.canAddMixin(EXO_PRIVILEGEABLE)) {
-          image.addMixin(EXO_PRIVILEGEABLE);
-        }
-        boolean isPublicImage = image.getACL()
-                .getPermissionEntries()
-                .stream()
-                .anyMatch(accessControlEntry -> accessControlEntry.getIdentity()
-                        .equals(PLATFORM_USERS_GROUP_IDENTITY));
-        if (!isPublicImage) {
-          // make news images public
-          image.setPermission(PLATFORM_USERS_GROUP_IDENTITY, READ_PERMISSIONS);
-          image.save();
-          imagesCount += 1;
-        }
-      }
+      imagesCount = updateNodePermissions(newsNode, image, imagesCount);
     }
     String existingUploadImagesSrcRegex = "src=\"" + CommonsUtils.getCurrentDomain() + "/"
             + PortalContainer.getCurrentPortalContainerName() + "/" + CommonsUtils.getRestContextName() + "/jcr/?(.+)?\"";
@@ -157,27 +144,39 @@ public class PublishedNewsImagesPermissionsUpgradePlugin extends UpgradeProductP
       String match = matcher.group(1);
       String imagePath = match.substring(match.indexOf("/Groups"));
       image = (ExtendedNode) getNodeByPath(imagePath, session);
-      if (image != null) {
-        if (image.canAddMixin(EXO_PRIVILEGEABLE)) {
-          image.addMixin(EXO_PRIVILEGEABLE);
-        }
-        boolean isPublicImage = image.getACL()
-                .getPermissionEntries()
-                .stream()
-                .anyMatch(accessControlEntry -> accessControlEntry.getIdentity()
-                        .equals(PLATFORM_USERS_GROUP_IDENTITY));
-        if (!isPublicImage) {
-          // make news images public
-          image.setPermission(PLATFORM_USERS_GROUP_IDENTITY, READ_PERMISSIONS);
-          image.save();
-          imagesCount += 1;
-        }
-      }
+      imagesCount = updateNodePermissions(newsNode, image, imagesCount);
     }
     if (imagesCount > 0) {
       this.newsCount += 1;
       this.imageNewsUpdatedCount += imagesCount;
     }
+  }
+
+  private int updateNodePermissions(Node newsNode, ExtendedNode image, int imagesCount) throws RepositoryException {
+    if (image != null) {
+      if (image.canAddMixin(NodetypeConstant.EXO_PRIVILEGEABLE)) {
+        image.addMixin(NodetypeConstant.EXO_PRIVILEGEABLE);
+        }
+      String spaceId = getStringProperty(newsNode, "exo:spaceId");
+      Space space = spaceService.getSpaceById(spaceId);
+      if (space != null) {
+        ((ExtendedNode) image).setPermission("*:" + space.getGroupId(), new String[]{PermissionType.READ});
+        image.save();
+      }
+      if (getStringProperty(newsNode, "exo:audience").equals("all")) {
+        boolean isPublicImage = image.getACL()
+                .getPermissionEntries()
+                .stream()
+                .anyMatch(accessControlEntry -> accessControlEntry.getIdentity()
+                        .equals("any"));
+        if (!isPublicImage) {
+          ((ExtendedNode) image).setPermission("any", new String[]{PermissionType.READ});
+          image.save();
+          imagesCount += 1;
+        }
+      }
+    }
+    return imagesCount;
   }
 
   private String getStringProperty(Node node, String propertyName) throws RepositoryException {
