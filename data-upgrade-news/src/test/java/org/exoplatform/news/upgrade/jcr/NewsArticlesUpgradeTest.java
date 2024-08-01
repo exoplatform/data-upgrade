@@ -45,6 +45,8 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -117,6 +119,9 @@ public class NewsArticlesUpgradeTest {
   private FileService                             fileService;
 
   @Mock
+  private IdentityManager                         identityManager;
+
+  @Mock
   private IndexingService                         indexingService;
 
   private NewsArticlesUpgrade                     newsArticlesUpgrade;
@@ -144,12 +149,16 @@ public class NewsArticlesUpgradeTest {
                                                   metadataService,
                                                   fileService,
                                                   noteService,
+                                                  identityManager,
                                                   indexingService);
   }
 
   @Test
   public void testProcessUpgrade() throws Exception {
     // Mock the session provider and session
+    Identity identity = mock(Identity.class);
+    when(identity.getId()).thenReturn("1");
+    when(identityManager.getOrCreateUserIdentity(anyString())).thenReturn(identity);
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
     when(repository.getConfiguration()).thenReturn(repositoryEntry);
     when(repositoryEntry.getDefaultWorkspaceName()).thenReturn("collaboration");

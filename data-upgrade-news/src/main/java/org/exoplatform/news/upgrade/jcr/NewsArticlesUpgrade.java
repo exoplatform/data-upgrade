@@ -36,6 +36,7 @@ import javax.jcr.Value;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
+import io.meeds.notes.model.NotePageProperties;
 import org.apache.commons.collections4.ListUtils;
 
 import org.exoplatform.commons.file.model.FileItem;
@@ -56,6 +57,7 @@ import org.exoplatform.services.wcm.extensions.publication.lifecycle.authoring.A
 import org.exoplatform.services.wcm.publication.lifecycle.stageversion.StageAndVersionPublicationConstant;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.utils.MentionUtils;
@@ -95,6 +97,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private NoteService              noteService;
 
   private IndexingService          indexingService;
+  
+  private IdentityManager          identityManager;
 
   private int                      migratedNewsArticlesCount = 0;
 
@@ -114,6 +118,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                              MetadataService metadataService,
                              FileService fileService,
                              NoteService noteService,
+                             IdentityManager identityManager,
                              IndexingService indexingService) {
     super(initParams);
     this.repositoryService = repositoryService;
@@ -124,6 +129,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     this.metadataService = metadataService;
     this.fileService = fileService;
     this.noteService = noteService;
+    this.identityManager = identityManager;
     this.indexingService = indexingService;
   }
 
@@ -216,6 +222,13 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             || getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
 
           article = newsService.createNewsArticlePage(news, news.getAuthor());
+          if (news.getProperties() != null && news.getAuthor() != null) {
+            NotePageProperties properties = news.getProperties();
+            properties.setNoteId(Long.parseLong(article.getId()));
+            noteService.saveNoteMetadata(properties,
+                                         article.getLang(),
+                                         Long.valueOf(identityManager.getOrCreateUserIdentity(news.getAuthor()).getId()));
+          }
           PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
           setArticleIllustration(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
           setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
@@ -251,6 +264,13 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             News publishedNews = convertNewsNodeToNewEntity(newsArticleNode, publishedNode);
 
             article = newsService.createNewsArticlePage(publishedNews, publishedNews.getAuthor());
+            if (publishedNews.getProperties() != null && publishedNews.getAuthor() != null) {
+              NotePageProperties properties = publishedNews.getProperties();
+              properties.setNoteId(Long.parseLong(article.getId()));
+              noteService.saveNoteMetadata(properties,
+                                           article.getLang(),
+                                           Long.valueOf(identityManager.getOrCreateUserIdentity(publishedNews.getAuthor()).getId()));
+            }
             PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
             setArticleIllustration(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
             setArticleAttachments(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
@@ -282,7 +302,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           newsService.deleteArticle(article, article.getAuthor());
           setArticleMetadatasItems(newsArticleNode.getUUID(), article.getId());
         } else if (draftArticle != null) {
-          newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor(), true);
+          newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor());
         }
         notMigratedNewsArticlesCount++;
       }
@@ -295,7 +315,9 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     String portalOwner = CommonsUtils.getCurrentPortalOwner();
     news.setTitle(getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:title"));
     news.setName(news.getTitle() + "_" + newsNode.getUUID());
-    news.setSummary(getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:summary"));
+    NotePageProperties properties = new NotePageProperties();
+    properties.setSummary(getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:summary"));
+    news.setProperties(properties);
     String body = getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:body");
     String sanitizedBody = HTMLSanitizer.sanitize(body);
     sanitizedBody = sanitizedBody.replaceAll("&#64;", "@");
