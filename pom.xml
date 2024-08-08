@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.exoplatform.addons</groupId>
     <artifactId>addons-exo-parent-pom</artifactId>
     <version>18-M04</version>
-    <relativePath />
+    <relativePath/>
   </parent>
   <groupId>org.exoplatform.addons.upgrade</groupId>
   <artifactId>upgrade</artifactId>
-  <version>7.0.0-20240807</version>
+  <version>7.0.x-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Add-on:: Data Upgrade Add-on</name>
   <scm>
     <connection>scm:git:git://github.com/exoplatform/data-upgrade.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/exoplatform/data-upgrade.git</developerConnection>
     <url>https://github.com/exoplatform/data-upgrade</url>
-    <tag>7.0.0-20240807</tag>
+    <tag>HEAD</tag>
   </scm>
   <modules>
     <module>data-upgrade-users</module>
@@ -33,8 +34,8 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.0.0-20240807</addon.exo.ecms.version>
-    <addon.exo.processes.version>7.0.0-20240807</addon.exo.processes.version>
+    <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
+    <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
