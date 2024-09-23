@@ -153,9 +153,9 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>SpaceNavigationIconMigration</name>
+      <name>ExoSpaceNavigationIconMigration</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePlugin</type>
+      <type>io.meeds.social.upgrade.SpaceNavigationIconUpgradePlugin</type>
       <description>Configure space node icons</description>
       <init-params>
         <value-param>
