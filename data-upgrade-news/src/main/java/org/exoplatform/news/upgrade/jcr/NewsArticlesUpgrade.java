@@ -107,7 +107,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private IndexingService          indexingService;
 
   private IdentityManager          identityManager;
-  
+
   private SettingService           settingService;
 
   private int                      migratedNewsArticlesCount = 0;
@@ -124,7 +124,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private static final String      PLUGIN_NAME               = "NewsArticlesUpgradePlugin";
 
   private static final String      PLUGIN_EXECUTED_KEY       = "articlesUpgradeExecuted";
-  
+
   private boolean                  upgradeFailed             = false;
 
   public NewsArticlesUpgrade(InitParams initParams,
@@ -238,7 +238,9 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   }
 
   @Override
-  public boolean shouldProceedToUpgrade(String newVersion, String previousGroupVersion, UpgradePluginExecutionContext upgradePluginExecutionContext) {
+  public boolean shouldProceedToUpgrade(String newVersion,
+                                        String previousGroupVersion,
+                                        UpgradePluginExecutionContext upgradePluginExecutionContext) {
     SettingValue<?> settingValue = settingService.get(Context.GLOBAL.id(PLUGIN_NAME),
                                                       Scope.APPLICATION.id(PLUGIN_NAME),
                                                       PLUGIN_EXECUTED_KEY);
@@ -320,10 +322,11 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             properties = publishedNews.getProperties();
             properties.setNoteId(Long.parseLong(article.getId()));
             if (publishedNews.getAuthor() != null) {
-              properties = noteService.saveNoteMetadata(properties,
-                                           article.getLang(),
-                                           Long.valueOf(identityManager.getOrCreateUserIdentity(publishedNews.getAuthor())
-                                                                       .getId()));
+              properties =
+                         noteService.saveNoteMetadata(properties,
+                                                      article.getLang(),
+                                                      Long.valueOf(identityManager.getOrCreateUserIdentity(publishedNews.getAuthor())
+                                                                                  .getId()));
             }
             PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
             setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), publishedNode, "notePage");
@@ -341,7 +344,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             News draftForExistingArticle = newsService.createDraftForExistingPage(news,
                                                                                   news.getAuthor(),
                                                                                   publishedPage,
-                                                                                  news.getCreationDate().getTime());
+                                                                                  news.getCreationDate().getTime(),
+                                                                                  space);
             DraftPage draftPage = noteService.getDraftNoteById(draftForExistingArticle.getId(),
                                                                draftForExistingArticle.getAuthor());
             setArticleIllustration(draftPage, draftForExistingArticle.getSpaceId(), newsArticleNode, "noteDraftPage");
@@ -441,10 +445,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     }
   }
 
-  private void setArticleIllustration(Page article,
-                                      String spaceId,
-                                      Node newsNode,
-                                      String articleObjectType) throws Exception {
+  private void setArticleIllustration(Page article, String spaceId, Node newsNode, String articleObjectType) throws Exception {
     if (newsNode.hasNode("illustration")) {
       Node illustrationNode = newsNode.getNode("illustration");
       Node illustrationContentNode = illustrationNode.getNode("jcr:content");
