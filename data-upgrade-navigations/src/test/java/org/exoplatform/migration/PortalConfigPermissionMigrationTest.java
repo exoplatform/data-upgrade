@@ -1,7 +1,6 @@
 package org.exoplatform.migration;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
@@ -11,14 +10,11 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.jdbc.entity.NodeEntity;
 import org.exoplatform.portal.jdbc.entity.PermissionEntity;
 import org.exoplatform.portal.jdbc.entity.SiteEntity;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.mop.dao.NodeDAO;
 import org.exoplatform.portal.mop.dao.PermissionDAO;
 import org.exoplatform.portal.mop.dao.SiteDAO;
 import org.exoplatform.portal.mop.navigation.*;
@@ -111,8 +107,6 @@ public class PortalConfigPermissionMigrationTest extends AbstractKernelTest {
                 "",
                 null,
                 null,
-                Collections.emptyList(),
-                Collections.emptyList(),
                 Collections.emptyList(),
                 Collections.emptyList());
         PortalData portal = new PortalData(null,
