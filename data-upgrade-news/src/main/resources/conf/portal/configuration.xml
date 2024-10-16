@@ -256,9 +256,9 @@
     </component-plugin>
 
     <component-plugin>
-      <name>PublishedNewsImagesPermissionsUpgradePlugin</name>
+      <name>PublishedNewsImagesPermissionsV2UpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.news.upgrade.jcr.PublishedNewsImagesPermissionsUpgradePlugin</type>
+      <type>org.exoplatform.news.upgrade.jcr.PublishedNewsImagesPermissionsV2UpgradePlugin</type>
       <description>Update published news images permissions</description>
       <init-params>
         <value-param>

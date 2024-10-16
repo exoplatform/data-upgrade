@@ -1,6 +1,5 @@
 package org.exoplatform.news.upgrade.jcr;
 
-import static org.exoplatform.news.upgrade.jcr.PublishedNewsImagesPermissionsUpgradePlugin.EXO_PRIVILEGEABLE;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -13,6 +12,8 @@ import javax.jcr.query.QueryResult;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.services.wcm.core.NodetypeConstant;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,9 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
   RepositoryEntry        repositoryEntry;
 
   @Mock
+  SpaceService          spaceService;
+
+  @Mock
   Session                session;
 
   @Mock
@@ -72,6 +76,7 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
     when(repositoryService.getCurrentRepository()).thenReturn(repository);
     when(repository.getConfiguration()).thenReturn(repositoryEntry);
     when(sessionProvider.getSession(any(), any())).thenReturn(session);
+    when(spaceService.getSpaceById(any())).thenReturn(null);
     QueryManager qm = mock(QueryManager.class);
     Workspace workSpace = mock(Workspace.class);
     when(session.getWorkspace()).thenReturn(workSpace);
@@ -85,24 +90,29 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
     when(nodeIterator.hasNext()).thenReturn(true, false);
     Node newsNode = mock(Node.class);
     Property property = mock(Property.class);
+    Property audienceProperty = mock(Property.class);
     when(nodeIterator.nextNode()).thenReturn(newsNode);
     when(newsNode.hasProperty("exo:body")).thenReturn(true);
+    when(newsNode.hasProperty("exo:audience")).thenReturn(true);
     when(newsNode.getProperty("exo:body")).thenReturn(property);
+    when(newsNode.getProperty("exo:audience")).thenReturn(audienceProperty);
     when(property.getString()).thenReturn("news body with image src=\"/portal/rest/images/repository/collaboration/123\"");
+    when(audienceProperty.getString()).thenReturn("all");
     ExtendedNode imageNode = mock(ExtendedNode.class);
     when(session.getNodeByUUID("123")).thenReturn(imageNode);
-    when(imageNode.canAddMixin(EXO_PRIVILEGEABLE)).thenReturn(true);
+    when(imageNode.canAddMixin(NodetypeConstant.EXO_PRIVILEGEABLE)).thenReturn(true);
     AccessControlList accessControlList = mock(AccessControlList.class);
     when(imageNode.getACL()).thenReturn(accessControlList);
     when(accessControlList.getPermissionEntries()).thenReturn(new ArrayList<>());
     // when
-    PublishedNewsImagesPermissionsUpgradePlugin publishedNewsImagesPermissionsUpgradePlugin =
-                                                                                            new PublishedNewsImagesPermissionsUpgradePlugin(initParams,
+    PublishedNewsImagesPermissionsV2UpgradePlugin publishedNewsImagesPermissionsUpgradePlugin =
+                                                                                            new PublishedNewsImagesPermissionsV2UpgradePlugin(initParams,
                                                                                                                                             repositoryService,
-                                                                                                                                            sessionProviderService);
+                                                                                                                                            sessionProviderService,
+                                                                                                                                            spaceService);
     publishedNewsImagesPermissionsUpgradePlugin.processUpgrade(null, null);
     // then
-    verify(imageNode, times(1)).setPermission("*:/platform/users", new String[] { "read" });
+    verify(imageNode, times(1)).setPermission("any", new String[] { "read" });
     verify(imageNode, times(1)).save();
 
     //
@@ -115,13 +125,13 @@ public class PublishedNewsImagesPermissionsUpgradePluginTest {
     PORTAL_CONTAINER.when(() -> PortalContainer.getCurrentPortalContainerName()).thenReturn(currentPortalContainerName);
     COMMONS_UTILS.when(() -> CommonsUtils.getCurrentDomain()).thenReturn(currentDomainName);
     ExtendedNode existingUploadImageNode = mock(ExtendedNode.class);
-    when(existingUploadImageNode.canAddMixin(EXO_PRIVILEGEABLE)).thenReturn(true);
+    when(existingUploadImageNode.canAddMixin(NodetypeConstant.EXO_PRIVILEGEABLE)).thenReturn(true);
     when(session.getItem(nullable(String.class))).thenReturn(existingUploadImageNode);
     when(existingUploadImageNode.getACL()).thenReturn(accessControlList);
 
     publishedNewsImagesPermissionsUpgradePlugin.processUpgrade(null, null);
     // then
-    verify(existingUploadImageNode, times(1)).setPermission("*:/platform/users", new String[] { "read" });
+    verify(existingUploadImageNode, times(1)).setPermission("any", new String[] { "read" });
     verify(existingUploadImageNode, times(1)).save();
 
   }
