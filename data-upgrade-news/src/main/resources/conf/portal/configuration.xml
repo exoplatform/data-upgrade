@@ -81,6 +81,39 @@
         </value-param>
       </init-params>
     </component-plugin>
+    <component-plugin profiles="content">
+      <name>ContentArticleAttachmentsUpgrade</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.news.upgrade.ArticleAttachmentsUpgradePlugin</type>
+      <description>Migrate content attachments from metadata properties to attachments context</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>1</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>Execute this upgrade plugin only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>Target version of the plugin</description>
+          <value>7.0.0</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
