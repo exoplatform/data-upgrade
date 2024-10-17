@@ -47,6 +47,7 @@ import io.meeds.notes.model.NotePageProperties;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
+import org.exoplatform.services.attachments.storage.AttachmentStorage;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.junit.AfterClass;
@@ -129,6 +130,9 @@ public class NewsArticlesUpgradeTest {
   @Mock
   private SettingService                          settingService;
 
+  @Mock
+  private AttachmentStorage                       attachmentStorage;
+
   private NewsArticlesUpgrade                     newsArticlesUpgrade;
 
   @AfterClass
@@ -156,6 +160,7 @@ public class NewsArticlesUpgradeTest {
                                                   noteService,
                                                   identityManager,
                                                   indexingService,
+                                                  attachmentStorage,
                                                   settingService);
   }
 
@@ -296,8 +301,8 @@ public class NewsArticlesUpgradeTest {
 
     verify(newsService, times(2)).createNewsArticlePage(any(News.class), anyString());
     verify(noteService, times(2)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
-    verify(metadataService, times(7)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
-    verify(metadataService, times(7)).updateMetadataItem(any(), anyLong());
+    verify(metadataService, times(6)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
+    verify(metadataService, times(6)).updateMetadataItem(any(), anyLong());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(false));
   }
