@@ -40,6 +40,7 @@ import io.meeds.notes.model.NotePageProperties;
 import org.apache.commons.collections4.ListUtils;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
@@ -52,6 +53,7 @@ import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.HTMLSanitizer;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.attachments.storage.AttachmentStorage;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -110,6 +112,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
   private SettingService           settingService;
 
+  private AttachmentStorage        attachmentStorage;
+
   private int                      migratedNewsArticlesCount = 0;
 
   public static final MetadataType NEWS_METADATA_TYPE        = new MetadataType(1000, "news");
@@ -138,6 +142,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                              NoteService noteService,
                              IdentityManager identityManager,
                              IndexingService indexingService,
+                             AttachmentStorage attachmentStorage,
                              SettingService settingService) {
     super(initParams);
     this.repositoryService = repositoryService;
@@ -151,6 +156,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     this.identityManager = identityManager;
     this.indexingService = indexingService;
     this.settingService = settingService;
+    this.attachmentStorage = attachmentStorage;
   }
 
   @Override
@@ -279,7 +285,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           }
           PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
           setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), newsArticleNode, "notePage");
-          setArticleAttachments(pageVersion.getId(), article.getSpaceId(), newsArticleNode, "newsPageVersion");
+          setArticleAttachments(pageVersion.getId(), newsArticleNode);
           /* upgrade news id for news targets and favorite metadatata items */
           setArticleMetadatasItems(article.getId(), newsArticleNode.getUUID());
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
@@ -330,7 +336,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             }
             PageVersion pageVersion = noteService.getPublishedVersionByPageIdAndLang(Long.parseLong(article.getId()), null);
             setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), publishedNode, "notePage");
-            setArticleAttachments(pageVersion.getId(), article.getSpaceId(), publishedNode, "newsPageVersion");
+            setArticleAttachments(pageVersion.getId(), publishedNode);
             /* upgrade news id for news targets and favorite metadatata items */
             setArticleMetadatasItems(article.getId(), newsArticleNode.getUUID());
             setArticleActivities(article, publishedNode);
@@ -544,28 +550,14 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   }
 
   private void setArticleAttachments(String articleId,
-                                     String spaceId,
-                                     Node newsNode,
-                                     String articleObjectType) throws RepositoryException {
+                                     Node newsNode) throws RepositoryException {
     if (newsNode.hasProperty("exo:attachmentsIds")) {
       Property attachmentsIdsProperty = newsNode.getProperty("exo:attachmentsIds");
-      String attachmentsIds = "";
       for (Value value : attachmentsIdsProperty.getValues()) {
         String attachmentId = value.getString();
-        attachmentsIds += attachmentId + ";";
-      }
-      MetadataObject articleMetaDataObject = new MetadataObject(articleObjectType, articleId, null, Long.parseLong(spaceId));
-      MetadataItem articleMetadataItem = metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY,
-                                                                                             articleMetaDataObject)
-                                                        .get(0);
-      if (articleMetadataItem != null) {
-        Map<String, String> articleMetadataItemProperties = articleMetadataItem.getProperties();
-        if (articleMetadataItemProperties == null) {
-          articleMetadataItemProperties = new HashMap<>();
+        if (StringUtils.isNotEmpty(attachmentId) && StringUtils.isNotEmpty(articleId)) {
+          attachmentStorage.linkAttachmentToEntity(Long.valueOf(articleId), "WIKI_PAGE_VERSIONS", attachmentId);
         }
-        articleMetadataItemProperties.put("attachmentsIds", attachmentsIds);
-        articleMetadataItem.setProperties(articleMetadataItemProperties);
-        metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
       }
     }
   }
