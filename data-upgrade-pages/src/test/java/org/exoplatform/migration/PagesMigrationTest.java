@@ -12,9 +12,7 @@ import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.model.Application;
@@ -61,11 +59,12 @@ public class PagesMigrationTest extends AbstractKernelTest {
 
   protected String               newContent          = "newApp/newApp";
 
-
   public PagesMigrationTest() {
     setForceContainerReload(true);
   }
+
   @Before
+  @Override
   public void setUp() throws Exception {
     super.setUp();
     container = getContainer();
@@ -80,13 +79,14 @@ public class PagesMigrationTest extends AbstractKernelTest {
   }
 
   @After
+  @Override
   public void tearDown() {
     purgeData();
     end();
   }
 
   @Test
-  public void testPageMigration() throws Exception {
+  public void testPageMigration() {
     InitParams initParams = new InitParams();
 
     ValueParam valueParam = new ValueParam();
@@ -110,14 +110,14 @@ public class PagesMigrationTest extends AbstractKernelTest {
     assertNotNull(page);
     assertEquals(1, page.getChildren().size());
     page.getChildren().get(0);
-    Application<?> componentData = (Application<?>) page.getChildren().get(0);
+    Application componentData = (Application) page.getChildren().get(0);
     String contentId = layoutService.getId(componentData.getState());
     assertEquals(oldContent, contentId);
 
     page = layoutService.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_KEEP_NAME));
     assertNotNull(page);
     assertEquals(1, page.getChildren().size());
-    componentData = (Application<?>) page.getChildren().get(0);
+    componentData = (Application) page.getChildren().get(0);
     contentId = layoutService.getId(componentData.getState());
     assertEquals(newContent, contentId);
 
@@ -133,19 +133,19 @@ public class PagesMigrationTest extends AbstractKernelTest {
     page = layoutService.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_CHANGE_NAME));
     assertNotNull(page);
     assertEquals(1, page.getChildren().size());
-    componentData = (Application<?>) page.getChildren().get(0);
+    componentData = (Application) page.getChildren().get(0);
     contentId = layoutService.getId(componentData.getState());
     assertEquals(newContent, contentId);
 
     page = layoutService.getPage(new PageKey(SITE_TYPE, SITE_NAME, PAGE_TO_KEEP_NAME));
     assertNotNull(page);
     assertEquals(1, page.getChildren().size());
-    componentData = (Application<?>) page.getChildren().get(0);
+    componentData = (Application) page.getChildren().get(0);
     contentId = layoutService.getId(componentData.getState());
     assertEquals(newContent, contentId);
   }
 
-  protected void injectData() throws Exception {
+  protected void injectData() {
     PortalConfig portalConfig = layoutService.getPortalConfig(SITE_TYPE, SITE_NAME);
     if (portalConfig == null) {
       portalConfig = new PortalConfig(SITE_TYPE, SITE_NAME);
@@ -161,22 +161,12 @@ public class PagesMigrationTest extends AbstractKernelTest {
     layoutService.remove(keepThisPage.getPageKey());
   }
 
-  protected void begin() {
-    ExoContainerContext.setCurrentContainer(container);
-    RequestLifeCycle.begin(container);
-  }
-
-  protected void end() {
-    RequestLifeCycle.end();
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private Page createPage(String pageName, String contentId) throws Exception {
+  private Page createPage(String pageName, String contentId) {
     Page page = new Page(SITE_TYPE, SITE_NAME, pageName);
     page.setAccessPermissions(new String[] { "Everyone" });
     ArrayList<ModelObject> children = new ArrayList<>();
     page.setChildren(children);
-    Application<?> app = Application.createPortletApplication();
+    Application app = Application.createPortletApplication();
     children.add(app);
     app.setState(new TransientApplicationState(contentId, null));
     app.setTheme("theme");

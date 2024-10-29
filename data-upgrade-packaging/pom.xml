@@ -50,10 +50,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-dlp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-navigations</artifactId>
     </dependency>
     <dependency>
