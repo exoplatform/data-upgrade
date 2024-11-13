@@ -33,6 +33,7 @@
     <module>data-upgrade-processes-permissions</module>
     <module>data-upgrade-es-reindex</module>
     <module>data-upgrade-move-folders</module>
+    <module>data-upgrade-recordings-permissions</module>
     <module>data-upgrade-packaging</module>
   </modules>
   <properties>
