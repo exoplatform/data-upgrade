@@ -18,6 +18,8 @@ package org.exoplatform.news.upgrade.jcr;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +52,7 @@ public class PublishedNewsImagesPermissionsV2UpgradePlugin extends UpgradeProduc
   private static final Log             LOG                           =
           ExoLogger.getLogger(PublishedNewsImagesPermissionsV2UpgradePlugin.class.getName());
 
-  private static final String          IMAGE_SRC_REGEX               = "src=\"/portal/rest/images/?(.+)?\"";
+  private static final String          IMAGE_SRC_REGEX               = "src=\"/portal/rest/images/([\\w/]+)\"";
 
   private final RepositoryService      repositoryService;
 
@@ -84,19 +86,24 @@ public class PublishedNewsImagesPermissionsV2UpgradePlugin extends UpgradeProduc
     long startupTime = System.currentTimeMillis();
     LOG.info("Start upgrade of published news images permission");
     SessionProvider sessionProvider = null;
+    boolean hasError = false;
+    List<String> newsWithError = new ArrayList<>();
+
     try {
       sessionProvider = sessionProviderService.getSystemSessionProvider(null);
       Session session = sessionProvider.getSession(
-                                                   repositoryService.getCurrentRepository()
-                                                                    .getConfiguration()
-                                                                    .getDefaultWorkspaceName(),
-                                                   repositoryService.getCurrentRepository());
+          repositoryService.getCurrentRepository()
+                           .getConfiguration()
+                           .getDefaultWorkspaceName(),
+          repositoryService.getCurrentRepository());
       QueryManager qm = session.getWorkspace().getQueryManager();
       int limit = 10, offset = 0;
-      String stringQuery =
-                         "select * from exo:news WHERE publication:currentState = 'published' AND jcr:path LIKE '/Groups/spaces/%'";
+      String
+          stringQuery =
+          "select * from exo:news WHERE publication:currentState = 'published' AND jcr:path LIKE '/Groups/spaces/%'";
       Query jcrQuery = qm.createQuery(stringQuery, Query.SQL);
       boolean hasMoreElements = true;
+
       while (hasMoreElements) {
         ((QueryImpl) jcrQuery).setOffset(offset);
         ((QueryImpl) jcrQuery).setLimit(limit);
@@ -104,7 +111,13 @@ public class PublishedNewsImagesPermissionsV2UpgradePlugin extends UpgradeProduc
         if (nodeIterator != null) {
           while (nodeIterator.hasNext()) {
             Node newsNode = nodeIterator.nextNode();
-            updateNewsImagesPermissions(newsNode, session);
+            try {
+              updateNewsImagesPermissions(newsNode, session);
+            } catch (Exception e) {
+              LOG.error("Error when updating news {}", newsNode.getPath(),e);
+              hasError = true;
+              newsWithError.add(newsNode.getPath());
+            }
           }
           if (nodeIterator.getSize() < limit) {
             // no more elements
@@ -114,16 +127,25 @@ public class PublishedNewsImagesPermissionsV2UpgradePlugin extends UpgradeProduc
           }
         }
       }
-      LOG.info("End updating of '{}' images for '{}' published news . It took {} ms.",
-               this.imageNewsUpdatedCount,
-               this.newsCount,
-               (System.currentTimeMillis() - startupTime));
     } catch (Exception e) {
-      LOG.error("An error occurred when upgrading published images news permissions :", e);
+      hasError = true;
     } finally {
       if (sessionProvider != null) {
         sessionProvider.close();
       }
+    }
+    if (hasError) {
+      throw new IllegalStateException(String.format("End updating of %s images for %s published news . There are %s errors for news %s. It took %s ms.",
+                                                    this.imageNewsUpdatedCount,
+                                                    this.newsCount,
+                                                    newsWithError.size(),
+                                                    newsWithError,
+                                                    (System.currentTimeMillis() - startupTime)));
+    } else {
+      LOG.info("End updating of '{}' images for '{}' published news . It took {} ms.",
+               this.imageNewsUpdatedCount,
+               this.newsCount,
+               (System.currentTimeMillis() - startupTime));
     }
   }
 
