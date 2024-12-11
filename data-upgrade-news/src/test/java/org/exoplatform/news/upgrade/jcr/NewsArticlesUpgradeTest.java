@@ -16,14 +16,18 @@
  */
 package org.exoplatform.news.upgrade.jcr;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -37,19 +41,10 @@ import javax.jcr.Property;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.Workspace;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
-import io.meeds.notes.model.NotePageProperties;
-import org.exoplatform.commons.api.settings.SettingService;
-import org.exoplatform.commons.api.settings.SettingValue;
-import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
-import org.exoplatform.services.attachments.storage.AttachmentStorage;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,11 +53,15 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.services.attachments.storage.AttachmentStorage;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -71,7 +70,9 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.wcm.extensions.publication.lifecycle.authoring.AuthoringPublicationConstant;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.metadata.MetadataService;
@@ -203,6 +204,8 @@ public class NewsArticlesUpgradeTest {
     when(iterator.next()).thenReturn(node1, node2);
 
     // Mock the necessary properties of the node1
+    when(node1.getUUID()).thenReturn("uuid1");
+    when(session.getNodeByUUID("uuid1")).thenReturn(node1);
     when(node1.hasProperty("publication:currentState")).thenReturn(true);
     Property archivedProperty = mock(Property.class);
     when(node1.hasProperty("exo:archived")).thenReturn(true);
@@ -279,6 +282,8 @@ public class NewsArticlesUpgradeTest {
     when(attachmentsIdsProperty.getValues()).thenReturn(attachmentsIdsPropertyValues);
 
     // Mock the necessary properties of the node2
+    when(node2.getUUID()).thenReturn("uuid2");
+    when(session.getNodeByUUID("uuid2")).thenReturn(node2);
     when(node2.hasProperty("publication:currentState")).thenReturn(true);
     Property stagedStateProperty = mock(Property.class);
     when(node2.getProperty("publication:currentState")).thenReturn(stagedStateProperty);
