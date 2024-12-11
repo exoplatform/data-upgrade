@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.exoplatform.addons.upgrade</groupId>
     <artifactId>upgrade</artifactId>
-    <version>7.0.x-SNAPSHOT</version>
+    <version>6.5.x-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-upgrade-recordings-permissions</artifactId>
@@ -25,7 +25,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.meeds.commons</groupId>
+      <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-component-upgrade</artifactId>
       <scope>provided</scope>
     </dependency>
