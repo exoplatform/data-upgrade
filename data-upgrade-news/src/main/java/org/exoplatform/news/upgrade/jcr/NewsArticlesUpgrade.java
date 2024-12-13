@@ -186,7 +186,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         List<String> newsArticlesNodesUUIDs = new ArrayList<String>();
         while (newsIterator.hasNext()) {
           Node newsArticleNode = newsIterator.next();
-          if (!getBooleanProperty(newsArticleNode, "exo:archived")) {
+          if (!newsNodeIgnored(newsArticleNode)) {
             newsArticlesNodesUUIDs.add(newsArticleNode.getUUID());
           } else {
             newsArticleNode.remove();
@@ -260,8 +260,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     return shouldUpgrade;
   }
 
-  public int manageNewsArticles(List<String> newsArticlesNodesUUIDs, SessionProvider sessionProvider) throws Exception {
-    int notMigratedNewsArticlesCount = 0;
+  public int manageNewsArticles(List<String> newsArticlesNodesUUIDs, SessionProvider sessionProvider) {
+    int notMigratedNewsArticlesCountByTransaction = 0;
     for (String newsArticleNodeUUID : newsArticlesNodesUUIDs) {
       News article = null;
       News draftArticle = null;
@@ -317,7 +317,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             // upgrade the drafts of not existing articles
             /* attachments will not be migrated for drafts */
             properties.setDraft(true);
-            news.setProperties(properties);         
+            news.setProperties(properties);
             draftArticle = newsService.createDraftArticleForNewPage(news,
                                                                     space.getGroupId(),
                                                                     news.getAuthor(),
@@ -362,48 +362,61 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
             setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), publishedNode, "notePage");
             setArticleAttachments(pageVersion.getId(), publishedNode);
-            /* upgrade news id for news targets and favorite metadatata items */
+            // upgrade news id for news targets and favorite metadatata items
             setArticleMetadatasItems(article.getId(), newsArticleNodeUUID);
+
             setArticleActivities(article, publishedNode);
             setArticleViews(article, newsArticleNode);
-            Page publishedPage = noteService.getNoteById(article.getId());
 
-            // upgrade the drafts of existing articles
-            /* attachments will not be migrated for drafts */
-            properties.setDraft(true);
-            news.setProperties(properties);
-            News draftForExistingArticle = newsService.createDraftForExistingPage(news,
-                                                                                  news.getAuthor(),
-                                                                                  publishedPage,
-                                                                                  news.getCreationDate().getTime(),
-                                                                                  space);
-            DraftPage draftPage = noteService.getDraftNoteById(draftForExistingArticle.getId(),
-                                                               draftForExistingArticle.getAuthor());
-            session = sessionProvider.getSession(
-                                                         repositoryService.getCurrentRepository()
-                                                                          .getConfiguration()
-                                                                          .getDefaultWorkspaceName(),
-                                                         repositoryService.getCurrentRepository());
-            newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
-            setArticleIllustration(draftPage, draftForExistingArticle.getSpaceId(), newsArticleNode, "noteDraftPage");
             // set the update and the created date
             setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
+            // upgrade the drafts of existing articles
+            /* attachments will not be migrated for drafts */
+            if (spaceService.canRedactOnSpace(space, news.getDraftUpdaterUserName())) {
+              Page publishedPage = noteService.getNoteById(article.getId());
+              properties.setDraft(true);
+              news.setProperties(properties);
+              News draftForExistingArticle = newsService.createDraftForExistingPage(news,
+                                                                                    news.getDraftUpdaterUserName(),
+                                                                                    publishedPage,
+                                                                                    news.getCreationDate().getTime(),
+                                                                                    space);
+              DraftPage draftPage = noteService.getDraftNoteById(draftForExistingArticle.getId(),
+                                                                 news.getDraftUpdaterUserName());
+              session = sessionProvider.getSession(
+                                                   repositoryService.getCurrentRepository()
+                                                                    .getConfiguration()
+                                                                    .getDefaultWorkspaceName(),
+                                                   repositoryService.getCurrentRepository());
+              newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
+              setArticleIllustration(draftPage, draftForExistingArticle.getSpaceId(), newsArticleNode, "noteDraftPage");
+            }
           }
         }
         newsArticleNode.remove();
         session.save();
+        LOG.info("Success migrating news article with id '{}' and title '{}'", newsArticleNodeUUID, news.getTitle());
       } catch (Exception e) {
-        notMigratedNewsArticlesCount++;
+        notMigratedNewsArticlesCountByTransaction++;
         LOG.warn("Error migrating news article with id '{}'. Continue to migrate other items", newsArticleNodeUUID, e);
-        if (article != null) {
-          newsService.deleteArticle(article, article.getAuthor());
-          setArticleMetadatasItems(newsArticleNodeUUID, article.getId());
-        } else if (draftArticle != null) {
-          newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor());
+        try {
+          if (article != null) {
+            newsService.deleteArticle(article, article.getAuthor());
+            setArticleMetadatasItems(newsArticleNodeUUID, article.getId());
+          } else if (draftArticle != null) {
+            newsService.deleteDraftArticle(draftArticle.getId(), draftArticle.getAuthor());
+          }
+        } catch (Exception exception) {
+          if (article != null) {
+            LOG.warn("The deletion of the not migrated news article with id '{}' is not well completed, to be verified and deleted manually.", article.getId());
+          }
+          else if (draftArticle != null) {
+            LOG.warn("The deletion of the not migrated news draft article with id '{}' is not well completed, to be verified and deleted manually.", draftArticle.getId());
+          }
         }
       }
     }
-    return notMigratedNewsArticlesCount;
+    return notMigratedNewsArticlesCountByTransaction;
   }
 
   private News convertNewsNodeToNewEntity(Node newsNode, Node newsVersionNode) throws Exception {
@@ -419,6 +432,9 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     sanitizedBody = sanitizedBody.replaceAll("&#64;", "@");
     news.setBody(MentionUtils.substituteUsernames(portalOwner, sanitizedBody));
     news.setAuthor(getStringProperty(newsNode, "exo:author"));
+    if (newsVersionNode == null) {
+      news.setDraftUpdaterUserName(getStringProperty(newsNode, "exo:newsLastModifier"));
+    }
     news.setSpaceId(getStringProperty(newsNode, "exo:spaceId"));
     news.setAudience(getStringProperty(newsNode, "exo:audience"));
     news.setPublicationState((getStringProperty(newsNode, StageAndVersionPublicationConstant.CURRENT_STATE).equals("published")
@@ -580,8 +596,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     }
   }
 
-  private void setArticleAttachments(String articleId,
-                                     Node newsNode) throws RepositoryException {
+  private void setArticleAttachments(String articleId, Node newsNode) throws RepositoryException {
     if (newsNode.hasProperty("exo:attachmentsIds")) {
       Property attachmentsIdsProperty = newsNode.getProperty("exo:attachmentsIds");
       for (Value value : attachmentsIdsProperty.getValues()) {
@@ -624,11 +639,11 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     }
   }
 
-  private void setArticleMetadatasItems(String articleId, String newsNodeId) throws RepositoryException {
-    MetadataObject metadataObject = new MetadataObject(NewsUtils.NEWS_METADATA_OBJECT_TYPE, newsNodeId);
+  private void setArticleMetadatasItems(String targetId, String sourceId) throws RepositoryException {
+    MetadataObject metadataObject = new MetadataObject(NewsUtils.NEWS_METADATA_OBJECT_TYPE, sourceId);
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
     for (MetadataItem metadataItem : metadataItems) {
-      metadataItem.setObjectId(articleId);
+      metadataItem.setObjectId(targetId);
       metadataService.updateMetadataItem(metadataItem, metadataItem.getCreatorId());
     }
   }
@@ -658,5 +673,18 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       noteService.updateNote(articlePage);
       metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId());
     }
+  }
+
+  private boolean newsNodeIgnored(Node newsNode) throws Exception {
+    if (getBooleanProperty(newsNode, "exo:archived")) {
+      return true;
+    }
+    if (getStringProperty(newsNode, "publication:currentState").equals("draft")
+        && !newsNode.hasProperty(AuthoringPublicationConstant.LIVE_REVISION_PROP)) {
+      String author = getStringProperty(newsNode, "exo:author");
+      String spaceId = getStringProperty(newsNode, "exo:spaceId");
+      return !spaceService.canRedactOnSpace(spaceService.getSpaceById(spaceId), author);
+    }
+    return false;
   }
 }
