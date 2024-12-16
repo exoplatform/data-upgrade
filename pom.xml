@@ -31,11 +31,13 @@
     <module>data-upgrade-move-folders</module>
     <module>data-upgrade-recordings-permissions</module>
     <module>data-upgrade-packaging</module>
+    <module>data-upgrade-processes-documents</module>
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
     <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
+    <addon.exo.onlyoffice.version>7.0.x-SNAPSHOT</addon.exo.onlyoffice.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
@@ -56,6 +58,14 @@
         <groupId>org.exoplatform.processes</groupId>
         <artifactId>processes-parent</artifactId>
         <version>${addon.exo.processes.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <artifactId>exo-onlyoffice-editor-parent</artifactId>
+        <groupId>org.exoplatform.addons.onlyoffice</groupId>
+        <version>${addon.exo.onlyoffice.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -98,6 +108,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-processes-permissions</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-processes-documents</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
