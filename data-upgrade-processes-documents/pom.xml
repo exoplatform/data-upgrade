@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.exoplatform.addons.upgrade</groupId>
+    <artifactId>upgrade</artifactId>
+    <version>7.0.x-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>data-upgrade-processes-documents</artifactId>
+  <packaging>jar</packaging>
+  <name>eXo Add-on:: Data Upgrade Add-on - Processes Document</name>
+  <description>Update oform and docxf document to pdf</description>
+  <dependencies>
+    <dependency>
+      <groupId>io.meeds.social</groupId>
+      <artifactId>social-component-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ext</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.addons.onlyoffice</groupId>
+      <artifactId>exo-onlyoffice-editor-services</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+  </build>
+</project>
