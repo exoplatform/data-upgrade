@@ -35,9 +35,9 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.0.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.processes.version>7.0.x-SNAPSHOT</addon.exo.processes.version>
-    <addon.exo.onlyoffice.version>7.0.x-SNAPSHOT</addon.exo.onlyoffice.version>
+    <addon.exo.ecms.version>7.0.0-20250109</addon.exo.ecms.version>
+    <addon.exo.processes.version>7.0.0-20250109</addon.exo.processes.version>
+    <addon.exo.onlyoffice.version>7.0.0-20250109</addon.exo.onlyoffice.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
