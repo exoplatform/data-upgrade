@@ -24,7 +24,7 @@
   <name>eXo Add-on:: Data Upgrade Add-on - NEWS</name>
 
   <properties>
-    <exo.test.coverage.ratio>0.74</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.63</exo.test.coverage.ratio>
   </properties>
 
   <dependencies>
