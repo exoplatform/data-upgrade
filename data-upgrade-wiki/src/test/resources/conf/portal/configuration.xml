@@ -25,6 +25,7 @@
         xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <import>jar:/conf/portal/wiki-configuration.xml</import>
+  <import>jar:/conf/portal/metadata-configuration.xml</import>
 
   <remove-configuration>org.exoplatform.wiki.service.NotesExportService</remove-configuration>
   <remove-configuration>org.exoplatform.wiki.service.rest.NotesRestService</remove-configuration>
