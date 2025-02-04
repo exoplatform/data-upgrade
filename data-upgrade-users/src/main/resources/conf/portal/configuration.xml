@@ -53,6 +53,16 @@
           <description>The plugin will be executed in an asynchronous mode</description>
           <value>true</value>
         </value-param>
+        <value-param>
+          <name>idm.datasource.schema.name</name>
+          <description>The plugin will use the idm datasource schema name for queries</description>
+          <value>${idm.datasource.schema.name:public}</value>
+        </value-param>
+        <value-param>
+          <name>jpa.datasource.schema.name</name>
+          <description>The plugin will use the jpa datasource schema name for queries</description>
+          <value>${jpa.datasource.schema.name:public}</value>
+        </value-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>

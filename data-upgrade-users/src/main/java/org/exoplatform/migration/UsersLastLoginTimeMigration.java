@@ -37,6 +37,14 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
   private static final Log    LOG = ExoLogger.getExoLogger(UsersLastLoginTimeMigration.class);
 
   private static final int     MAX_RESULT = 200;
+  
+  private static final String  IDM_DATASOURCE_SCHEMA_NAME = "idm.datasource.schema.name";
+  
+  private static final String  JPA_DATASOURCE_SCHEMA_NAME = "jpa.datasource.schema.name";
+  
+  private String idmDatasourceSchemaName = "";
+  
+  private String jpaDatasourceSchemaName = "";
 
   private EntityManagerService entityManagerService;
 
@@ -111,7 +119,12 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
                                      InitParams initParams) {
     super(initParams);
     this.entityManagerService = entityManagerService;
-
+    if (initParams.containsKey(IDM_DATASOURCE_SCHEMA_NAME)) {
+      idmDatasourceSchemaName = initParams.getValueParam(IDM_DATASOURCE_SCHEMA_NAME).getValue();
+    }
+    if (initParams.containsKey(JPA_DATASOURCE_SCHEMA_NAME)) {
+      jpaDatasourceSchemaName = initParams.getValueParam(JPA_DATASOURCE_SCHEMA_NAME).getValue();
+    }
   }
 
   @Override
@@ -127,6 +140,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
       RequestLifeCycle.begin(ExoContainerContext.getCurrentContainer());
       EntityManager entityManager = this.entityManagerService.getEntityManager();
       try {
+        countQuery = countQuery.replace("jbid", idmDatasourceSchemaName + ".jbid").replace("SOC", jpaDatasourceSchemaName + ".SOC");
         LOG.debug("Execute count query {}", countQuery);
         Query countNativeQuery = entityManager.createNativeQuery(countQuery);
         totalSize = ((Number) countNativeQuery.getSingleResult()).intValue();
@@ -142,6 +156,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         List<Object> remoteIds = new ArrayList<>();
         try {
           long startTimeForBatch = System.currentTimeMillis();
+          sqlQuery = sqlQuery.replace("jbid", idmDatasourceSchemaName + ".jbid").replace("SOC", jpaDatasourceSchemaName + ".SOC");
           Query sqlNativeQuery = entityManager.createNativeQuery(sqlQuery);
           sqlNativeQuery.setMaxResults(MAX_RESULT);
           sqlNativeQuery.setFirstResult(offset);
@@ -182,6 +197,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
         long startTime = System.currentTimeMillis();
         String username = (String) remoteId;
         // getUserIdentityId
+        getIdentityIdQueryString = getIdentityIdQueryString.replace("SOC", jpaDatasourceSchemaName + ".SOC");
         Query getIdentityIdQuery = entityManager.createNativeQuery(getIdentityIdQueryString);
         getIdentityIdQuery.setParameter("username", username);
         List<Object> resultListId = getIdentityIdQuery.getResultList();
@@ -198,6 +214,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
           Long identityId = Long.parseLong(resultListId.get(0).toString());
 
           // get user.lastLoginTime
+          getUserLastLoginTimeQueryString = getUserLastLoginTimeQueryString.replace("jbid", idmDatasourceSchemaName + ".jbid");
           Query getUserLastLoginTimeQuery = entityManager.createNativeQuery(getUserLastLoginTimeQueryString);
           getUserLastLoginTimeQuery.setParameter("username", username);
           Long lastLoginTime = Long.parseLong(getUserLastLoginTimeQuery.getResultList().get(0).toString());
@@ -205,6 +222,7 @@ public class UsersLastLoginTimeMigration extends UpgradeProductPlugin {
           // insert lastLoginTime in profile properties
           entityManager.getTransaction().begin();
           Date lastLoginDate = new Date(lastLoginTime);
+          insertProfileLastLoginTimeQueryString = insertProfileLastLoginTimeQueryString.replace("SOC", jpaDatasourceSchemaName + ".SOC");
           Query insertProfileLastLoginTimeQuery = entityManager.createNativeQuery(insertProfileLastLoginTimeQueryString);
           insertProfileLastLoginTimeQuery.setParameter("identityId", identityId);
           insertProfileLastLoginTimeQuery.setParameter("lastLoginTime", String.valueOf(lastLoginDate));
