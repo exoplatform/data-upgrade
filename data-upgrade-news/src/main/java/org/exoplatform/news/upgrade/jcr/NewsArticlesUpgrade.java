@@ -544,9 +544,9 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
         if (articleMetadataItem != null) {
           articleMetadataItem.setProperties(articleMetadataItemProperties);
-          metadataService.updateMetadataItem(articleMetadataItem, creatorId);
+          metadataService.updateMetadataItem(articleMetadataItem, creatorId, false);
         } else {
-          metadataService.createMetadataItem(articleMetaDataObject, NOTES_METADATA_KEY, articleMetadataItemProperties, creatorId);
+          metadataService.createMetadataItem(articleMetaDataObject, NOTES_METADATA_KEY, articleMetadataItemProperties, creatorId, false);
         }
       }
     }
@@ -570,7 +570,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       }
       articleMetadataItemProperties.put("activities", articleActivities);
       articleMetadataItem.setProperties(articleMetadataItemProperties);
-      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId(), false);
       String newsActivity = articleActivities.split(";")[0];
       if (newsActivity.split(":").length > 1) {
         String newsActivityId = newsActivity.split(":")[1];
@@ -608,7 +608,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       articleMetadataItemProperties.put("viewsCount", String.valueOf(articleViewsCount));
       articleMetadataItemProperties.put("viewers", articleViewers);
       articleMetadataItem.setProperties(articleMetadataItemProperties);
-      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId(), false);
     }
   }
 
@@ -650,7 +650,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         }
         articleMetadataItemProperties.put("schedulePostDate", scheduledPostDate);
         articleMetadataItem.setProperties(articleMetadataItemProperties);
-        metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+        metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId(), false);
       }
     }
   }
@@ -686,7 +686,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         articleMetaData.setCreatedDate(createDate.getTime());
       }
       noteService.updateNote(articlePage);
-      metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId());
+      metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId(), false);
     }
   }
 
