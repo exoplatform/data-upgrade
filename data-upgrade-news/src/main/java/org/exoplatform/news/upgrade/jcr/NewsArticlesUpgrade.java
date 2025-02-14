@@ -37,16 +37,21 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
 import io.meeds.notes.model.NotePageProperties;
+import jakarta.persistence.EntityManager;
+
 import org.apache.commons.collections4.ListUtils;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
@@ -113,6 +118,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private SettingService           settingService;
 
   private AttachmentStorage        attachmentStorage;
+  
+  private EntityManagerService entityManagerService;
 
   private int                      migratedNewsArticlesCount = 0;
 
@@ -143,7 +150,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                              IdentityManager identityManager,
                              IndexingService indexingService,
                              AttachmentStorage attachmentStorage,
-                             SettingService settingService) {
+                             SettingService settingService,
+                             EntityManagerService entityManagerService) {
     super(initParams);
     this.repositoryService = repositoryService;
     this.sessionProviderService = sessionProviderService;
@@ -157,6 +165,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     this.indexingService = indexingService;
     this.settingService = settingService;
     this.attachmentStorage = attachmentStorage;
+    this.entityManagerService = entityManagerService;
   }
 
   @Override
@@ -298,8 +307,6 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
           setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), newsArticleNode, "notePage");
           setArticleAttachments(pageVersion.getId(), newsArticleNode);
-          /* upgrade news id for news targets and favorite metadatata items */
-          setArticleMetadatasItems(article.getId(), newsArticleNodeUUID);
           if (getStringProperty(newsArticleNode, "publication:currentState").equals("published")) {
             setArticleActivities(article, newsArticleNode);
             setArticleViews(article, newsArticleNode);
@@ -310,6 +317,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           }
           // set the update and the created date
           setArticleCreateAndUpdateDate(article.getId(), article.getSpaceId(), newsArticleNode);
+          /* upgrade news id for news targets and favorite metadatata items */
+          setArticleMetadatasItems(article.getId(), newsArticleNodeUUID);
         } else if (getStringProperty(newsArticleNode, "publication:currentState").equals("draft")) {
 
           // drafts of not existing articles
@@ -362,9 +371,6 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
             setArticleIllustration(pageVersion.getParent(), article.getSpaceId(), publishedNode, "notePage");
             setArticleAttachments(pageVersion.getId(), publishedNode);
-            // upgrade news id for news targets and favorite metadatata items
-            setArticleMetadatasItems(article.getId(), newsArticleNodeUUID);
-
             setArticleActivities(article, publishedNode);
             setArticleViews(article, newsArticleNode);
 
@@ -391,7 +397,17 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
               newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
               setArticleIllustration(draftPage, draftForExistingArticle.getSpaceId(), newsArticleNode, "noteDraftPage");
             }
+            // upgrade news id for news targets and favorite metadatata items
+            setArticleMetadatasItems(article.getId(), newsArticleNodeUUID);
           }
+        }
+        if (!session.isLive()) {
+          session = sessionProvider.getSession(
+                                               repositoryService.getCurrentRepository()
+                                                                .getConfiguration()
+                                                                .getDefaultWorkspaceName(),
+                                               repositoryService.getCurrentRepository());
+          newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
         }
         newsArticleNode.remove();
         session.save();
@@ -528,9 +544,9 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
         if (articleMetadataItem != null) {
           articleMetadataItem.setProperties(articleMetadataItemProperties);
-          metadataService.updateMetadataItem(articleMetadataItem, creatorId);
+          metadataService.updateMetadataItem(articleMetadataItem, creatorId, false);
         } else {
-          metadataService.createMetadataItem(articleMetaDataObject, NOTES_METADATA_KEY, articleMetadataItemProperties, creatorId);
+          metadataService.createMetadataItem(articleMetaDataObject, NOTES_METADATA_KEY, articleMetadataItemProperties, creatorId, false);
         }
       }
     }
@@ -554,7 +570,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       }
       articleMetadataItemProperties.put("activities", articleActivities);
       articleMetadataItem.setProperties(articleMetadataItemProperties);
-      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId(), false);
       String newsActivity = articleActivities.split(";")[0];
       if (newsActivity.split(":").length > 1) {
         String newsActivityId = newsActivity.split(":")[1];
@@ -592,7 +608,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
       articleMetadataItemProperties.put("viewsCount", String.valueOf(articleViewsCount));
       articleMetadataItemProperties.put("viewers", articleViewers);
       articleMetadataItem.setProperties(articleMetadataItemProperties);
-      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+      metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId(), false);
     }
   }
 
@@ -634,18 +650,17 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         }
         articleMetadataItemProperties.put("schedulePostDate", scheduledPostDate);
         articleMetadataItem.setProperties(articleMetadataItemProperties);
-        metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId());
+        metadataService.updateMetadataItem(articleMetadataItem, articleMetadataItem.getCreatorId(), false);
       }
     }
   }
 
+  @ExoTransactional
   private void setArticleMetadatasItems(String targetId, String sourceId) throws RepositoryException {
-    MetadataObject metadataObject = new MetadataObject(NewsUtils.NEWS_METADATA_OBJECT_TYPE, sourceId);
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
-    for (MetadataItem metadataItem : metadataItems) {
-      metadataItem.setObjectId(targetId);
-      metadataService.updateMetadataItem(metadataItem, metadataItem.getCreatorId());
-    }
+    EntityManager entityManager = entityManagerService.getEntityManager();
+    String sqlStatement = "UPDATE SOC_METADATA_ITEMS SET OBJECT_ID = '" + targetId + "' WHERE OBJECT_ID = '" + sourceId + "';";
+    jakarta.persistence.Query query = entityManager.createNativeQuery(sqlStatement);
+    query.executeUpdate();
   }
 
   private void setArticleCreateAndUpdateDate(String articleId, String spaceId, Node newsNode) throws Exception {
@@ -671,7 +686,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
         articleMetaData.setCreatedDate(createDate.getTime());
       }
       noteService.updateNote(articlePage);
-      metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId());
+      metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId(), false);
     }
   }
 

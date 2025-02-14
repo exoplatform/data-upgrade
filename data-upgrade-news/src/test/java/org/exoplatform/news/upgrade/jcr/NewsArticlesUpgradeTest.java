@@ -17,6 +17,7 @@
 package org.exoplatform.news.upgrade.jcr;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -56,6 +57,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -84,6 +86,7 @@ import org.exoplatform.wiki.service.NoteService;
 
 import io.meeds.news.model.News;
 import io.meeds.news.service.NewsService;
+import jakarta.persistence.EntityManager;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NewsArticlesUpgradeTest {
@@ -134,6 +137,9 @@ public class NewsArticlesUpgradeTest {
   @Mock
   private AttachmentStorage                       attachmentStorage;
 
+  @Mock
+  private EntityManagerService                    entityManagerService;
+
   private NewsArticlesUpgrade                     newsArticlesUpgrade;
 
   @AfterClass
@@ -162,7 +168,8 @@ public class NewsArticlesUpgradeTest {
                                                   identityManager,
                                                   indexingService,
                                                   attachmentStorage,
-                                                  settingService);
+                                                  settingService,
+                                                  entityManagerService);
   }
 
   @Test
@@ -301,13 +308,17 @@ public class NewsArticlesUpgradeTest {
     News news2 = (News) method.invoke(newsArticlesUpgrade, node2, null);
     when(newsService.createNewsArticlePage(news1, "")).thenReturn(article);
     when(newsService.createNewsArticlePage(news2, "")).thenReturn(article);
+    EntityManager entityManager = mock(EntityManager.class);
+    jakarta.persistence.Query updateMetadataItemsQuery = mock(jakarta.persistence.Query.class);
+    when(entityManagerService.getEntityManager()).thenReturn(entityManager);
+    when(entityManager.createNativeQuery(anyString())).thenReturn(updateMetadataItemsQuery);
     // Run the processUpgrade method
     newsArticlesUpgrade.processUpgrade("1.0", "2.0");
 
     verify(newsService, times(2)).createNewsArticlePage(any(News.class), anyString());
     verify(noteService, times(2)).getPublishedVersionByPageIdAndLang(anyLong(), nullable(String.class));
     verify(metadataService, times(6)).getMetadataItemsByMetadataAndObject(any(), any(MetadataObject.class));
-    verify(metadataService, times(6)).updateMetadataItem(any(), anyLong());
+    verify(metadataService, times(6)).updateMetadataItem(any(), anyLong(), anyBoolean());
     verify(activityManager, times(1)).getActivity(any());
     verify(activityManager, times(1)).updateActivity(any(ExoSocialActivity.class), eq(false));
   }
