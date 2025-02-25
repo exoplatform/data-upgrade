@@ -24,6 +24,11 @@
       <artifactId>exo.jcr.component.ext</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.exoplatform.ecms</groupId>
+      <artifactId>ecms-core-services</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.exoplatform.addons.onlyoffice</groupId>
       <artifactId>exo-onlyoffice-editor-services</artifactId>
       <scope>compile</scope>
