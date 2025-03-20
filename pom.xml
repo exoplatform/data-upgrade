@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.exoplatform.addons</groupId>
     <artifactId>addons-exo-parent-pom</artifactId>
-    <version>19-M02</version>
+    <version>19-mips-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <groupId>org.exoplatform.addons.upgrade</groupId>
   <artifactId>upgrade</artifactId>
-  <version>7.1.x-SNAPSHOT</version>
+  <version>7.1.x-mips-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Add-on:: Data Upgrade Add-on</name>
   <scm>
@@ -34,9 +34,9 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.1.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.processes.version>7.1.x-SNAPSHOT</addon.exo.processes.version>
-    <addon.exo.onlyoffice.version>7.1.x-SNAPSHOT</addon.exo.onlyoffice.version>
+    <addon.exo.ecms.version>7.1.x-mips-SNAPSHOT</addon.exo.ecms.version>
+    <addon.exo.processes.version>7.1.x-mips-SNAPSHOT</addon.exo.processes.version>
+    <addon.exo.onlyoffice.version>7.1.x-mips-SNAPSHOT</addon.exo.onlyoffice.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
