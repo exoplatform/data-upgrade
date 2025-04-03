@@ -36,11 +36,7 @@ import javax.jcr.Value;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
-import io.meeds.notes.model.NotePageProperties;
-import jakarta.persistence.EntityManager;
-
 import org.apache.commons.collections4.ListUtils;
-
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -81,13 +77,15 @@ import org.exoplatform.wiki.model.DraftPage;
 import org.exoplatform.wiki.model.Page;
 import org.exoplatform.wiki.model.PageVersion;
 import org.exoplatform.wiki.service.NoteService;
+import org.exoplatform.wiki.utils.Utils;
 
 import io.meeds.news.model.News;
 import io.meeds.news.model.NewsPageObject;
 import io.meeds.news.search.NewsIndexingServiceConnector;
 import io.meeds.news.service.NewsService;
 import io.meeds.news.utils.NewsUtils;
-import org.exoplatform.wiki.utils.Utils;
+import io.meeds.notes.model.NotePageProperties;
+import jakarta.persistence.EntityManager;
 
 public class NewsArticlesUpgrade extends UpgradeProductPlugin {
 
@@ -116,8 +114,8 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private SettingService           settingService;
 
   private AttachmentStorage        attachmentStorage;
-  
-  private EntityManagerService entityManagerService;
+
+  private EntityManagerService     entityManagerService;
 
   private int                      migratedNewsArticlesCount = 0;
 
@@ -280,7 +278,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                      repositoryService.getCurrentRepository());
         Node newsArticleNode = session.getNodeByUUID(newsArticleNodeUUID);
         indexingService.unindex(NewsIndexingServiceConnector.TYPE, newsArticleNodeUUID);
-        News news = convertNewsNodeToNewEntity(newsArticleNode, null);
+        News news = convertNewsNodeToNewsEntity(newsArticleNode, null);
         NotePageProperties properties = news.getProperties();
         LOG.info("Migrating news article with id '{}' and title '{}'", newsArticleNodeUUID, news.getTitle());
         Space space = spaceService.getSpaceById(news.getSpaceId());
@@ -349,7 +347,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
             String versionNodeUUID = newsArticleNode.getProperty(AuthoringPublicationConstant.LIVE_REVISION_PROP).getString();
             Node versionNode = newsArticleNode.getVersionHistory().getSession().getNodeByUUID(versionNodeUUID);
             Node publishedNode = versionNode.getNode("jcr:frozenNode");
-            News publishedNews = convertNewsNodeToNewEntity(newsArticleNode, publishedNode);
+            News publishedNews = convertNewsNodeToNewsEntity(newsArticleNode, publishedNode);
             article = newsService.createNewsArticlePage(publishedNews, publishedNews.getAuthor());
             properties = publishedNews.getProperties();
             properties.setNoteId(Long.parseLong(article.getId()));
@@ -385,8 +383,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
                                                                                     publishedPage,
                                                                                     news.getCreationDate().getTime(),
                                                                                     space);
-              DraftPage draftPage = noteService.getDraftNoteById(draftForExistingArticle.getId(),
-                                                                 news.getDraftUpdaterUserName());
+              DraftPage draftPage = noteService.getDraftNoteById(draftForExistingArticle.getId(), news.getDraftUpdaterUserName());
               session = sessionProvider.getSession(
                                                    repositoryService.getCurrentRepository()
                                                                     .getConfiguration()
@@ -422,10 +419,11 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           }
         } catch (Exception exception) {
           if (article != null) {
-            LOG.warn("The deletion of the not migrated news article with id '{}' is not well completed, to be verified and deleted manually.", article.getId());
-          }
-          else if (draftArticle != null) {
-            LOG.warn("The deletion of the not migrated news draft article with id '{}' is not well completed, to be verified and deleted manually.", draftArticle.getId());
+            LOG.warn("The deletion of the not migrated news article with id '{}' is not well completed, to be verified and deleted manually.",
+                     article.getId());
+          } else if (draftArticle != null) {
+            LOG.warn("The deletion of the not migrated news draft article with id '{}' is not well completed, to be verified and deleted manually.",
+                     draftArticle.getId());
           }
         }
       }
@@ -433,7 +431,7 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
     return notMigratedNewsArticlesCountByTransaction;
   }
 
-  private News convertNewsNodeToNewEntity(Node newsNode, Node newsVersionNode) throws Exception {
+  private News convertNewsNodeToNewsEntity(Node newsNode, Node newsVersionNode) throws Exception {
     News news = new News();
     String portalOwner = CommonsUtils.getCurrentPortalOwner();
     news.setTitle(getStringProperty(newsVersionNode != null ? newsVersionNode : newsNode, "exo:title"));
@@ -544,7 +542,11 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
           articleMetadataItem.setProperties(articleMetadataItemProperties);
           metadataService.updateMetadataItem(articleMetadataItem, creatorId, false);
         } else {
-          metadataService.createMetadataItem(articleMetaDataObject, NOTES_METADATA_KEY, articleMetadataItemProperties, creatorId, false);
+          metadataService.createMetadataItem(articleMetaDataObject,
+                                             NOTES_METADATA_KEY,
+                                             articleMetadataItemProperties,
+                                             creatorId,
+                                             false);
         }
       }
     }
@@ -664,27 +666,27 @@ public class NewsArticlesUpgrade extends UpgradeProductPlugin {
   private void setArticleCreateAndUpdateDate(String articleId, String spaceId, Node newsNode) throws Exception {
     Page articlePage = noteService.getNoteById(articleId);
     if (articlePage != null) {
-      Date createDate = getDateProperty(newsNode, "exo:dateCreated");
-      Date updateDate = getDateProperty(newsNode, "exo:dateModified");
-      MetadataItem articleMetaData =
-                                   metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY,
-                                                                                       new NewsPageObject("newsPage",
-                                                                                                          articleId,
-                                                                                                          null,
-                                                                                                          Long.parseLong(spaceId)))
-                                                  .stream()
-                                                  .findFirst()
-                                                  .orElse(null);
-      if (updateDate != null) {
-        articlePage.setUpdatedDate(updateDate);
-        articleMetaData.setUpdatedDate(updateDate.getTime());
+      Date createdDate = getDateProperty(newsNode, "exo:dateCreated");
+      Date updatedDate = getDateProperty(newsNode, "exo:dateModified");
+      MetadataItem articleMetaDataItem =
+                                       metadataService.getMetadataItemsByMetadataAndObject(NEWS_METADATA_KEY,
+                                                                                           new NewsPageObject("newsPage",
+                                                                                                              articleId,
+                                                                                                              null,
+                                                                                                              Long.parseLong(spaceId)))
+                                                      .stream()
+                                                      .findFirst()
+                                                      .orElse(null);
+      if (updatedDate != null) {
+        articlePage.setUpdatedDate(updatedDate);
+        articleMetaDataItem.setUpdatedDate(updatedDate.getTime());
       }
-      if (createDate != null) {
-        articlePage.setCreatedDate(createDate);
-        articleMetaData.setCreatedDate(createDate.getTime());
+      if (createdDate != null) {
+        articlePage.setCreatedDate(createdDate);
+        articleMetaDataItem.setCreatedDate(createdDate.getTime());
       }
       noteService.updateNote(articlePage);
-      metadataService.updateMetadataItem(articleMetaData, articleMetaData.getCreatorId(), false);
+      metadataService.updateMetadataItem(articleMetaDataItem, articleMetaDataItem.getCreatorId(), false);
     }
   }
 
