@@ -301,7 +301,7 @@ public class NewsArticlesUpgradeTest {
     when(startTimeProperty.getDate()).thenReturn(startTimePropertyCalendar);
     when(startTimePropertyCalendar.getTime()).thenReturn(mock(Date.class));
 
-    Method method = newsArticlesUpgrade.getClass().getDeclaredMethod("convertNewsNodeToNewEntity", Node.class, Node.class);
+    Method method = newsArticlesUpgrade.getClass().getDeclaredMethod("convertNewsNodeToNewsEntity", Node.class, Node.class);
     method.setAccessible(true);
     News news1 = (News) method.invoke(newsArticlesUpgrade, node1, null);
     News news2 = (News) method.invoke(newsArticlesUpgrade, node2, null);

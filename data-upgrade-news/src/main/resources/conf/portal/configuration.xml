@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2024 eXo Platform SAS. This program is free software: 
+<!-- Copyright (C) 2025 eXo Platform SAS. This program is free software: 
   you can redistribute it and/or modify it under the terms of the GNU Affero 
   General Public License as published by the Free Software Foundation, either 
   version 3 of the License, or (at your option) any later version. This program 
@@ -145,6 +145,45 @@
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
           <value>7.0.0</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    
+    <component-plugin profiles="content">
+      <name>ContentDraftArticlesUpgrade</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.news.upgrade.ContentDraftArticlesUpgrade</type>
+      <description>Update draft articles</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>2</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>Execute this upgrade plugin only once</description>
+          <value>false</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>Target version of the plugin</description>
+          <value>7.0.1</value>
+        </value-param>
+        <value-param>
+          <name>content.inconsistent.draft.articles.upgrade</name>
+          <description>Content inconsistent draft articles upgrade</description>
+          <value>${content.inconsistent.draft.articles.upgrade:}</value>
         </value-param>
       </init-params>
     </component-plugin>
