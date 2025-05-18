@@ -79,12 +79,13 @@ import org.exoplatform.wiki.model.PageVersion;
 import org.exoplatform.wiki.service.NoteService;
 import org.exoplatform.wiki.utils.Utils;
 
-import io.meeds.news.model.News;
-import io.meeds.news.model.NewsPageObject;
-import io.meeds.news.search.NewsIndexingServiceConnector;
-import io.meeds.news.service.NewsService;
-import io.meeds.news.utils.NewsUtils;
+import io.meeds.content.news.model.News;
+import io.meeds.content.news.model.NewsPageObject;
+import io.meeds.content.news.search.NewsIndexingServiceConnector;
+import io.meeds.content.news.service.NewsService;
+import io.meeds.content.news.utils.NewsUtils;
 import io.meeds.notes.model.NotePageProperties;
+
 import jakarta.persistence.EntityManager;
 
 public class NewsArticlesUpgrade extends UpgradeProductPlugin {

@@ -83,8 +83,9 @@ import org.exoplatform.wiki.model.Page;
 import org.exoplatform.wiki.model.PageVersion;
 import org.exoplatform.wiki.service.NoteService;
 
-import io.meeds.news.model.News;
-import io.meeds.news.service.NewsService;
+import io.meeds.content.news.model.News;
+import io.meeds.content.news.service.NewsService;
+
 import jakarta.persistence.EntityManager;
 
 @RunWith(MockitoJUnitRunner.class)

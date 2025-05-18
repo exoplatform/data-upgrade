@@ -46,10 +46,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>data-upgrade-wiki</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-navigations</artifactId>
     </dependency>
     <dependency>
