@@ -49,11 +49,11 @@ import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.wiki.model.Page;
 import org.exoplatform.wiki.service.NoteService;
 
-import io.meeds.news.model.News;
-import io.meeds.news.model.NewsPageObject;
-import io.meeds.news.service.NewsService;
-import io.meeds.news.service.impl.NewsServiceImpl;
-import io.meeds.news.utils.NewsUtils;
+import io.meeds.content.news.model.News;
+import io.meeds.content.news.model.NewsPageObject;
+import io.meeds.content.news.service.NewsService;
+import io.meeds.content.news.utils.NewsUtils;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
@@ -256,12 +256,12 @@ public class ContentDraftArticlesUpgrade extends UpgradeProductPlugin {
   }
 
   private String setArticleActivities(String articleId, String articleSpaceId, ExoSocialActivity articleActivity) {
-    NewsPageObject articleMetaDataObject = new NewsPageObject(NewsServiceImpl.NEWS_METADATA_PAGE_OBJECT_TYPE,
+    NewsPageObject articleMetaDataObject = new NewsPageObject(NewsService.NEWS_METADATA_PAGE_OBJECT_TYPE,
                                                               articleId,
                                                               null,
                                                               Long.parseLong(articleSpaceId));
     MetadataItem articleMetadataItem = metadataService
-                                                      .getMetadataItemsByMetadataAndObject(NewsServiceImpl.NEWS_METADATA_KEY,
+                                                      .getMetadataItemsByMetadataAndObject(NewsService.NEWS_METADATA_KEY,
                                                                                            articleMetaDataObject)
                                                       .stream()
                                                       .findFirst()
@@ -301,8 +301,8 @@ public class ContentDraftArticlesUpgrade extends UpgradeProductPlugin {
       Date createdDate = draftArticlePage.getCreatedDate();
       Date updatedDate = draftArticlePage.getUpdatedDate();
       MetadataItem articleMetaDataItem =
-                                       metadataService.getMetadataItemsByMetadataAndObject(NewsServiceImpl.NEWS_METADATA_KEY,
-                                                                                           new NewsPageObject(NewsServiceImpl.NEWS_METADATA_PAGE_OBJECT_TYPE,
+                                       metadataService.getMetadataItemsByMetadataAndObject(NewsService.NEWS_METADATA_KEY,
+                                                                                           new NewsPageObject(NewsService.NEWS_METADATA_PAGE_OBJECT_TYPE,
                                                                                                               articleId,
                                                                                                               null,
                                                                                                               Long.parseLong(articleSpaceId)))
