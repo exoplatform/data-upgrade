@@ -31,6 +31,7 @@
     <module>data-upgrade-recordings-permissions</module>
     <module>data-upgrade-packaging</module>
     <module>data-upgrade-processes-documents</module>
+    <module>data-upgrade-hide-default-folders</module>
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
@@ -112,6 +113,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-move-folders</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-hide-default-folders</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
