@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2025 eXo Platform SAS
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <gnu.org/licenses>.
+ */
 package org.exoplatform.jcr.upgrade;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,29 +44,28 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 @RunWith(MockitoJUnitRunner.class)
 public class HideFoldersUpgradePluginTest {
   @Mock
-  private RepositoryService repositoryService;
+  private RepositoryService      repositoryService;
 
   @Mock
   private SessionProviderService sessionProviderService;
 
   @Mock
-  private ManageableRepository repository;
+  private ManageableRepository   repository;
 
   @Mock
-  private RepositoryEntry repositoryEntry;
+  private RepositoryEntry        repositoryEntry;
 
   @Mock
-  private SessionProvider sessionProvider;
-  @Mock
-  private SettingService settingService;
+  private SessionProvider        sessionProvider;
 
   @Mock
-  private Session session;
+  private SettingService         settingService;
 
   @Mock
-  private Workspace wokspace;
+  private Session                session;
 
-
+  @Mock
+  private Workspace              wokspace;
 
   @Test
   public void testHideFoldersUpgrade() throws Exception {
@@ -77,9 +92,9 @@ public class HideFoldersUpgradePluginTest {
     lenient().when(nodeIterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
     lenient().when(nodeIterator.nextNode()).thenReturn(node);
     HideDefaultFoldersUpgradePlugin plugin = new HideDefaultFoldersUpgradePlugin(initParams,
-            repositoryService,
-            settingService,
-            sessionProviderService);
+                                                                                 repositoryService,
+                                                                                 settingService,
+                                                                                 sessionProviderService);
 
     plugin.processUpgrade(null, null);
     verify(node, times(3)).save();

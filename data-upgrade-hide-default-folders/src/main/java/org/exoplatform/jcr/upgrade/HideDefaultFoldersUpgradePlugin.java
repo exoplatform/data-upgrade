@@ -38,20 +38,24 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 /**
- * plugin will be executed in order to hide already created default users folders
+ * plugin will be executed in order to hide already created default users
+ * folders
  */
 public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log log = ExoLogger.getLogger(HideDefaultFoldersUpgradePlugin.class.getName());
+  private static final Log             log                 = ExoLogger.getLogger(HideDefaultFoldersUpgradePlugin.class.getName());
 
-  private static final String PLUGIN_NAME = "HideDefaultFoldersUpgrade";
+  private static final String          PLUGIN_NAME         = "HideDefaultFoldersUpgrade";
 
-  private static final String PLUGIN_EXECUTED_KEY = "hideDefaultFoldersUpgradeExecuted";
-  private final RepositoryService repositoryService;
+  private static final String          PLUGIN_EXECUTED_KEY = "hideDefaultFoldersUpgradeExecuted";
+
+  private final RepositoryService      repositoryService;
+
   private final SessionProviderService sessionProviderService;
-  private final SettingService settingService;
-  private boolean upgradeSacceeded = false;
 
+  private final SettingService         settingService;
+
+  private boolean                      upgradeSacceeded    = false;
 
   public HideDefaultFoldersUpgradePlugin(InitParams initParams,
                                          RepositoryService repositoryService,
@@ -68,8 +72,8 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
                                         String previousGroupVersion,
                                         UpgradePluginExecutionContext upgradePluginExecutionContext) {
     SettingValue<?> settingValue = settingService.get(Context.GLOBAL.id(PLUGIN_NAME),
-            Scope.APPLICATION.id(PLUGIN_NAME),
-            PLUGIN_EXECUTED_KEY);
+                                                      Scope.APPLICATION.id(PLUGIN_NAME),
+                                                      PLUGIN_EXECUTED_KEY);
     return settingValue == null;
   }
 
@@ -77,9 +81,9 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
   public void afterUpgrade() {
     if (upgradeSacceeded) {
       settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
-              Scope.APPLICATION.id(PLUGIN_NAME),
-              PLUGIN_EXECUTED_KEY,
-              SettingValue.create(true));
+                         Scope.APPLICATION.id(PLUGIN_NAME),
+                         PLUGIN_EXECUTED_KEY,
+                         SettingValue.create(true));
     }
   }
 
@@ -95,14 +99,18 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
     try {
       sessionProvider = sessionProviderService.getSystemSessionProvider(null);
       Session session = sessionProvider.getSession(
-              repositoryService.getCurrentRepository()
-                      .getConfiguration()
-                      .getDefaultWorkspaceName(),
-              repositoryService.getCurrentRepository());
+                                                   repositoryService.getCurrentRepository()
+                                                                    .getConfiguration()
+                                                                    .getDefaultWorkspaceName(),
+                                                   repositoryService.getCurrentRepository());
       Node users = (Node) session.getItem("/Users");
-
       String queryString =
-              "SELECT * FROM nt:base WHERE jcr:path LIKE '%/Private/%' and (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder')  AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder') AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'";
+                         """
+                             SELECT * FROM nt:base
+                             WHERE jcr:path LIKE '%/Private/%'
+                             AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder')
+                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder')AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'"
+                             """;
       Query jcrQuery = users.getSession().getWorkspace().getQueryManager().createQuery(queryString, Query.SQL);
       QueryResult queryResult = jcrQuery.execute();
       NodeIterator nodeIterator = queryResult.getNodes();
@@ -118,14 +126,12 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
         }
       }
       log.info("End hiding of {}/{} folders. It took {} ms",
-              hidedFoldersCount,
-              totalFoldersCount,
-              (System.currentTimeMillis() - startupTime));
+               hidedFoldersCount,
+               totalFoldersCount,
+               (System.currentTimeMillis() - startupTime));
       upgradeSacceeded = true;
     } catch (Exception e) {
-      if (log.isErrorEnabled()) {
-        log.error("An unexpected error occurs when hiding folders:", e);
-      }
+      log.error("An unexpected error occurs when hiding folders:", e);
     } finally {
       if (sessionProvider != null) {
         sessionProvider.close();
