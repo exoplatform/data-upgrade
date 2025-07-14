@@ -43,7 +43,7 @@ import org.exoplatform.services.log.Log;
  */
 public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
 
-  private static final Log             log                 = ExoLogger.getLogger(HideDefaultFoldersUpgradePlugin.class.getName());
+  private static final Log             LOG                 = ExoLogger.getLogger(HideDefaultFoldersUpgradePlugin.class.getName());
 
   private static final String          PLUGIN_NAME         = "HideDefaultFoldersUpgrade";
 
@@ -93,7 +93,7 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
     long startupTime = System.currentTimeMillis();
     int hidedFoldersCount = 0;
     long totalFoldersCount = 0;
-    log.info("Start upgrade : Hiding default folders");
+    LOG.info("Start upgrade : Hiding default folders");
     SessionProvider sessionProvider = null;
     RequestLifeCycle.begin(PortalContainer.getInstance());
     try {
@@ -115,23 +115,23 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
       QueryResult queryResult = jcrQuery.execute();
       NodeIterator nodeIterator = queryResult.getNodes();
       totalFoldersCount = nodeIterator.getSize();
-      log.info("Total number of folders: {}", totalFoldersCount);
+      LOG.info("Total number of folders: {}", totalFoldersCount);
       while (nodeIterator.hasNext()) {
         Node node = nodeIterator.nextNode();
         node.addMixin("exo:hiddenable");
         node.save();
         hidedFoldersCount++;
         if (hidedFoldersCount % 1000 == 0) {
-          log.info("{} folders hidden ", hidedFoldersCount);
+          LOG.info("{} folders hidden ", hidedFoldersCount);
         }
       }
-      log.info("End hiding of {}/{} folders. It took {} ms",
+      LOG.info("End hiding of {}/{} folders. It took {} ms",
                hidedFoldersCount,
                totalFoldersCount,
                (System.currentTimeMillis() - startupTime));
       upgradeSacceeded = true;
     } catch (Exception e) {
-      log.error("An unexpected error occurs when hiding folders:", e);
+      LOG.error("An unexpected error occurs when hiding folders:", e);
     } finally {
       if (sessionProvider != null) {
         sessionProvider.close();
