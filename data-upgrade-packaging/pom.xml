@@ -68,6 +68,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-processes-documents</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-hide-default-folders</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <finalName>data-upgrade-addon</finalName>
