@@ -109,8 +109,9 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
                              SELECT * FROM nt:base
                              WHERE jcr:path LIKE '%/Private/%'
                              AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder')
-                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder')AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'"
+                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder')AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'
                              """;
+
       Query jcrQuery = users.getSession().getWorkspace().getQueryManager().createQuery(queryString, Query.SQL);
       QueryResult queryResult = jcrQuery.execute();
       NodeIterator nodeIterator = queryResult.getNodes();
