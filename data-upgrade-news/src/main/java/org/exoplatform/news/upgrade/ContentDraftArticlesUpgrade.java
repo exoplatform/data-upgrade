@@ -185,7 +185,8 @@ public class ContentDraftArticlesUpgrade extends UpgradeProductPlugin {
     SettingValue<?> settingValue = settingService.get(Context.GLOBAL.id(PLUGIN_NAME),
                                                       Scope.APPLICATION.id(PLUGIN_NAME),
                                                       PLUGIN_EXECUTED_KEY);
-    boolean shouldUpgrade = super.shouldProceedToUpgrade(newVersion, previousGroupVersion, upgradePluginExecutionContext);
+    int executionCount = upgradePluginExecutionContext == null ? 0 : upgradePluginExecutionContext.getExecutionCount();
+    boolean shouldUpgrade = !isExecuteOnlyOnce() || executionCount == 0;
     if (!shouldUpgrade && settingValue == null) {
       settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
                          Scope.APPLICATION.id(PLUGIN_NAME),

@@ -101,8 +101,12 @@ public class ContentDraftArticlesUpgradeTest {
     ValueParam valueParam2 = new ValueParam();
     valueParam2.setName("content.inconsistent.draft.articles.upgrade");
     valueParam2.setValue("1,1;2,2");
+    ValueParam valueParam3 = new ValueParam();
+    valueParam3.setName("plugin.upgrade.execute.once");
+    valueParam3.setValue("true");
     initParams.addParameter(valueParam1);
     initParams.addParameter(valueParam2);
+    initParams.addParameter(valueParam3);
     contentDraftArticlesUpgrade = new ContentDraftArticlesUpgrade(initParams,
                                                                   activityManager,
                                                                   identityManager,
