@@ -72,6 +72,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>data-upgrade-hide-default-folders</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>data-upgrade-documents-permissions</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <finalName>data-upgrade-addon</finalName>
