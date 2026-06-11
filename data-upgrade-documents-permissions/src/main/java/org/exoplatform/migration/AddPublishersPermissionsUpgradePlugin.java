@@ -42,7 +42,6 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.wcm.core.NodetypeConstant;
 import org.exoplatform.services.jcr.access.PermissionType;
 import io.meeds.common.ContainerTransactional;
-import org.exoplatform.documents.model.*;
 
 import jakarta.persistence.EntityManager;
 
@@ -133,6 +132,7 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
       }
     } catch (Exception e) {
       LOG.error("An error occurred when upgrading redactional spaces documents:", e);
+      this.upgradeFailed = true;
     } finally {
       if (sessionProvider != null) {
         sessionProvider.close();
