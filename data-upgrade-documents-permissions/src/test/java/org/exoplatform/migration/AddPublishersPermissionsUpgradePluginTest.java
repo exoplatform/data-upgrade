@@ -205,6 +205,24 @@ public class AddPublishersPermissionsUpgradePluginTest {
   }
 
   @Test
+  public void testProcessUpgrade_resumeFromCheckpoint() throws Exception {
+    when(settingService.get(any(), any(), anyString())).thenAnswer(invocation -> SettingValue.create("2"));
+
+    Space space1 = new Space();
+    space1.setId("1");
+    space1.setGroupId("/platform/users");
+    space1.setPrettyName("Space1");
+    when(spaceService.getSpaceById("1")).thenReturn(space1);
+
+    mockSession();
+    doReturn(List.of(1L, 2L)).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
+    addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0");
+
+    verify(spaceService, never()).getSpaceById("2");
+    verify(spaceService, times(1)).getSpaceById("1");
+  }
+
+  @Test
   public void testProcessUpgrade_someSpacesFail() throws Exception {
     mockSession();
     when(spaceService.getSpaceById("1")).thenThrow(new RuntimeException("space error"));

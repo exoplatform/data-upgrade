@@ -70,6 +70,8 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
 
   private static final String    PLUGIN_EXECUTED_KEY            = "permissionsUpgradeExecuted";
 
+  private static final String    COMPLETED_SPACES_KEY           = "completedSpaceIds";
+
   private boolean                upgradeFailed                  = false;
 
   private SpaceService           spaceService;
@@ -107,6 +109,8 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
     int notMigratedRedactionalSpacesCount = 0;
     int processedRedactionalSpacesCount = 0;
     int totalRedactionalSpacesCount = 0;
+    int alreadyCompletedCount = 0;
+    Set<String> completedSpaceIds = getCompletedSpaceIds();
     try {
       ManageableRepository repository = repositoryService.getCurrentRepository();
       sessionProvider = sessionProviderService.getSystemSessionProvider(null);
@@ -116,17 +120,37 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
       if (spaceIds.isEmpty()) {
         return;
       }
+
+      List<Long> remainingSpaces = new ArrayList<>();
+      for (Long id : spaceIds) {
+        if (!completedSpaceIds.contains(id.toString())) {
+          remainingSpaces.add(id);
+        } else {
+          alreadyCompletedCount++;
+        }
+      }
+
+      if (remainingSpaces.isEmpty()) {
+        LOG.info("All redactional spaces were already migrated");
+        processedRedactionalSpacesCount = spaceIds.size();
+        migratedRedactionalSpacesCount = alreadyCompletedCount;
+        totalRedactionalSpacesCount = spaceIds.size();
+        return;
+      }
+
       totalRedactionalSpacesCount = spaceIds.size();
-      LOG.info("Total number of redactional spaces to be migrated: {}", totalRedactionalSpacesCount);
-      for (List<Long> spaceIdsChunk : ListUtils.partition(spaceIds, 10)) {
-        int notMigratedRedactionalSpacesCountByTransaction = manageDocumentsPermissions(spaceIdsChunk, session);
+      LOG.info("Total redactional spaces: {}, remaining to migrate: {}",
+               totalRedactionalSpacesCount, remainingSpaces.size());
+      for (List<Long> spaceIdsChunk : ListUtils.partition(remainingSpaces, 10)) {
+        int notMigratedRedactionalSpacesCountByTransaction = manageDocumentsPermissions(spaceIdsChunk, session, completedSpaceIds);
         int processedRedactionalSpacesCountByTransaction = spaceIdsChunk.size();
         processedRedactionalSpacesCount += processedRedactionalSpacesCountByTransaction;
         migratedRedactionalSpacesCount += processedRedactionalSpacesCountByTransaction - notMigratedRedactionalSpacesCountByTransaction;
         notMigratedRedactionalSpacesCount += notMigratedRedactionalSpacesCountByTransaction;
+        saveCompletedSpaceIds(completedSpaceIds);
         LOG.info("Redactional spaces documents migration progress: processed={}/{} succeeded={} error={}",
                 processedRedactionalSpacesCount,
-                totalRedactionalSpacesCount,
+                remainingSpaces.size(),
                 migratedRedactionalSpacesCount,
                 notMigratedRedactionalSpacesCount);
       }
@@ -138,7 +162,7 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
         sessionProvider.close();
       }
     }
-    if (totalRedactionalSpacesCount == migratedRedactionalSpacesCount) {
+    if (alreadyCompletedCount + migratedRedactionalSpacesCount == totalRedactionalSpacesCount) {
       LOG.info("End redactional spaces documents migration successful migration: total={} succeeded={} error={}. It tooks {} ms.",
               totalRedactionalSpacesCount,
               migratedRedactionalSpacesCount,
@@ -159,6 +183,9 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
   @Override
   public void afterUpgrade() {
     if (!upgradeFailed) {
+      settingService.remove(Context.GLOBAL.id(PLUGIN_NAME),
+                            Scope.APPLICATION.id(PLUGIN_NAME),
+                            COMPLETED_SPACES_KEY);
       settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
               Scope.APPLICATION.id(PLUGIN_NAME),
               PLUGIN_EXECUTED_KEY,
@@ -193,9 +220,34 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
     return query.getResultList();
   }
 
-  private int manageDocumentsPermissions(List<Long> spaceIds, Session session) {
+  private Set<String> getCompletedSpaceIds() {
+    SettingValue<?> value = settingService.get(Context.GLOBAL.id(PLUGIN_NAME),
+                                               Scope.APPLICATION.id(PLUGIN_NAME),
+                                               COMPLETED_SPACES_KEY);
+    if (value == null || value.getValue() == null) {
+      return new HashSet<>();
+    }
+    String csv = (String) value.getValue();
+    if (StringUtils.isBlank(csv)) {
+      return new HashSet<>();
+    }
+    return new HashSet<>(Arrays.asList(csv.split(",")));
+  }
+
+  private void saveCompletedSpaceIds(Set<String> completedIds) {
+    String csv = String.join(",", completedIds);
+    settingService.set(Context.GLOBAL.id(PLUGIN_NAME),
+                       Scope.APPLICATION.id(PLUGIN_NAME),
+                       COMPLETED_SPACES_KEY,
+                       SettingValue.create(csv));
+  }
+
+  private int manageDocumentsPermissions(List<Long> spaceIds, Session session, Set<String> completedSpaceIds) {
     int notMigratedRedactionalSpacesCountByTransaction = 0;
     for (Long spaceId : spaceIds) {
+      if (completedSpaceIds.contains(spaceId.toString())) {
+        continue;
+      }
       try {
         Space space = spaceService.getSpaceById(spaceId.toString());
         LOG.info("Migrating redactional space documents with id '{}' and name '{}'", spaceId, space.getPrettyName());
@@ -204,6 +256,7 @@ public class AddPublishersPermissionsUpgradePlugin extends UpgradeProductPlugin 
           applyPublisherPermissions(spaceRootNode, space);
           session.save();
         }
+        completedSpaceIds.add(spaceId.toString());
         LOG.info("Success migrating redactional space documents with id '{}' and name '{}'", spaceId, space.getPrettyName());
       } catch (Exception e) {
         notMigratedRedactionalSpacesCountByTransaction++;
