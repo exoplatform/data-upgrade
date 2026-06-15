@@ -32,12 +32,14 @@
     <module>data-upgrade-packaging</module>
     <module>data-upgrade-processes-documents</module>
     <module>data-upgrade-hide-default-folders</module>
+    <module>data-upgrade-documents-permissions</module>
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
     <addon.exo.ecms.version>7.2.x-maintenance-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.processes.version>7.2.x-maintenance-SNAPSHOT</addon.exo.processes.version>
     <addon.exo.onlyoffice.version>7.2.x-maintenance-SNAPSHOT</addon.exo.onlyoffice.version>
+    <addon.exo.documents.version>7.2.x-maintenance-SNAPSHOT</addon.exo.documents.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
@@ -66,6 +68,14 @@
         <artifactId>exo-onlyoffice-editor-parent</artifactId>
         <groupId>org.exoplatform.addons.onlyoffice</groupId>
         <version>${addon.exo.onlyoffice.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.exoplatform.documents</groupId>
+        <artifactId>documents-parent</artifactId>
+        <version>${addon.exo.documents.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -118,6 +128,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-hide-default-folders</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-documents-permissions</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
