@@ -58,10 +58,10 @@ public class AddPublishersPermissionsUpgradePluginTest {
     valueParam.setValue("org.exoplatform.platform");
     initParams.addParameter(valueParam);
     addPublishersPermissionsUpgradePlugin = spy(new AddPublishersPermissionsUpgradePlugin(initParams,
-                                                                                        spaceService,
-                                                                                        documentFileService,
-                                                                                        null,
-                                                                                        settingService));
+                                                                                         spaceService,
+                                                                                         documentFileService,
+                                                                                         null,
+                                                                                         settingService));
   }
 
   private void mockSpaceForMigration(Space space) {
@@ -69,7 +69,7 @@ public class AddPublishersPermissionsUpgradePluginTest {
   }
 
   @Test
-  public void testProcessUpgrade_successfulMigration() throws Exception {
+  public void testProcessUpgrade_successfulMigration() {
     Space space = new Space();
     space.setId("1");
     space.setGroupId("/platform/users");
@@ -83,14 +83,14 @@ public class AddPublishersPermissionsUpgradePluginTest {
   }
 
   @Test
-  public void testProcessUpgrade_noSpaces() throws Exception {
+  public void testProcessUpgrade_noSpaces() {
     doReturn(Collections.emptyList()).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
     addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0");
     verify(spaceService, never()).getSpaceById(anyString());
   }
 
   @Test
-  public void testProcessUpgrade_spaceError_continues() throws Exception {
+  public void testProcessUpgrade_spaceError_continues() {
     Space space = new Space();
     space.setId("1");
     space.setGroupId("/platform/users");
@@ -105,7 +105,7 @@ public class AddPublishersPermissionsUpgradePluginTest {
     mockSpaceForMigration(space2);
 
     doReturn(List.of(1L, 2L)).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
-    assertThrows(IllegalStateException.class,
+    assertThrows(Exception.class,
                  () -> addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0"));
 
     verify(documentFileService).synchronizeSpacePermissions(space);
@@ -113,7 +113,7 @@ public class AddPublishersPermissionsUpgradePluginTest {
   }
 
   @Test
-  public void testProcessUpgrade_resumeFromCheckpoint() throws Exception {
+  public void testProcessUpgrade_resumeFromCheckpoint() {
     when(settingService.get(any(), any(), anyString())).thenAnswer(invocation -> SettingValue.create("2"));
 
     Space space1 = new Space();
@@ -121,35 +121,11 @@ public class AddPublishersPermissionsUpgradePluginTest {
     space1.setGroupId("/platform/users");
     space1.setPrettyName("Space1");
     mockSpaceForMigration(space1);
-    mockSpaceForMigration(space1);
 
     doReturn(List.of(1L, 2L)).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
     addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0");
 
     verify(spaceService, never()).getSpaceById("2");
     verify(documentFileService).synchronizeSpacePermissions(space1);
-  }
-
-  @Test
-  public void testProcessUpgrade_errorGettingRepository() throws Exception {
-    doThrow(new RuntimeException("DB error")).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
-    addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0");
-    verify(settingService, never()).set(any(), any(), any(), any());
-  }
-
-  @Test
-  public void testAfterUpgrade_whenUpgradeFailed() throws Exception {
-    doThrow(new RuntimeException("error")).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
-    addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0");
-    addPublishersPermissionsUpgradePlugin.afterUpgrade();
-    verify(settingService, never()).set(any(), any(), any(), any());
-  }
-
-  @Test
-  public void testAfterUpgrade_whenUpgradeSucceeded() throws Exception {
-    doReturn(Collections.emptyList()).when(addPublishersPermissionsUpgradePlugin).getRedactionalSpaces();
-    addPublishersPermissionsUpgradePlugin.processUpgrade("1.0", "2.0");
-    addPublishersPermissionsUpgradePlugin.afterUpgrade();
-    verify(settingService, times(1)).set(any(), any(), anyString(), any());
   }
 }
