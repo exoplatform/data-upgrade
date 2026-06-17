@@ -47,7 +47,7 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
 
   private static final Log             LOG                 = ExoLogger.getLogger(HideDefaultFoldersUpgradePlugin.class.getName());
 
-  private static final String          PLUGIN_NAME         = "HideDefaultFoldersUpgradePlugin";
+  private static final String          PLUGIN_NAME         = "HidePersonalDriveDefaultFoldersUpgrade";
 
   private static final String          PLUGIN_EXECUTED_KEY = String.format("%sExecuted", PLUGIN_NAME);
 
@@ -111,7 +111,7 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
                              SELECT * FROM nt:base
                              WHERE jcr:path LIKE '%/Private/%'
                              AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder' OR jcr:primaryType ='exo:symlink')
-                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder' OR (jcr:mixinTypes LIKE 'mix:documentsView' AND exo:name LIKE 'Public' ))
+                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder' OR exo:name LIKE 'Public')
                              AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'
                              """;
 
