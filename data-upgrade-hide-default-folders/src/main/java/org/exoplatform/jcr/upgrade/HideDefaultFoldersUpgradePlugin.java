@@ -18,6 +18,7 @@ package org.exoplatform.jcr.upgrade;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -32,6 +33,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
@@ -45,9 +47,9 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
 
   private static final Log             LOG                 = ExoLogger.getLogger(HideDefaultFoldersUpgradePlugin.class.getName());
 
-  private static final String          PLUGIN_NAME         = "HideDefaultFoldersUpgrade";
+  private static final String          PLUGIN_NAME         = "HidePersonalDriveDefaultFoldersUpgrade";
 
-  private static final String          PLUGIN_EXECUTED_KEY = "hideDefaultFoldersUpgradeExecuted";
+  private static final String          PLUGIN_EXECUTED_KEY = String.format("%sExecuted", PLUGIN_NAME);
 
   private final RepositoryService      repositoryService;
 
@@ -108,8 +110,9 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
                          """
                              SELECT * FROM nt:base
                              WHERE jcr:path LIKE '%/Private/%'
-                             AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder')
-                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder')AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'
+                             AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder' OR jcr:primaryType ='exo:symlink')
+                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder' OR exo:name LIKE 'Public')
+                             AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'
                              """;
 
       Query jcrQuery = users.getSession().getWorkspace().getQueryManager().createQuery(queryString, Query.SQL);
@@ -119,8 +122,12 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
       LOG.info("Total number of folders: {}", totalFoldersCount);
       while (nodeIterator.hasNext()) {
         Node node = nodeIterator.nextNode();
-        node.addMixin("exo:hiddenable");
-        node.save();
+        if (isPublicNode(node)) {
+          hidePublicNode(node);
+        } else {
+          node.addMixin("exo:hiddenable");
+          node.save();
+        }
         hidedFoldersCount++;
         if (hidedFoldersCount % 1000 == 0) {
           LOG.info("{} folders hidden ", hidedFoldersCount);
@@ -139,5 +146,20 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
       }
       RequestLifeCycle.end();
     }
+  }
+
+  private boolean isPublicNode(Node node) {
+    try {
+      return node.getName().equals("Public");
+    } catch (Exception exception) {
+      return false;
+    }
+  }
+
+  private void hidePublicNode(Node node) throws RepositoryException {
+    ExtendedNode extNode = (ExtendedNode) node;
+    extNode.removePermission("any");
+    extNode.addMixin("exo:hiddenable");
+    extNode.save();
   }
 }

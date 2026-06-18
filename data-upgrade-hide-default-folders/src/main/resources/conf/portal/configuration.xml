@@ -22,7 +22,7 @@
   <external-component-plugins>
     <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
     <component-plugin  profiles="ecms">
-      <name>HideUsersDefaultFolders</name>
+      <name>HideDefaultFoldersUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.jcr.upgrade.HideDefaultFoldersUpgradePlugin</type>
       <description>Hide user default folders</description>
@@ -50,7 +50,7 @@
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>Target version of the plugin</description>
-          <value>7.1.0</value>
+          <value>7.2.0</value>
         </value-param>
       </init-params>
     </component-plugin>
