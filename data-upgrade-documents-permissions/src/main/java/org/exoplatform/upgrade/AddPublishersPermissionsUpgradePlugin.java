@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.migration;
+package org.exoplatform.upgrade;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import jakarta.persistence.TypedQuery;
