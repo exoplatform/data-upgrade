@@ -42,8 +42,6 @@ public class RemoveAnyPermissionUpgradePlugin extends UpgradeProductPlugin {
 
   private static final String ANY_SPACES_JCR_SQL_QUERY = "SELECT * FROM exo:privilegeable WHERE jcr:path LIKE '/Groups/spaces/%'";
 
-  private static final String ANY_USERS_JCR_SQL_QUERY  = "SELECT * FROM exo:privilegeable WHERE jcr:path LIKE '/Users/%'";
-
   private RepositoryService   repositoryService;
 
   public RemoveAnyPermissionUpgradePlugin(InitParams initParams,
@@ -55,7 +53,6 @@ public class RemoveAnyPermissionUpgradePlugin extends UpgradeProductPlugin {
   @Override
   public void processUpgrade(String oldVersion, String newVersion) throws UpgradePluginException {
     upgradePathType(ANY_SPACES_JCR_SQL_QUERY, "spaces");
-    upgradePathType(ANY_USERS_JCR_SQL_QUERY, "users");
   }
 
   private void upgradePathType(String jcrSqlQuery, String pathType) {
