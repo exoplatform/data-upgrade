@@ -108,10 +108,10 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
       Node users = (Node) session.getItem("/Users");
       String queryString =
                          """
-                             SELECT * FROM nt:base
+                             SELECT exo:hiddenable FROM nt:base
                              WHERE jcr:path LIKE '%/Private/%'
                              AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder' OR jcr:primaryType ='exo:symlink')
-                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder' OR exo:name LIKE 'Public')
+                             AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder' OR exo:name LIKE 'Public' OR exo:name LIKE 'public')
                              AND NOT jcr:mixinTypes LIKE 'exo:hiddenable'
                              """;
 
@@ -150,7 +150,7 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
 
   private boolean isPublicNode(Node node) {
     try {
-      return node.getName().equals("Public");
+      return node.getName().equals("Public") || node.getName().equals("public");
     } catch (Exception exception) {
       return false;
     }
