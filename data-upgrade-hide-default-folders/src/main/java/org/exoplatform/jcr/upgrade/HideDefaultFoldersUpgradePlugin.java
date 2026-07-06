@@ -108,7 +108,7 @@ public class HideDefaultFoldersUpgradePlugin extends UpgradeProductPlugin {
       Node users = (Node) session.getItem("/Users");
       String queryString =
                          """
-                             SELECT exo:hiddenable FROM nt:base
+                             SELECT * FROM exo:privilegeable
                              WHERE jcr:path LIKE '%/Private/%'
                              AND  (jcr:primaryType ='nt:unstructured' OR jcr:primaryType ='nt:folder' OR jcr:primaryType ='exo:symlink')
                              AND (jcr:mixinTypes LIKE 'exo:musicFolder' OR jcr:mixinTypes LIKE 'exo:pictureFolder' OR jcr:mixinTypes LIKE 'exo:videoFolder' OR jcr:mixinTypes LIKE 'exo:favoriteFolder' OR exo:name LIKE 'Public' OR exo:name LIKE 'public')
