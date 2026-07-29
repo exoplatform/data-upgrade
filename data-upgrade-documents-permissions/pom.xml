@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.exoplatform.addons.upgrade</groupId>
     <artifactId>upgrade</artifactId>
-    <version>7.3.x-SNAPSHOT</version>
+    <version>7.3.x-whitepaper-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-upgrade-documents-permissions</artifactId>
