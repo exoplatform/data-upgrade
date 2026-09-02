@@ -36,10 +36,10 @@
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
-    <addon.exo.ecms.version>7.3.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.processes.version>7.3.x-SNAPSHOT</addon.exo.processes.version>
-    <addon.exo.onlyoffice.version>7.3.x-SNAPSHOT</addon.exo.onlyoffice.version>
-    <addon.exo.documents.version>7.3.x-SNAPSHOT</addon.exo.documents.version>
+    <addon.exo.ecms.version>7.3.0-20260902</addon.exo.ecms.version>
+    <addon.exo.processes.version>7.3.0-20260902</addon.exo.processes.version>
+    <addon.exo.onlyoffice.version>7.3.0-20260902</addon.exo.onlyoffice.version>
+    <addon.exo.documents.version>7.3.0-20260902</addon.exo.documents.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
