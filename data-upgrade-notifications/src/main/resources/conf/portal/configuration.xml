@@ -65,6 +65,44 @@
         </value-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>PostReportNotificationSettingsUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.portal.upgrade.notification.NotificationSettingsUpgradePlugin</type>
+      <description>Activates the Post Reported notification for users with already stored notification settings</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>1</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>Execute this upgrade plugin only once</description>
+          <value>true</value>
+        </value-param>
+        <!-- no plugin.upgrade.target.version on purpose: a bare target like
+          7.3.0 ranks before 7.3.0-exo-<date> and 7.3.x-*-SNAPSHOT stored
+          versions (Maven ComparableVersion), which would skip the plugin on
+          every instance already running a 7.3.0 build; execute.once already
+          guarantees a single execution per instance -->
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>Asynchronous execution</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>notification.upgrade.settings.plugin.types</name>
+          <description>Execute this notification plugin Types</description>
+          <value>PostReportPlugin</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 </configuration>
 
