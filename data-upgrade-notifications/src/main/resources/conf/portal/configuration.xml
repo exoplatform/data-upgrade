@@ -86,11 +86,11 @@
           <description>Execute this upgrade plugin only once</description>
           <value>true</value>
         </value-param>
-        <value-param>
-          <name>plugin.upgrade.target.version</name>
-          <description>Target version of the plugin</description>
-          <value>7.3.0</value>
-        </value-param>
+        <!-- no plugin.upgrade.target.version on purpose: a bare target like
+          7.3.0 ranks before 7.3.0-exo-<date> and 7.3.x-*-SNAPSHOT stored
+          versions (Maven ComparableVersion), which would skip the plugin on
+          every instance already running a 7.3.0 build; execute.once already
+          guarantees a single execution per instance -->
         <value-param>
           <name>plugin.upgrade.async.execution</name>
           <description>Asynchronous execution</description>
