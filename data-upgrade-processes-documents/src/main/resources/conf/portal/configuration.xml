@@ -23,7 +23,7 @@
 
   <external-component-plugins>
     <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
-    <component-plugin  profiles="processes">
+    <component-plugin profiles="processes,onlyoffice">
       <name>DocumentsProcessesPlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.migration.ProcessesDocumentsUpgradePlugin</type>
