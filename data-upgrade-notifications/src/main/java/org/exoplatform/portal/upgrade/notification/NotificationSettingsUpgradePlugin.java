@@ -1,5 +1,6 @@
 package org.exoplatform.portal.upgrade.notification;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,6 +52,19 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
   public void processUpgrade(String oldVersion, String newVersion) {
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
     List<String> pluginTypes = Arrays.asList(notificationPluginTypes.replace("\n", "").replaceAll("\\s", "").split(","));
+    // resolve the plugin configs before touching any user and fail fast when
+    // one is missing: throwing here means the framework stores no execution,
+    // so the upgrade is attempted again on next startup instead of burning
+    // its execute-once on a run that could not do its job
+    List<PluginInfo> pluginConfigs = new ArrayList<>();
+    for (String pluginType : pluginTypes) {
+      PluginInfo pluginTypeConfig = findPlugin(pluginType);
+      if (pluginTypeConfig == null) {
+        throw new IllegalStateException("Notification plugin " + pluginType
+            + " is not registered: aborting the notification settings upgrade so it is attempted again on next startup");
+      }
+      pluginConfigs.add(pluginTypeConfig);
+    }
     int pageSize = 20;
     int current = 0;
     try {
@@ -73,16 +87,9 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
               entityManagerService.startRequest(currentContainer);
               UserSetting userSetting = this.userSettingService.get(userName);
               if (userSetting != null) {
-
-                for (String pluginType : pluginTypes) {
-                  PluginInfo pluginTypeConfig = findPlugin(pluginType);
-                  if (pluginTypeConfig == null) {
-                    LOG.info("=== couldn't initialize the settings of {} , plugin is not found", pluginType);
-                    continue;
-                  }
+                for (PluginInfo pluginTypeConfig : pluginConfigs) {
                   updateSetting(userSetting, pluginTypeConfig);
                 }
-
                 userSettingService.save(userSetting);
               }
             } catch (Exception e) {
@@ -96,7 +103,10 @@ public class NotificationSettingsUpgradePlugin extends UpgradeProductPlugin {
       long endTime = System.currentTimeMillis();
       LOG.info("  Users Notifications settings initialised in {} ms", (endTime - startTime));
     } catch (Exception e) {
-      LOG.error("Error while initialisation of users Notifications settings - Cause :", e.getMessage(), e);
+      // propagate instead of swallowing: the framework stores no execution on
+      // failure, so the upgrade is attempted again on next startup instead of
+      // burning its execute-once on an ineffective run
+      throw new IllegalStateException("Error while initializing users notifications settings", e);
     } finally {
       entityManagerService.endRequest(currentContainer);
     }

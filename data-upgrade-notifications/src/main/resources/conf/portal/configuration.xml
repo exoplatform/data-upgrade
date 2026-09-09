@@ -66,7 +66,13 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>PostReportNotificationSettingsUpgradePlugin</name>
+      <!-- renamed from PostReportNotificationSettingsUpgradePlugin: the plugin
+        name is the execution-tracking key, and the first wave could burn its
+        execute-once on an ineffective run (its failures were swallowed, see
+        NotificationSettingsUpgradePlugin) - a fresh name guarantees a re-run,
+        which is safe because activating a plugin in user settings is
+        idempotent -->
+      <name>PostReportNotificationActivationUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
       <type>org.exoplatform.portal.upgrade.notification.NotificationSettingsUpgradePlugin</type>
       <description>Activates the Post Reported notification for users with already stored notification settings</description>
