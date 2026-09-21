@@ -33,6 +33,7 @@
     <module>data-upgrade-processes-documents</module>
     <module>data-upgrade-hide-default-folders</module>
     <module>data-upgrade-documents-permissions</module>
+    <module>data-upgrade-email-contacts</module>
   </modules>
   <properties>
     <!-- 3rd party libraries versions -->
@@ -40,6 +41,7 @@
     <addon.exo.processes.version>7.3.x-SNAPSHOT</addon.exo.processes.version>
     <addon.exo.onlyoffice.version>7.3.x-SNAPSHOT</addon.exo.onlyoffice.version>
     <addon.exo.documents.version>7.3.x-SNAPSHOT</addon.exo.documents.version>
+    <addon.exo.email-connector.version>7.3.x-SNAPSHOT</addon.exo.email-connector.version>
 
     <!-- Sonar properties -->
     <sonar.organization>exoplatform</sonar.organization>
@@ -76,6 +78,14 @@
         <groupId>org.exoplatform.documents</groupId>
         <artifactId>documents-parent</artifactId>
         <version>${addon.exo.documents.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.exoplatform.addons.email-connector</groupId>
+        <artifactId>email-connector-parent</artifactId>
+        <version>${addon.exo.email-connector.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -133,6 +143,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>data-upgrade-documents-permissions</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>data-upgrade-email-contacts</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
