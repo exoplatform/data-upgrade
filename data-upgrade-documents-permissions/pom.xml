@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.exoplatform.addons.upgrade</groupId>
     <artifactId>upgrade</artifactId>
-    <version>7.3.x-ai-contribution-SNAPSHOT</version>
+    <version>7.3.x-rtd-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-upgrade-documents-permissions</artifactId>
